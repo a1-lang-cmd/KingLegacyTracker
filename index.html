@@ -144,6 +144,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .section-label.kraken h3{color:#60a5fa}.section-label.drakenfyr h3{color:#f87171}
 .count{background:var(--surface2);border-radius:20px;padding:1px 8px;font-size:.72rem;font-weight:700;color:var(--text-dim)}
 .cards-grid{display:grid;gap:9px;margin-bottom:24px}
+/* ── FILTER BAR ── */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:12px 14px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-bar input[type=text]{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;outline:none}
+.filter-bar input[type=text]:focus{border-color:var(--sea)}
+.sort-btn-group{display:flex;gap:4px}
+.sort-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sort-btn.active{background:rgba(14,165,233,.12);color:var(--sea-glow);border-color:rgba(14,165,233,.35)}
+.sort-btn:hover:not(.active){background:var(--surface2);color:var(--text)}
+.flat-cards{display:grid;gap:9px;margin-bottom:8px}
+.section-header-inline{font-family:'Cinzel Decorative',serif;font-size:.6rem;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;padding:10px 2px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.no-results{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:.9rem}
 .card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
@@ -419,18 +430,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         <button class="submit-btn" id="add-btn" onclick="addEntry()">&#43; Add Timer</button>
       </div>
     </div>
-    <div class="section-label sea"><h3>&#127754; Sea Beasts</h3><span class="count" id="my-sea-count">0</span></div>
-    <div class="cards-grid" id="my-sea-cards"></div>
-    <div class="section-label hydra"><h3>&#128009; Hydras</h3><span class="count" id="my-hydra-count">0</span></div>
-    <div class="cards-grid" id="my-hydra-cards"></div>
-    <div class="section-label crab"><h3>&#129408; Crabs</h3><span class="count" id="my-crab-count">0</span></div>
-    <div class="cards-grid" id="my-crab-cards"></div>
-    <div class="section-label abyssal"><h3>&#129422; Abyssal Tyrants</h3><span class="count" id="my-abyssal-count">0</span></div>
-    <div class="cards-grid" id="my-abyssal-cards"></div>
-    <div class="section-label kraken"><h3>&#129065; Krakens</h3><span class="count" id="my-kraken-count">0</span></div>
-    <div class="cards-grid" id="my-kraken-cards"></div>
-    <div class="section-label drakenfyr"><h3>&#128293; Drakenfyrs</h3><span class="count" id="my-drakenfyr-count">0</span></div>
-    <div class="cards-grid" id="my-drakenfyr-cards"></div>
+    <!-- MY FILTER BAR -->
+    <div class="filter-bar">
+      <input type="text" id="my-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyMyFilters()" />
+      <div class="sort-btn-group">
+        <button class="sort-btn active" id="my-sort-soonest" onclick="setMySort('soonest')">&#9650; Soonest</button>
+        <button class="sort-btn" id="my-sort-latest" onclick="setMySort('latest')">&#9660; Latest</button>
+        <button class="sort-btn" id="my-sort-type" onclick="setMySort('type')">&#127793; Type</button>
+      </div>
+    </div>
+    <div class="flat-cards" id="my-flat-cards"></div>
   </div>
 
   <!-- PUBLIC -->
@@ -440,18 +449,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <div><h3>Public Spawn Board</h3><p>Live timers shared by all players. Posted by username.</p></div>
       <button class="refresh-btn" onclick="loadPublicTimers()">&#8635; Refresh</button>
     </div>
-    <div class="section-label sea"><h3>&#127754; Sea Beasts</h3><span class="count" id="pub-sea-count">0</span></div>
-    <div class="cards-grid" id="pub-sea-cards"></div>
-    <div class="section-label hydra"><h3>&#128009; Hydras</h3><span class="count" id="pub-hydra-count">0</span></div>
-    <div class="cards-grid" id="pub-hydra-cards"></div>
-    <div class="section-label crab"><h3>&#129408; Crabs</h3><span class="count" id="pub-crab-count">0</span></div>
-    <div class="cards-grid" id="pub-crab-cards"></div>
-    <div class="section-label abyssal"><h3>&#129422; Abyssal Tyrants</h3><span class="count" id="pub-abyssal-count">0</span></div>
-    <div class="cards-grid" id="pub-abyssal-cards"></div>
-    <div class="section-label kraken"><h3>&#129065; Krakens</h3><span class="count" id="pub-kraken-count">0</span></div>
-    <div class="cards-grid" id="pub-kraken-cards"></div>
-    <div class="section-label drakenfyr"><h3>&#128293; Drakenfyrs</h3><span class="count" id="pub-drakenfyr-count">0</span></div>
-    <div class="cards-grid" id="pub-drakenfyr-cards"></div>
+    <!-- PUBLIC FILTER BAR -->
+    <div class="filter-bar">
+      <input type="text" id="pub-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyPubFilters()" />
+      <div class="sort-btn-group">
+        <button class="sort-btn active" id="pub-sort-soonest" onclick="setPubSort('soonest')">&#9650; Soonest</button>
+        <button class="sort-btn" id="pub-sort-latest" onclick="setPubSort('latest')">&#9660; Latest</button>
+        <button class="sort-btn" id="pub-sort-type" onclick="setPubSort('type')">&#127793; Type</button>
+        <button class="sort-btn" id="pub-sort-user" onclick="setPubSort('user')">&#128100; User</button>
+      </div>
+    </div>
+    <div class="flat-cards" id="pub-flat-cards"></div>
   </div>
 
   <!-- ADMIN -->
@@ -945,7 +953,7 @@ function subscribePublic(){
   if(!db)return;
   db.ref('timers').on('value',function(snap){
     publicEntries=[];
-    snap.forEach(function(c){publicEntries.push(Object.assign({firebaseKey:c.key},c.val()))});
+    snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;publicEntries.push(v)});
     renderPublicCards();updateBadges();
   });
 }
@@ -1039,6 +1047,8 @@ function addEntry(){
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:''};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
+    // Public entries use firebaseKey as id so RAF tick can find their DOM elements
+    // (Firebase subscription will overwrite publicEntries on next snap anyway)
   }
   privateEntries.push(entry);save();
   document.getElementById('inp-server').value='';
@@ -1082,7 +1092,15 @@ function save(){try{localStorage.setItem('kl-private',JSON.stringify(privateEntr
 // ═══════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════
-function fmtCountdown(ms){if(ms<=0)return null;var t=Math.ceil(ms/1000);return pad(Math.floor(t/60))+':'+pad(t%60)}
+function fmtCountdown(ms){
+  if(ms<=0)return null;
+  var t=Math.ceil(ms/1000);
+  var h=Math.floor(t/3600);
+  var m=Math.floor((t%3600)/60);
+  var s=t%60;
+  if(h>0)return h+':'+pad(m)+':'+pad(s);
+  return pad(m)+':'+pad(s);
+}
 function pad(n){return n<10?'0'+n:''+n}
 function fmtEST(ts){return new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
 function timerClass(ms){if(ms<=0)return 'done-text';if(ms<=30000)return 'urgent';if(ms<=120000)return 'warn';return 'ok'}
@@ -1119,25 +1137,79 @@ function buildCard(e,source){
 // ═══════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════
+// ── FILTER/SORT STATE ──
+var mySort='soonest', pubSort='soonest';
+
+function setMySort(s){
+  mySort=s;
+  ['soonest','latest','type'].forEach(function(k){
+    var b=document.getElementById('my-sort-'+k);
+    if(b)b.classList.toggle('active',k===s);
+  });
+  renderPrivateCards();
+}
+function setPubSort(s){
+  pubSort=s;
+  ['soonest','latest','type','user'].forEach(function(k){
+    var b=document.getElementById('pub-sort-'+k);
+    if(b)b.classList.toggle('active',k===s);
+  });
+  renderPublicCards();
+}
+
+function getMySearch(){var el=document.getElementById('my-search');return el?el.value.trim().toLowerCase():'';}
+function getPubSearch(){var el=document.getElementById('pub-search');return el?el.value.trim().toLowerCase():'';}
+function applyMyFilters(){renderPrivateCards();}
+function applyPubFilters(){renderPublicCards();}
+
+function filterEntries(arr, query){
+  if(!query)return arr;
+  return arr.filter(function(e){
+    return String(e.server||'').includes(query)
+      || String(e.type||'').includes(query)
+      || String((BOSS_TYPES[e.type]||{}).label||'').toLowerCase().includes(query)
+      || String(e.username||'').toLowerCase().includes(query);
+  });
+}
+
+function sortEntries(arr, mode){
+  var copy=arr.slice();
+  if(mode==='soonest')copy.sort(function(a,b){return a.spawnAt-b.spawnAt});
+  else if(mode==='latest')copy.sort(function(a,b){return b.spawnAt-a.spawnAt});
+  else if(mode==='type')copy.sort(function(a,b){return a.type.localeCompare(b.type)||a.spawnAt-b.spawnAt});
+  else if(mode==='user')copy.sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))||a.spawnAt-b.spawnAt});
+  return copy;
+}
+
+function renderFlat(container, arr, source, emptyMsg){
+  if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
+  container.innerHTML=arr.map(function(e){return buildCard(e,source)}).join('');
+}
+
 function renderPrivateCards(){
-  Object.keys(BOSS_TYPES).forEach(function(t){
-    var arr=privateEntries.filter(function(e){return e.type===t});
-    document.getElementById('my-'+t+'-count').textContent=arr.length;
-    document.getElementById('my-'+t+'-cards').innerHTML=arr.length?arr.map(function(e){return buildCard(e,'private')}).join(''):'<div class="empty">No '+BOSS_TYPES[t].label+' timers yet.</div>';
-  });
+  var q=getMySearch();
+  var filtered=filterEntries(privateEntries,q);
+  var sorted=sortEntries(filtered,mySort);
+  var container=document.getElementById('my-flat-cards');
+  if(!container)return;
+  renderFlat(container,sorted,'private',q?'No timers match your search.':'No timers yet.');
+  // update badge
+  document.getElementById('badge-my').textContent=privateEntries.length;
 }
+
 function renderPublicCards(){
-  Object.keys(BOSS_TYPES).forEach(function(t){
-    var arr=publicEntries.filter(function(e){return e.type===t});
-    document.getElementById('pub-'+t+'-count').textContent=arr.length;
-    document.getElementById('pub-'+t+'-cards').innerHTML=arr.length?arr.map(function(e){return buildCard(e,'public')}).join(''):'<div class="empty">No public '+BOSS_TYPES[t].label+' timers.</div>';
-  });
+  var q=getPubSearch();
+  var filtered=filterEntries(publicEntries,q);
+  var sorted=sortEntries(filtered,pubSort);
+  var container=document.getElementById('pub-flat-cards');
+  if(!container)return;
+  renderFlat(container,sorted,'public',q?'No public timers match your search.':'No public timers yet.');
+  document.getElementById('badge-public').textContent=publicEntries.length;
 }
+
 function renderPublicEmpty(msg){
-  Object.keys(BOSS_TYPES).forEach(function(t){
-    var el=document.getElementById('pub-'+t+'-cards');
-    if(el)el.innerHTML='<div class="empty">'+esc(msg)+'</div>';
-  });
+  var el=document.getElementById('pub-flat-cards');
+  if(el)el.innerHTML='<div class="no-results">'+esc(msg)+'</div>';
 }
 // ═══════════════════════════════════════════
 // ADMIN USER PANEL
@@ -1456,22 +1528,55 @@ function updateBadges(){
 // ═══════════════════════════════════════════
 // TICK
 // ═══════════════════════════════════════════
+// ── RAF TICKER ──
+var _lastSec=-1, _lastClockMin=-1;
 function tick(){
-  document.getElementById('est-clock').textContent=new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
   var now=Date.now();
+  var nowSec=Math.floor(now/1000);
+
+  // Clock: update only when minute changes
+  var d=new Date(now);
+  var clockMin=d.getMinutes();
+  if(clockMin!==_lastClockMin){
+    _lastClockMin=clockMin;
+    document.getElementById('est-clock').textContent=d.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  }
+
+  // Countdowns: only update DOM when the second changes
+  if(nowSec===_lastSec){requestAnimationFrame(tick);return;}
+  _lastSec=nowSec;
+
+  // Update clock text each second regardless
+  document.getElementById('est-clock').textContent=new Date(now).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+
+  // Use cached element map — rebuilt by renderPrivateCards/renderPublicCards
+  var allTimerEls=document.querySelectorAll('[id^="tdisplay-"]');
+  // Build a quick lookup from the live DOM
+  var elMap={};
+  allTimerEls.forEach(function(el){elMap[el.id]=el;});
+
   function upd(arr,src){
     arr.forEach(function(e){
-      var el=document.getElementById('tdisplay-'+src+'-'+e.id);if(!el)return;
+      var key='tdisplay-'+src+'-'+e.id;
+      var el=elMap[key];if(!el)return;
       var ms=e.spawnAt-now;
       if(ms<=0){
-        el.textContent='SPAWNED';el.className='time-display done-text';
-        var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
-        if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
-      }else{el.textContent=fmtCountdown(ms);el.className='time-display '+timerClass(ms)}
+        if(el.textContent!=='SPAWNED'){
+          el.textContent='SPAWNED';el.className='time-display done-text';
+          var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
+          if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
+        }
+      }else{
+        var txt=fmtCountdown(ms);
+        var cls='time-display '+timerClass(ms);
+        if(el.textContent!==txt)el.textContent=txt;
+        if(el.className!==cls)el.className=cls;
+      }
     });
   }
   upd(privateEntries,'private');upd(publicEntries,'public');
   if(!alarmActive&&alarmQueue.length>0)showAlarm(alarmQueue.shift());
+  requestAnimationFrame(tick);
 }
 
 // ═══════════════════════════════════════════
@@ -1509,7 +1614,7 @@ document.addEventListener('keydown',function(e){
 // ═══════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════
-setInterval(tick,1000);tick();
+tick(); // RAF-driven — no setInterval needed
 initFirebase();
 </script>
 </body>
