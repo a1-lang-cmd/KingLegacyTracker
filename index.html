@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>King Legacy — Spawn Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyByMrE2i-NjgMsEcJUZnxVMwqt_k6x9z1s",
+    authDomain:        "kinglegacytracker-1eb15.firebaseapp.com",
+    databaseURL:       "https://kinglegacytracker-1eb15-default-rtdb.firebaseio.com",
+    projectId:         "kinglegacytracker-1eb15",
+    storageBucket:     "kinglegacytracker-1eb15.firebasestorage.app",
+    messagingSenderId: "776042309561",
+    appId:             "1:776042309561:web:5d53d30fdc41e2c1647868"
+  };
+  const FIREBASE_ENABLED = true;
+  const ADMIN_EMAILS = [
+    "wyattmartarella1@gmail.com",
+    "painhubbb109@gmail.com"
+  ];
+  // Basic word blocklist for usernames
+  const BAD_WORDS = ["fuck","shit","ass","bitch","cock","dick","pussy","nigger","nigga","cunt","fag","slut","whore","retard","rape","kill","kys","nazi"];
+</script>
+<style>
+:root{
+  --sea:#0ea5e9;--sea-glow:#38bdf8;--hydra:#a855f7;--hydra-glow:#c084fc;
+  --pub:#f59e0b;--pub-glow:#fbbf24;--priv:#22c55e;--priv-glow:#4ade80;
+  --bg:#030712;--surface:#0f172a;--surface2:#1e293b;--border:#1e3a5f;
+  --text:#e2e8f0;--text-dim:#64748b;--danger:#ef4444;--warn:#f59e0b;--green:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% 100%,rgba(14,165,233,.07) 0%,transparent 70%),radial-gradient(ellipse 50% 30% at 10% 80%,rgba(168,85,247,.05) 0%,transparent 60%),radial-gradient(ellipse 40% 25% at 90% 20%,rgba(245,158,11,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+.waves{position:fixed;bottom:0;left:0;width:100%;height:100px;pointer-events:none;z-index:0;opacity:.1}
+.wave{position:absolute;bottom:0;width:200%;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%230ea5e9' d='M0,50 C240,90 480,10 720,50 C960,90 1200,10 1440,50 L1440,100 L0,100 Z'/%3E%3C/svg%3E") repeat-x;background-size:720px 100%;animation:wave-move 9s linear infinite}
+.wave:nth-child(2){animation-duration:13s;animation-direction:reverse;opacity:.5;bottom:4px}
+@keyframes wave-move{from{transform:translateX(0)}to{transform:translateX(-720px)}}
+
+/* ── LOGIN WALL ── */
+#auth-wall{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
+#auth-wall.hidden{display:none}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:420px;text-align:center}
+.auth-card h1{font-family:'Cinzel Decorative',serif;font-size:clamp(1.1rem,3vw,1.5rem);font-weight:900;background:linear-gradient(135deg,var(--sea-glow),#fff 50%,var(--hydra-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.auth-card .sub{color:var(--text-dim);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px}
+.auth-tabs{display:flex;background:var(--surface2);border-radius:10px;padding:3px;gap:3px;margin-bottom:22px}
+.auth-tab{flex:1;padding:8px;border:none;border-radius:8px;background:none;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.auth-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;text-align:left}
+.auth-field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600}
+.auth-field input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.auth-field input:focus{border-color:var(--sea);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+.auth-field input::placeholder{color:var(--text-dim)}
+.auth-hint{font-size:.72rem;color:var(--text-dim);margin-top:3px}
+.auth-submit{width:100%;background:linear-gradient(135deg,#0369a1,var(--sea));border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.1em;padding:11px;cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
+.auth-submit:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,165,233,.35)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-dim);font-size:.75rem}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.06em;padding:10px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.google-btn:hover{border-color:var(--sea);color:var(--sea-glow)}
+.auth-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fca5a5;font-size:.82rem;padding:9px 12px;margin-bottom:12px;display:none;text-align:left}
+.auth-error.show{display:block}
+
+/* ── USERNAME SETUP ── */
+#username-wall{position:fixed;inset:0;z-index:190;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
+#username-wall.hidden{display:none}
+
+/* ── MAIN APP ── */
+#app{display:none}
+#app.show{display:block}
+.container{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 16px 140px}
+header{text-align:center;padding:28px 0 16px}
+header h1{font-family:'Cinzel Decorative',serif;font-size:clamp(1.2rem,3.5vw,1.9rem);font-weight:900;background:linear-gradient(135deg,var(--sea-glow),#fff 50%,var(--hydra-glow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.3}
+header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.12em;text-transform:uppercase}
+.header-meta{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.est-clock{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.est-clock span{font-size:.88rem;font-weight:600;letter-spacing:.05em}
+.fb-status{display:flex;align-items:center;gap:6px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:8px}
+.fb-status.connected{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.fb-status.disconnected{background:rgba(245,158,11,.1);color:var(--pub);border:1px solid rgba(245,158,11,.3)}
+.fb-status .fb-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.user-bar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 14px}
+.user-avatar{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--sea);background:var(--surface2)}
+.user-name{font-size:.88rem;font-weight:700;color:var(--text)}
+.admin-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:20px;background:rgba(245,158,11,.15);color:var(--pub-glow);border:1px solid rgba(245,158,11,.35)}
+.sign-out-btn{background:none;border:1px solid var(--border);border-radius:7px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.06em;padding:4px 10px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+.sign-out-btn:hover{border-color:var(--danger);color:var(--danger)}
+
+/* ── PAGE TABS ── */
+.page-tabs{display:flex;margin:16px 0 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.page-tab{flex:1;padding:12px 8px;background:none;border:none;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;border-right:1px solid var(--border)}
+.page-tab:last-child{border-right:none}
+.page-tab.active.my-tab{background:rgba(34,197,94,.07);color:var(--priv-glow)}
+.page-tab.active.public-tab{background:rgba(245,158,11,.07);color:var(--pub-glow)}
+.page-tab.active.admin-tab{background:rgba(239,68,68,.07);color:#fca5a5}
+.tab-badge{background:var(--surface2);border-radius:20px;padding:1px 7px;font-size:.7rem;color:var(--text-dim);min-width:20px;text-align:center}
+.page-tab.active.my-tab .tab-badge{background:rgba(34,197,94,.18);color:var(--priv-glow)}
+.page-tab.active.public-tab .tab-badge{background:rgba(245,158,11,.18);color:var(--pub-glow)}
+.page-tab.active.admin-tab .tab-badge{background:rgba(239,68,68,.18);color:#fca5a5}
+.page-view{display:none}
+.page-view.active{display:block}
+
+/* ── ADD FORM ── */
+.add-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px}
+.add-section h2{font-family:'Cinzel Decorative',serif;font-size:.72rem;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:14px}
+.type-toggle,.vis-toggle{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.type-btn,.vis-btn{flex:1;min-width:calc(33% - 6px);padding:10px 8px;border-radius:10px;border:2px solid transparent;background:var(--surface2);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .2s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px}
+.type-btn.sea.active{border-color:var(--sea);color:var(--sea-glow);background:rgba(14,165,233,.08);box-shadow:0 0 12px rgba(14,165,233,.12)}
+.type-btn.hydra.active{border-color:var(--hydra);color:var(--hydra-glow);background:rgba(168,85,247,.08);box-shadow:0 0 12px rgba(168,85,247,.12)}
+.type-btn.crab.active{border-color:#fb923c;color:#fb923c;background:rgba(251,146,60,.08);box-shadow:0 0 12px rgba(251,146,60,.12)}
+.type-btn.abyssal.active{border-color:#34d399;color:#34d399;background:rgba(52,211,153,.08);box-shadow:0 0 12px rgba(52,211,153,.12)}
+.type-btn.kraken.active{border-color:#60a5fa;color:#60a5fa;background:rgba(96,165,250,.08);box-shadow:0 0 12px rgba(96,165,250,.12)}
+.type-btn.drakenfyr.active{border-color:#f87171;color:#f87171;background:rgba(248,113,113,.08);box-shadow:0 0 12px rgba(248,113,113,.12)}
+.vis-btn.private.active{border-color:var(--priv);color:var(--priv-glow);background:rgba(34,197,94,.07)}
+.vis-btn.public.active{border-color:var(--pub);color:var(--pub-glow);background:rgba(245,158,11,.07)}
+.type-btn:hover:not(.active),.vis-btn:hover:not(.active){border-color:var(--text-dim);color:var(--text)}
+.public-notice{display:none;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);border-radius:8px;padding:7px 11px;font-size:.78rem;color:var(--pub-glow);margin-bottom:10px}
+.public-notice.show{display:block}
+.form-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:10px;margin-bottom:10px}
+.form-grid2{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-end}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}.form-grid2{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:500;transition:border-color .2s,box-shadow .2s;outline:none;width:100%}
+.field input:focus{border-color:var(--sea);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+.field input::placeholder{color:var(--text-dim)}
+.submit-btn{background:linear-gradient(135deg,#0369a1,var(--sea));border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.1em;padding:8px 18px;cursor:pointer;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(14,165,233,.3)}
+.submit-btn.hydra-mode{background:linear-gradient(135deg,#7c3aed,var(--hydra))}
+.submit-btn.hydra-mode:hover{box-shadow:0 4px 14px rgba(168,85,247,.3)}
+
+/* ── CARDS ── */
+.section-label{display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:4px}
+.section-label h3{font-family:'Cinzel Decorative',serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase}
+.section-label.sea h3{color:var(--sea-glow)}.section-label.hydra h3{color:var(--hydra-glow)}
+.section-label.crab h3{color:#fb923c}.section-label.abyssal h3{color:#34d399}
+.section-label.kraken h3{color:#60a5fa}.section-label.drakenfyr h3{color:#f87171}
+.count{background:var(--surface2);border-radius:20px;padding:1px 8px;font-size:.72rem;font-weight:700;color:var(--text-dim)}
+.cards-grid{display:grid;gap:9px;margin-bottom:24px}
+.card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
+.card.hydra::before{background:linear-gradient(180deg,var(--hydra-glow),#7c3aed)}
+.card.crab::before{background:linear-gradient(180deg,#fb923c,#c2410c)}
+.card.abyssal::before{background:linear-gradient(180deg,#34d399,#065f46)}
+.card.kraken::before{background:linear-gradient(180deg,#60a5fa,#1e3a8a)}
+.card.drakenfyr::before{background:linear-gradient(180deg,#f87171,#991b1b)}
+.card:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,0,0,.4)}
+.card.done{opacity:.42}
+.card-icon{font-size:1.6rem;line-height:1}
+.card-info{min-width:0}
+.card-top{display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap}
+.boss-type{font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700}
+.card.sea .boss-type{color:var(--sea)}.card.hydra .boss-type{color:var(--hydra)}
+.card.crab .boss-type{color:#fb923c}.card.abyssal .boss-type{color:#34d399}
+.card.kraken .boss-type{color:#60a5fa}.card.drakenfyr .boss-type{color:#f87171}
+.vis-badge{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:1px 6px;border-radius:20px}
+.vis-badge.public{background:rgba(245,158,11,.12);color:var(--pub-glow);border:1px solid rgba(245,158,11,.28)}
+.vis-badge.private{background:rgba(34,197,94,.08);color:var(--priv-glow);border:1px solid rgba(34,197,94,.2)}
+.posted-by{font-size:.65rem;color:var(--text-dim);font-weight:600;background:var(--surface2);padding:1px 7px;border-radius:20px}
+.server-code{font-size:.95rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.server-code span{font-size:.78rem;color:var(--text-dim);font-weight:400}
+.meta-line{font-size:.73rem;color:var(--text-dim);margin-top:2px}
+.card-timer{text-align:right}
+.time-display{font-size:1.35rem;font-weight:700;letter-spacing:.05em;line-height:1;font-variant-numeric:tabular-nums}
+.time-display.urgent{color:var(--danger);animation:blink 1s step-end infinite}
+.time-display.warn{color:var(--warn)}.time-display.ok{color:var(--green)}
+.time-display.done-text{color:var(--text-dim);font-size:.88rem}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.spawns-at-label{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+.delete-btn{background:none;border:1px solid var(--surface2);border-radius:6px;color:var(--text-dim);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.82rem;transition:all .15s;flex-shrink:0}
+.delete-btn:hover{background:rgba(239,68,68,.12);border-color:var(--danger);color:var(--danger)}
+.delete-btn.hidden{visibility:hidden;pointer-events:none}
+.empty{text-align:center;padding:24px;color:var(--text-dim);font-size:.85rem;border:1px dashed var(--border);border-radius:10px}
+
+/* ── PUBLIC HEADER ── */
+.public-page-header{background:var(--surface);border:1px solid rgba(245,158,11,.18);border-radius:13px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.ph-icon{font-size:1.7rem}
+.public-page-header h3{font-family:'Cinzel Decorative',serif;font-size:.78rem;color:var(--pub-glow);letter-spacing:.1em;margin-bottom:2px}
+.public-page-header p{font-size:.76rem;color:var(--text-dim)}
+.refresh-btn{margin-left:auto;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;color:var(--pub-glow);font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.08em;padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:all .2s;flex-shrink:0}
+.refresh-btn:hover{background:rgba(245,158,11,.16)}
+
+/* ── ADMIN PANEL ── */
+.admin-header{background:var(--surface);border:1px solid rgba(239,68,68,.2);border-radius:13px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.admin-header h3{font-family:'Cinzel Decorative',serif;font-size:.78rem;color:#fca5a5;letter-spacing:.1em;margin-bottom:2px}
+.admin-header p{font-size:.76rem;color:var(--text-dim)}
+.users-grid{display:grid;gap:8px;margin-bottom:24px}
+.user-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.user-card-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--sea-glow);border:2px solid var(--border);flex-shrink:0}
+.user-card-info{flex:1;min-width:0}
+.user-card-name{font-size:.95rem;font-weight:700;color:var(--text)}
+.user-card-email{font-size:.72rem;color:var(--text-dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-card-meta{font-size:.68rem;color:var(--text-dim);margin-top:1px}
+.ban-btn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:7px;color:#fca5a5;font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.06em;padding:5px 11px;cursor:pointer;text-transform:uppercase;transition:all .15s;flex-shrink:0}
+.ban-btn:hover{background:rgba(239,68,68,.2);border-color:var(--danger)}
+
+/* ── ALARM ── */
+.alarm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center}
+.alarm-overlay.show{display:flex}
+.alarm-box{background:var(--surface);border-radius:20px;padding:34px;text-align:center;border:2px solid;max-width:340px;width:90%;animation:pop-in .3s cubic-bezier(.34,1.56,.64,1)}
+.alarm-box.sea{border-color:var(--sea);box-shadow:0 0 50px rgba(14,165,233,.35)}
+.alarm-box.hydra{border-color:var(--hydra);box-shadow:0 0 50px rgba(168,85,247,.35)}
+@keyframes pop-in{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.alarm-icon-big{font-size:3rem;margin-bottom:8px}
+.alarm-box h2{font-family:'Cinzel Decorative',serif;font-size:1.1rem;margin-bottom:5px}
+.alarm-box.sea h2{color:var(--sea-glow)}.alarm-box.hydra h2{color:var(--hydra-glow)}
+.alarm-box p{color:var(--text-dim);margin-bottom:3px;font-size:.9rem}
+.alarm-server-big{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:18px}
+.alarm-dismiss{background:linear-gradient(135deg,#0369a1,var(--sea));border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.1em;padding:9px 26px;cursor:pointer;text-transform:uppercase;transition:all .2s}
+.alarm-dismiss.hydra-mode{background:linear-gradient(135deg,#7c3aed,var(--hydra))}
+.alarm-dismiss:hover{transform:scale(1.04)}
+@media(max-width:500px){.card{grid-template-columns:auto 1fr auto}.time-display{font-size:1.05rem}.card-icon{font-size:1.3rem}}
+</style>
+</head>
+<body>
+<div class="waves"><div class="wave"></div><div class="wave"></div></div>
+
+<!-- ══════════════ LOGIN WALL ══════════════ -->
+<div id="auth-wall">
+  <div class="auth-card">
+    <h1>&#128081; King Legacy</h1>
+    <div class="sub">Spawn Tracker — Sign in to continue</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')" id="atab-login">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')" id="atab-signup">Create Account</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <div class="auth-field"><label>Email</label><input type="email" id="li-email" placeholder="your@email.com" /></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="li-pass" placeholder="••••••••" /></div>
+      <button class="auth-submit" onclick="emailSignIn()">Sign In</button>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" style="display:none">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="su-username" placeholder="CoolPlayer99" maxlength="10" />
+        <div class="auth-hint">Max 10 characters, letters &amp; numbers only, no spaces</div>
+      </div>
+      <div class="auth-field"><label>Email</label><input type="email" id="su-email" placeholder="your@email.com" /></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="su-pass" placeholder="Min 6 characters" /></div>
+      <button class="auth-submit" onclick="emailSignUp()">Create Account</button>
+    </div>
+
+    <div class="auth-divider">or</div>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ USERNAME SETUP (Google users without username) ══════════════ -->
+<div id="username-wall" class="hidden">
+  <div class="auth-card">
+    <h1>&#128081; One more step</h1>
+    <div class="sub">Choose your username</div>
+    <div id="uname-error" class="auth-error"></div>
+    <div class="auth-field">
+      <label>Username</label>
+      <input type="text" id="uname-input" placeholder="CoolPlayer99" maxlength="10" />
+      <div class="auth-hint">Max 10 characters, letters &amp; numbers only, no spaces</div>
+    </div>
+    <button class="auth-submit" onclick="saveUsername()">Save Username</button>
+  </div>
+</div>
+
+<!-- ══════════════ EMAIL VERIFICATION PENDING ══════════════ -->
+<div id="verify-wall" class="hidden" style="position:fixed;inset:0;z-index:185;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px">
+  <div class="auth-card">
+    <div style="font-size:3rem;margin-bottom:12px">&#128231;</div>
+    <h1>Check your email</h1>
+    <div class="sub">Verify your account to continue</div>
+    <p style="color:var(--text-dim);font-size:.88rem;line-height:1.6;margin:16px 0">We sent a verification link to<br><strong id="verify-email-shown" style="color:var(--text)"></strong><br>Click the link in the email then come back here.</p>
+    <button class="auth-submit" onclick="checkVerification()" style="margin-bottom:10px">I verified my email &#10003;</button>
+    <button onclick="resendVerification()" style="width:100%;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:Rajdhani,sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.08em;padding:10px;cursor:pointer;text-transform:uppercase;transition:all .2s" id="resend-btn">Resend Email</button>
+    <div style="margin-top:12px"><button onclick="signOutUser()" style="background:none;border:none;color:var(--text-dim);font-family:Rajdhani,sans-serif;font-size:.78rem;cursor:pointer;text-decoration:underline">Sign out</button></div>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<div id="app">
+<div class="container">
+  <header>
+    <h1>&#128081; King Legacy<br>Spawn Tracker</h1>
+    <p>Sea Beast &amp; Boss Spawn Codes</p>
+    <div class="header-meta">
+      <div class="est-clock"><div class="dot"></div><span id="est-clock">--:--:-- --</span></div>
+      <div class="fb-status disconnected" id="fb-status"><div class="fb-dot"></div><span id="fb-status-text">Public sync: not configured</span></div>
+    </div>
+    <div class="user-bar">
+      <div class="user-pill">
+        <img class="user-avatar" id="user-avatar" src="" alt="" onerror="this.style.display='none'" />
+        <span class="user-name" id="user-name-display">Player</span>
+        <span class="admin-badge" id="admin-badge" style="display:none">&#9733; Admin</span>
+        <button class="sign-out-btn" onclick="signOutUser()">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-tabs" id="page-tabs">
+    <button class="page-tab my-tab active" onclick="switchPage('my')" id="tab-my">&#128274; My Timers <span class="tab-badge" id="badge-my">0</span></button>
+    <button class="page-tab public-tab" onclick="switchPage('public')" id="tab-public">&#127758; Public <span class="tab-badge" id="badge-public">0</span></button>
+    <button class="page-tab admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none">&#128737; Admin <span class="tab-badge" id="badge-users">0</span></button>
+  </div>
+
+  <!-- MY TIMERS -->
+  <div class="page-view active" id="page-my">
+    <div class="add-section">
+      <h2>&#43; Add Spawn Timer</h2>
+      <div class="type-toggle">
+        <button class="type-btn sea active" onclick="selectType('sea')">&#127754; Sea Beast</button>
+        <button class="type-btn hydra" onclick="selectType('hydra')">&#128009; Hydra</button>
+        <button class="type-btn crab" onclick="selectType('crab')">&#129408; Crab</button>
+        <button class="type-btn abyssal" onclick="selectType('abyssal')">&#129422; Abyssal</button>
+        <button class="type-btn kraken" onclick="selectType('kraken')">&#129065; Kraken</button>
+        <button class="type-btn drakenfyr" onclick="selectType('drakenfyr')">&#128293; Drakenfyr</button>
+      </div>
+      <div class="vis-toggle">
+        <button class="vis-btn private active" onclick="selectVis('private')">&#128274; Private</button>
+        <button class="vis-btn public" onclick="selectVis('public')">&#127758; Public</button>
+      </div>
+      <div class="public-notice" id="public-notice">&#9888;&#65039; Public timers are visible to all players.</div>
+      <div class="form-grid">
+        <div class="field"><label>Server Code</label><input type="number" id="inp-server" placeholder="e.g. 1234" min="1000" max="9999" /></div>
+        <div class="field"><label>Minutes Until Spawn</label><input type="number" id="inp-minutes" placeholder="max 60 min" min="0" max="60" /></div>
+        <div class="field"><label>Seconds Until Spawn</label><input type="number" id="inp-seconds" placeholder="0-59" min="0" max="59" /></div>
+      </div>
+      <div class="form-grid2">
+        <button class="submit-btn" id="add-btn" onclick="addEntry()">&#43; Add Timer</button>
+      </div>
+    </div>
+    <div class="section-label sea"><h3>&#127754; Sea Beasts</h3><span class="count" id="my-sea-count">0</span></div>
+    <div class="cards-grid" id="my-sea-cards"></div>
+    <div class="section-label hydra"><h3>&#128009; Hydras</h3><span class="count" id="my-hydra-count">0</span></div>
+    <div class="cards-grid" id="my-hydra-cards"></div>
+    <div class="section-label crab"><h3>&#129408; Crabs</h3><span class="count" id="my-crab-count">0</span></div>
+    <div class="cards-grid" id="my-crab-cards"></div>
+    <div class="section-label abyssal"><h3>&#129422; Abyssal Tyrants</h3><span class="count" id="my-abyssal-count">0</span></div>
+    <div class="cards-grid" id="my-abyssal-cards"></div>
+    <div class="section-label kraken"><h3>&#129065; Krakens</h3><span class="count" id="my-kraken-count">0</span></div>
+    <div class="cards-grid" id="my-kraken-cards"></div>
+    <div class="section-label drakenfyr"><h3>&#128293; Drakenfyrs</h3><span class="count" id="my-drakenfyr-count">0</span></div>
+    <div class="cards-grid" id="my-drakenfyr-cards"></div>
+  </div>
+
+  <!-- PUBLIC -->
+  <div class="page-view" id="page-public">
+    <div class="public-page-header">
+      <div class="ph-icon">&#127758;</div>
+      <div><h3>Public Spawn Board</h3><p>Live timers shared by all players. Posted by username.</p></div>
+      <button class="refresh-btn" onclick="loadPublicTimers()">&#8635; Refresh</button>
+    </div>
+    <div class="section-label sea"><h3>&#127754; Sea Beasts</h3><span class="count" id="pub-sea-count">0</span></div>
+    <div class="cards-grid" id="pub-sea-cards"></div>
+    <div class="section-label hydra"><h3>&#128009; Hydras</h3><span class="count" id="pub-hydra-count">0</span></div>
+    <div class="cards-grid" id="pub-hydra-cards"></div>
+    <div class="section-label crab"><h3>&#129408; Crabs</h3><span class="count" id="pub-crab-count">0</span></div>
+    <div class="cards-grid" id="pub-crab-cards"></div>
+    <div class="section-label abyssal"><h3>&#129422; Abyssal Tyrants</h3><span class="count" id="pub-abyssal-count">0</span></div>
+    <div class="cards-grid" id="pub-abyssal-cards"></div>
+    <div class="section-label kraken"><h3>&#129065; Krakens</h3><span class="count" id="pub-kraken-count">0</span></div>
+    <div class="cards-grid" id="pub-kraken-cards"></div>
+    <div class="section-label drakenfyr"><h3>&#128293; Drakenfyrs</h3><span class="count" id="pub-drakenfyr-count">0</span></div>
+    <div class="cards-grid" id="pub-drakenfyr-cards"></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="page-view" id="page-admin">
+    <div class="admin-header">
+      <div class="ph-icon">&#128737;</div>
+      <div><h3>Admin — User Manager</h3><p>All registered usernames. Delete a user's timers if needed.</p></div>
+    </div>
+    <div class="users-grid" id="users-grid"><div class="empty">Loading users...</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ALARM -->
+<div class="alarm-overlay" id="alarm-overlay">
+  <div class="alarm-box sea" id="alarm-box">
+    <div class="alarm-icon-big" id="alarm-icon">&#127754;</div>
+    <h2 id="alarm-title">SPAWN NOW!</h2>
+    <p id="alarm-sub">Spawning!</p>
+    <div class="alarm-server-big" id="alarm-server">Server: —</div>
+    <button class="alarm-dismiss" id="alarm-dismiss-btn" onclick="dismissAlarm()">Dismiss</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG & STATE
+// ═══════════════════════════════════════════
+var BOSS_TYPES={
+  sea:      {label:'Sea Beast',     icon:'&#127754;',maxMins:60, color:'var(--sea)'},
+  hydra:    {label:'Hydra',         icon:'&#128009;',maxMins:60, color:'var(--hydra)'},
+  crab:     {label:'Crab',          icon:'&#129408;',maxMins:240,color:'#fb923c'},
+  abyssal:  {label:'Abyssal Tyrant',icon:'&#129422;',maxMins:240,color:'#34d399'},
+  kraken:   {label:'Kraken',        icon:'&#129065;',maxMins:240,color:'#60a5fa'},
+  drakenfyr:{label:'Drakenfyr',     icon:'&#128293;',maxMins:240,color:'#f87171'}
+};
+
+var selectedType='sea',selectedVis='private';
+var privateEntries=[],publicEntries=[],alarmQueue=[];
+var alarmActive=false,alarmInt=null;
+var db=null,auth=null,fbReady=false;
+var currentUser=null,currentUsername='',isAdmin=false;
+var allUsers={};
+
+try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
+
+// ═══════════════════════════════════════════
+// FIREBASE INIT
+// ═══════════════════════════════════════════
+function initFirebase(){
+  if(!FIREBASE_ENABLED||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){
+    setFbStatus(false,'Public sync: not configured');
+    renderPublicEmpty('Firebase not configured.');
+    showApp(); // still show app without Firebase
+    return;
+  }
+  var base='https://www.gstatic.com/firebasejs/9.23.0/';
+  loadScript(base+'firebase-app-compat.js',function(){
+    loadScript(base+'firebase-database-compat.js',function(){
+      loadScript(base+'firebase-auth-compat.js',function(){
+        try{
+          firebase.initializeApp(FIREBASE_CONFIG);
+          db=firebase.database(); auth=firebase.auth(); fbReady=true;
+          setFbStatus(true,'Public sync: connected');
+          auth.onAuthStateChanged(onAuthStateChanged);
+        }catch(e){
+          setFbStatus(false,'Firebase error: '+e.message);
+          showApp();
+        }
+      });
+    });
+  });
+}
+function loadScript(src,cb){var s=document.createElement('script');s.src=src;s.onload=cb;document.head.appendChild(s)}
+function setFbStatus(ok,msg){
+  document.getElementById('fb-status').className='fb-status '+(ok?'connected':'disconnected');
+  document.getElementById('fb-status-text').textContent=msg;
+}
+
+// ═══════════════════════════════════════════
+// AUTH STATE
+// ═══════════════════════════════════════════
+function onAuthStateChanged(user){
+  currentUser=user;
+  if(!user){
+    document.getElementById('auth-wall').classList.remove('hidden');
+    document.getElementById('username-wall').classList.add('hidden');
+    document.getElementById('verify-wall').classList.add('hidden');
+    document.getElementById('app').classList.remove('show');
+    return;
+  }
+  // Google users are always considered verified
+  var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
+  if(!isGoogle&&!user.emailVerified){
+    // Show verification wall
+    document.getElementById('auth-wall').classList.add('hidden');
+    document.getElementById('username-wall').classList.add('hidden');
+    document.getElementById('verify-wall').classList.remove('hidden');
+    document.getElementById('app').classList.remove('show');
+    document.getElementById('verify-email-shown').textContent=user.email||'';
+    return;
+  }
+  // Verified — check for username
+  db.ref('users/'+user.uid).once('value',function(snap){
+    var userData=snap.val();
+    if(!userData||!userData.username){
+      document.getElementById('auth-wall').classList.add('hidden');
+      document.getElementById('username-wall').classList.remove('hidden');
+      document.getElementById('verify-wall').classList.add('hidden');
+      document.getElementById('app').classList.remove('show');
+    }else{
+      currentUsername=userData.username;
+      document.getElementById('verify-wall').classList.add('hidden');
+      finishLogin(user,userData);
+    }
+  });
+}
+
+function finishLogin(user,userData){
+  document.getElementById('auth-wall').classList.add('hidden');
+  document.getElementById('username-wall').classList.add('hidden');
+  isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1;
+  // Update header
+  document.getElementById('user-name-display').textContent=currentUsername;
+  if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
+  document.getElementById('admin-badge').style.display=isAdmin?'inline-block':'none';
+  document.getElementById('tab-admin').style.display=isAdmin?'flex':'none';
+  showApp();
+  subscribePublic();
+  if(isAdmin)loadAllUsers();
+}
+
+function showApp(){
+  document.getElementById('app').classList.add('show');
+  renderPrivateCards();
+  updateBadges();
+}
+
+// ═══════════════════════════════════════════
+// AUTH ACTIONS
+// ═══════════════════════════════════════════
+function switchAuthTab(t){
+  document.getElementById('atab-login').classList.toggle('active',t==='login');
+  document.getElementById('atab-signup').classList.toggle('active',t==='signup');
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('signup-form').style.display=t==='signup'?'block':'none';
+  clearAuthError();
+}
+
+function showAuthError(msg){
+  var el=document.getElementById('auth-error');
+  el.textContent=msg; el.classList.add('show');
+}
+function clearAuthError(){
+  document.getElementById('auth-error').classList.remove('show');
+}
+
+function validateUsername(u){
+  if(!u)return'Username is required.';
+  if(u.length>10)return'Username must be 10 characters or less.';
+  if(!/^[a-zA-Z0-9_]+$/.test(u))return'Username can only contain letters, numbers, and underscores.';
+  var lower=u.toLowerCase();
+  for(var i=0;i<BAD_WORDS.length;i++){if(lower.indexOf(BAD_WORDS[i])!==-1)return'That username is not allowed.';}
+  return null;
+}
+
+function emailSignIn(){
+  if(!fbReady){showAuthError('Firebase not configured.');return}
+  var email=document.getElementById('li-email').value.trim();
+  var pass=document.getElementById('li-pass').value;
+  if(!email||!pass){showAuthError('Please fill in all fields.');return}
+  auth.signInWithEmailAndPassword(email,pass).catch(function(e){
+    showAuthError(friendlyAuthError(e.code));
+  });
+}
+
+function emailSignUp(){
+  if(!fbReady){showAuthError('Firebase not configured.');return}
+  var username=document.getElementById('su-username').value.trim();
+  var email=document.getElementById('su-email').value.trim();
+  var pass=document.getElementById('su-pass').value;
+  var unErr=validateUsername(username);
+  if(unErr){showAuthError(unErr);return}
+  if(!email){showAuthError('Please enter an email.');return}
+  if(pass.length<6){showAuthError('Password must be at least 6 characters.');return}
+  // Check username not taken
+  db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
+    if(snap.exists()){showAuthError('That username is already taken.');return}
+    auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
+      // Send verification email
+      return cred.user.sendEmailVerification().then(function(){
+        return saveUserRecord(cred.user,username);
+      });
+    }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
+  });
+}
+
+function signInWithGoogle(){
+  if(!fbReady){showAuthError('Firebase not configured.');return}
+  var provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
+}
+
+function signOutUser(){
+  if(auth)auth.signOut();
+  privateEntries=[];
+  currentUsername='';isAdmin=false;
+  document.getElementById('app').classList.remove('show');
+}
+
+function checkVerification(){
+  if(!currentUser){return}
+  currentUser.reload().then(function(){
+    if(currentUser.emailVerified){
+      document.getElementById('verify-wall').classList.add('hidden');
+      onAuthStateChanged(currentUser);
+    }else{
+      alert('Email not verified yet. Please check your inbox and click the verification link.');
+    }
+  });
+}
+
+function resendVerification(){
+  if(!currentUser)return;
+  currentUser.sendEmailVerification().then(function(){
+    var btn=document.getElementById('resend-btn');
+    btn.textContent='Sent! Check your inbox';
+    btn.disabled=true;
+    setTimeout(function(){btn.textContent='Resend Email';btn.disabled=false},30000);
+  }).catch(function(e){alert('Could not resend: '+e.message)});
+}
+
+function saveUsername(){
+  var username=document.getElementById('uname-input').value.trim();
+  var unErr=validateUsername(username);
+  var errEl=document.getElementById('uname-error');
+  if(unErr){errEl.textContent=unErr;errEl.classList.add('show');return}
+  errEl.classList.remove('show');
+  db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
+    if(snap.exists()){errEl.textContent='That username is already taken.';errEl.classList.add('show');return}
+    saveUserRecord(currentUser,username).then(function(){
+      currentUsername=username;
+      db.ref('users/'+currentUser.uid).once('value',function(snap){
+        finishLogin(currentUser,snap.val());
+      });
+    });
+  });
+}
+
+function saveUserRecord(user,username){
+  var record={username:username,email:user.email||'',uid:user.uid,joinedAt:Date.now()};
+  return db.ref('users/'+user.uid).set(record).then(function(){
+    return db.ref('usernames/'+username.toLowerCase()).set(user.uid);
+  });
+}
+
+function friendlyAuthError(code){
+  var map={
+    'auth/user-not-found':'No account found with that email.',
+    'auth/wrong-password':'Incorrect password.',
+    'auth/email-already-in-use':'An account with that email already exists.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/weak-password':'Password must be at least 6 characters.',
+    'auth/too-many-requests':'Too many attempts. Please try again later.',
+    'auth/popup-closed-by-user':'Sign in cancelled.'
+  };
+  return map[code]||'Something went wrong. Please try again.';
+}
+
+// ═══════════════════════════════════════════
+// FIREBASE DATA
+// ═══════════════════════════════════════════
+function subscribePublic(){
+  if(!db)return;
+  db.ref('timers').on('value',function(snap){
+    publicEntries=[];
+    snap.forEach(function(c){publicEntries.push(Object.assign({firebaseKey:c.key},c.val()))});
+    renderPublicCards();updateBadges();
+  });
+}
+
+function loadAllUsers(){
+  if(!db||!isAdmin)return;
+  db.ref('users').on('value',function(snap){
+    allUsers={};
+    snap.forEach(function(c){allUsers[c.key]=c.val()});
+    renderUsersPanel();
+  });
+}
+
+function loadPublicTimers(){
+  var b=document.querySelector('.refresh-btn');
+  b.textContent='Syncing...';
+  setTimeout(function(){b.innerHTML='&#8635; Refresh'},800);
+}
+
+// ═══════════════════════════════════════════
+// AUDIO
+// ═══════════════════════════════════════════
+function playAlarmSound(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function tone(f,t,d,type){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type=type||'sine';
+      o.frequency.setValueAtTime(f,ctx.currentTime+t);
+      g.gain.setValueAtTime(0,ctx.currentTime+t);
+      g.gain.linearRampToValueAtTime(.3,ctx.currentTime+t+.02);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+t+d);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+d+.05);
+    }
+    tone(523.25,0,.16,'square');tone(659.25,.11,.16,'square');
+    tone(783.99,.22,.16,'square');tone(1046.5,.33,.22,'square');
+    tone(1046.5,.62,.38,'sawtooth');tone(523.25,.78,.5,'sine');
+  }catch(e){}
+}
+function startAlarmLoop(){if(alarmInt)return;playAlarmSound();alarmInt=setInterval(function(){if(alarmActive)playAlarmSound()},1900)}
+function stopAlarmLoop(){clearInterval(alarmInt);alarmInt=null}
+
+// ═══════════════════════════════════════════
+// UI CONTROLS
+// ═══════════════════════════════════════════
+function switchPage(p){
+  var pages=['my','public','admin'];
+  pages.forEach(function(x){
+    var pv=document.getElementById('page-'+x);
+    var tb=document.getElementById('tab-'+x);
+    if(pv)pv.classList.toggle('active',p===x);
+    if(tb)tb.classList.toggle('active',p===x);
+  });
+}
+function selectType(t){
+  selectedType=t;
+  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelector('.type-btn.'+t).classList.add('active');
+  var maxM=BOSS_TYPES[t].maxMins;
+  var mi=document.getElementById('inp-minutes');
+  mi.max=maxM; mi.placeholder='max '+maxM+' min';
+  document.getElementById('add-btn').className=(t==='hydra'||t==='kraken')?'submit-btn hydra-mode':'submit-btn';
+}
+function selectVis(v){
+  selectedVis=v;
+  document.querySelectorAll('.vis-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelector('.vis-btn.'+v).classList.add('active');
+  document.getElementById('public-notice').classList.toggle('show',v==='public');
+}
+
+// ═══════════════════════════════════════════
+// ADD ENTRY
+// ═══════════════════════════════════════════
+function addEntry(){
+  var server=document.getElementById('inp-server').value.trim();
+  var mins=parseInt(document.getElementById('inp-minutes').value)||0;
+  var secs=parseInt(document.getElementById('inp-seconds').value)||0;
+  if(!server){alert('Please enter a server code!');return}
+  if(!/^[0-9]{4}$/.test(server)){alert('Server code must be exactly 4 digits!');return}
+  if(mins===0&&secs===0){alert('Please enter a time until spawn!');return}
+  var maxMins=BOSS_TYPES[selectedType].maxMins;
+  if(mins>maxMins||(mins===maxMins&&secs>0)){alert('Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' minutes!');return}
+  var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername};
+  if(selectedVis==='public'){
+    if(!fbReady){alert('Firebase not configured. Choose Private instead.');return}
+    var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:''};
+    var ref=db.ref('timers').push(fbEntry);
+    entry.firebaseKey=ref.key;
+  }
+  privateEntries.push(entry);save();
+  document.getElementById('inp-server').value='';
+  document.getElementById('inp-minutes').value='';
+  document.getElementById('inp-seconds').value='';
+  renderPrivateCards();updateBadges();
+}
+
+// ═══════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════
+function handleDelete(btn){
+  deleteEntry(btn.getAttribute('data-delid'),btn.getAttribute('data-source'));
+}
+function deleteEntry(id,source){
+  if(source==='private'){
+    var numId=parseInt(id,10);
+    var entry=privateEntries.find(function(e){return e.id===numId});
+    if(entry&&entry.firebaseKey&&db)db.ref('timers/'+entry.firebaseKey).remove().catch(function(e){alert('Delete failed: '+e.message)});
+    privateEntries=privateEntries.filter(function(e){return e.id!==numId});
+    save();renderPrivateCards();
+  }else{
+    if(!isAdmin){alert('Admins only.');return}
+    if(!db){alert('Firebase not connected.');return}
+    db.ref('timers/'+id).remove().catch(function(e){alert('Delete failed: '+e.message)});
+  }
+  updateBadges();
+}
+function deleteUserTimers(uid,username){
+  if(!confirm('Delete ALL public timers posted by '+username+'?'))return;
+  if(!db)return;
+  db.ref('timers').orderByChild('uid').equalTo(uid).once('value',function(snap){
+    var updates={};
+    snap.forEach(function(c){updates[c.key]=null});
+    db.ref('timers').update(updates);
+  });
+}
+
+function save(){try{localStorage.setItem('kl-private',JSON.stringify(privateEntries))}catch(e){}}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function fmtCountdown(ms){if(ms<=0)return null;var t=Math.ceil(ms/1000);return pad(Math.floor(t/60))+':'+pad(t%60)}
+function pad(n){return n<10?'0'+n:''+n}
+function fmtEST(ts){return new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
+function timerClass(ms){if(ms<=0)return 'done-text';if(ms<=30000)return 'urgent';if(ms<=120000)return 'warn';return 'ok'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ═══════════════════════════════════════════
+// CARD HTML
+// ═══════════════════════════════════════════
+function buildCard(e,source){
+  var ms=e.spawnAt-Date.now(),done=ms<=0;
+  var bi=BOSS_TYPES[e.type]||{label:e.type,icon:'&#9733;'};
+  var delId=source==='private'?e.id:e.firebaseKey;
+  var showDel=source==='private'||isAdmin;
+  var uname=e.username?('<span class="posted-by">&#128100; '+esc(e.username)+'</span>'):'';
+  return '<div class="card '+e.type+(done?' done':'')+'\" id="card-'+source+'-'+e.id+'">'
+    +'<div class="card-icon">'+bi.icon+'</div>'
+    +'<div class="card-info">'
+      +'<div class="card-top">'
+        +'<div class="boss-type">'+bi.label+'</div>'
+        +'<span class="vis-badge '+(e.visibility||'private')+'">'+(e.visibility==='public'?'&#127758; Public':'&#128274; Private')+'</span>'
+        +uname
+      +'</div>'
+      +'<div class="server-code"><span>Server:</span> '+esc(e.server)+'</div>'
+      +'<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>'
+    +'</div>'
+    +'<div class="card-timer">'
+      +'<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+source+'-'+e.id+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>'
+      +'<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>'
+    +'</div>'
+    +'<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+String(delId)+'" data-source="'+source+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>'
+  +'</div>';
+}
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+function renderPrivateCards(){
+  Object.keys(BOSS_TYPES).forEach(function(t){
+    var arr=privateEntries.filter(function(e){return e.type===t});
+    document.getElementById('my-'+t+'-count').textContent=arr.length;
+    document.getElementById('my-'+t+'-cards').innerHTML=arr.length?arr.map(function(e){return buildCard(e,'private')}).join(''):'<div class="empty">No '+BOSS_TYPES[t].label+' timers yet.</div>';
+  });
+}
+function renderPublicCards(){
+  Object.keys(BOSS_TYPES).forEach(function(t){
+    var arr=publicEntries.filter(function(e){return e.type===t});
+    document.getElementById('pub-'+t+'-count').textContent=arr.length;
+    document.getElementById('pub-'+t+'-cards').innerHTML=arr.length?arr.map(function(e){return buildCard(e,'public')}).join(''):'<div class="empty">No public '+BOSS_TYPES[t].label+' timers.</div>';
+  });
+}
+function renderPublicEmpty(msg){
+  Object.keys(BOSS_TYPES).forEach(function(t){
+    var el=document.getElementById('pub-'+t+'-cards');
+    if(el)el.innerHTML='<div class="empty">'+esc(msg)+'</div>';
+  });
+}
+function renderUsersPanel(){
+  var grid=document.getElementById('users-grid');
+  var keys=Object.keys(allUsers);
+  document.getElementById('badge-users').textContent=keys.length;
+  if(keys.length===0){grid.innerHTML='<div class="empty">No registered users yet.</div>';return}
+  grid.innerHTML=keys.map(function(uid){
+    var u=allUsers[uid];
+    var initials=(u.username||'?').charAt(0).toUpperCase();
+    var joined=u.joinedAt?new Date(u.joinedAt).toLocaleDateString():'Unknown';
+    return '<div class="user-card">'
+      +'<div class="user-card-avatar">'+initials+'</div>'
+      +'<div class="user-card-info">'
+        +'<div class="user-card-name">'+esc(u.username||'Unknown')+'</div>'
+        +'<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'
+        +'<div class="user-card-meta">Joined: '+joined+'</div>'
+      +'</div>'
+      +(ADMIN_EMAILS.indexOf(u.email)===-1?'<button class="ban-btn" onclick="deleteUserTimers(\''+esc(uid)+'\',\''+esc(u.username||'this user')+'\')">&#128465; Clear Timers</button>':'<span style="font-size:.7rem;color:var(--pub-glow)">&#9733; Admin</span>')
+    +'</div>';
+  }).join('');
+}
+function updateBadges(){
+  document.getElementById('badge-my').textContent=privateEntries.length;
+  document.getElementById('badge-public').textContent=publicEntries.length;
+}
+
+// ═══════════════════════════════════════════
+// TICK
+// ═══════════════════════════════════════════
+function tick(){
+  document.getElementById('est-clock').textContent=new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  var now=Date.now();
+  function upd(arr,src){
+    arr.forEach(function(e){
+      var el=document.getElementById('tdisplay-'+src+'-'+e.id);if(!el)return;
+      var ms=e.spawnAt-now;
+      if(ms<=0){
+        el.textContent='SPAWNED';el.className='time-display done-text';
+        var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
+        if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
+      }else{el.textContent=fmtCountdown(ms);el.className='time-display '+timerClass(ms)}
+    });
+  }
+  upd(privateEntries,'private');upd(publicEntries,'public');
+  if(!alarmActive&&alarmQueue.length>0)showAlarm(alarmQueue.shift());
+}
+
+// ═══════════════════════════════════════════
+// ALARM
+// ═══════════════════════════════════════════
+function showAlarm(entry){
+  alarmActive=true;
+  var bt=BOSS_TYPES[entry.type]||{label:entry.type,icon:'&#9733;'};
+  document.getElementById('alarm-box').className='alarm-box '+(entry.type==='hydra'||entry.type==='kraken'?'hydra':'sea');
+  document.getElementById('alarm-icon').innerHTML=bt.icon;
+  document.getElementById('alarm-title').textContent=bt.label.toUpperCase()+' SPAWN!';
+  document.getElementById('alarm-sub').textContent=bt.label+' is spawning!';
+  document.getElementById('alarm-server').textContent='Server: '+entry.server;
+  document.getElementById('alarm-dismiss-btn').className=(entry.type==='hydra'||entry.type==='kraken')?'alarm-dismiss hydra-mode':'alarm-dismiss';
+  document.getElementById('alarm-overlay').classList.add('show');
+  startAlarmLoop();
+}
+function dismissAlarm(){alarmActive=false;stopAlarmLoop();document.getElementById('alarm-overlay').classList.remove('show')}
+
+// ═══════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.activeElement&&document.activeElement.tagName==='INPUT'){
+    var id=document.activeElement.id;
+    if(id==='li-email'||id==='li-pass')emailSignIn();
+    else if(id==='su-username'||id==='su-email'||id==='su-pass')emailSignUp();
+    else if(id==='uname-input')saveUsername();
+    else if(document.getElementById('app').classList.contains('show'))addEntry();
+  }
+  if(e.key==='Escape'&&alarmActive)dismissAlarm();
+});
+
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+setInterval(tick,1000);tick();
+initFirebase();
+</script>
+</body>
+</html>
