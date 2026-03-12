@@ -281,7 +281,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
     <h1>Check your email</h1>
     <div class="sub">Verify your account to continue</div>
     <p style="color:var(--text-dim);font-size:.88rem;line-height:1.6;margin:16px 0">We sent a verification link to<br><strong id="verify-email-shown" style="color:var(--text)"></strong><br>Click the link in the email then come back here.</p>
-    <button class="auth-submit" onclick="checkVerification()" style="margin-bottom:10px">I verified my email &#10003;</button>
+    <button class="auth-submit" id="verify-check-btn" onclick="checkVerification()" style="margin-bottom:10px">I verified my email &#10003;</button>
     <button onclick="resendVerification()" style="width:100%;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-family:Rajdhani,sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.08em;padding:10px;cursor:pointer;text-transform:uppercase;transition:all .2s" id="resend-btn">Resend Email</button>
     <div style="margin-top:12px"><button onclick="signOutUser()" style="background:none;border:none;color:var(--text-dim);font-family:Rajdhani,sans-serif;font-size:.78rem;cursor:pointer;text-decoration:underline">Sign out</button></div>
   </div>
@@ -419,17 +419,36 @@ var allUsers={};
 try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
 
 // ═══════════════════════════════════════════
-// VERIFY WALL HELPERS — FIX: use .show class instead of toggling .hidden
+// VERIFY WALL HELPERS
 // ═══════════════════════════════════════════
+var verifyPollInterval=null;
+
 function showVerifyWall(email){
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
   document.getElementById('verify-wall').classList.add('show');
   document.getElementById('app').classList.remove('show');
   document.getElementById('verify-email-shown').textContent=email||'';
+  // Auto-poll every 3 seconds — when the user clicks the link in their email,
+  // Firebase updates their account. We reload the user and detect it automatically.
+  stopVerifyPoll();
+  verifyPollInterval=setInterval(function(){
+    if(!currentUser)return;
+    currentUser.reload().then(function(){
+      if(currentUser.emailVerified){
+        stopVerifyPoll();
+        hideVerifyWall();
+        onAuthStateChanged(currentUser);
+      }
+    }).catch(function(){});
+  },3000);
 }
 function hideVerifyWall(){
   document.getElementById('verify-wall').classList.remove('show');
+  stopVerifyPoll();
+}
+function stopVerifyPoll(){
+  if(verifyPollInterval){clearInterval(verifyPollInterval);verifyPollInterval=null;}
 }
 
 // ═══════════════════════════════════════════
@@ -591,12 +610,22 @@ function signOutUser(){
 
 function checkVerification(){
   if(!currentUser){return}
+  var btn=document.getElementById('verify-check-btn');
+  if(btn){btn.textContent='Checking...';btn.disabled=true;}
   currentUser.reload().then(function(){
     if(currentUser.emailVerified){
       hideVerifyWall();
       onAuthStateChanged(currentUser);
     }else{
-      alert('Email not verified yet. Please check your inbox and click the verification link.');
+      if(btn){btn.textContent='I verified my email ✓';btn.disabled=false;}
+      var existing=document.getElementById('verify-notice');
+      if(existing)existing.remove();
+      var notice=document.createElement('div');
+      notice.id='verify-notice';
+      notice.style.cssText='background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fca5a5;font-size:.82rem;padding:9px 12px;margin:0 0 12px;text-align:left;';
+      notice.textContent='Not verified yet — please click the link in your email first.';
+      if(btn)btn.parentNode.insertBefore(notice,btn);
+      setTimeout(function(){var n=document.getElementById('verify-notice');if(n)n.remove();},4000);
     }
   });
 }
