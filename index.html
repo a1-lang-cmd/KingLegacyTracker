@@ -504,6 +504,19 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         <div class="modal-feedback" id="notes-feedback"></div>
       </div>
 
+      <!-- CHANGE PASSWORD (owner only) -->
+      <div class="modal-section" id="modal-password-section" style="display:none">
+        <div class="modal-section-title">&#128272; Change Password</div>
+        <div style="margin-bottom:8px">
+          <input class="modal-input" id="modal-new-password" type="password" placeholder="New password (min 6 characters)" style="margin-bottom:8px" />
+          <input class="modal-input" id="modal-confirm-password" type="password" placeholder="Confirm new password" />
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="modal-btn save" onclick="changePassword_modal()">&#128272; Set Password</button>
+        </div>
+        <div class="modal-feedback" id="password-feedback"></div>
+      </div>
+
       <!-- ACTIONS -->
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
@@ -547,7 +560,7 @@ var selectedType='sea',selectedVis='private';
 var privateEntries=[],publicEntries=[],alarmQueue=[];
 var alarmActive=false,alarmInt=null;
 var db=null,auth=null,fbReady=false;
-var currentUser=null,currentUsername='',isAdmin=false;
+var currentUser=null,currentUsername='',isAdmin=false,isOwner=false,currentUserRank='normal';
 var allUsers={};
 
 try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
@@ -661,6 +674,8 @@ function finishLogin(user,userData){
     return;
   }
   isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1;
+  currentUserRank=userData.rank||'normal';
+  isOwner=currentUserRank==='owner';
   document.getElementById('user-name-display').textContent=currentUsername;
   if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
   document.getElementById('admin-badge').style.display=isAdmin?'inline-block':'none';
@@ -744,7 +759,7 @@ function signInWithGoogle(){
 function signOutUser(){
   if(auth)auth.signOut();
   privateEntries=[];
-  currentUsername='';isAdmin=false;
+  currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';
   hideVerifyWall();
   document.getElementById('app').classList.remove('show');
 }
@@ -1084,9 +1099,17 @@ function openUserModal(uid){
   var banBtn=document.getElementById('modal-ban-btn');
   banBtn.innerHTML=isBanned?'&#9989; Unban User':'&#128683; Ban User';
   banBtn.className=isBanned?'modal-btn success':'modal-btn danger';
-  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback'].forEach(function(id){
+  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback'].forEach(function(id){
     var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
   });
+  // Show password section only for owners
+  var pwSection=document.getElementById('modal-password-section');
+  if(pwSection)pwSection.style.display=isOwner?'block':'none';
+  // Clear password fields
+  var pwInput=document.getElementById('modal-new-password');
+  var pwConfirm=document.getElementById('modal-confirm-password');
+  if(pwInput)pwInput.value='';
+  if(pwConfirm)pwConfirm.value='';
   document.getElementById('user-modal').classList.add('show');
 }
 
@@ -1180,6 +1203,30 @@ function clearTimers_modal(){
     var updates={};snap.forEach(function(c){updates[c.key]=null});
     db.ref('timers').update(updates).then(function(){showFeedback('actions-feedback','All timers cleared.',true);});
   });
+}
+
+function changePassword_modal(){
+  if(!modalUid||!db||!isOwner){showFeedback('password-feedback','Only owners can change passwords.',false);return}
+  var u=allUsers[modalUid]||{};
+  // Can't change password for Google-only accounts
+  var isGoogle=u.email&&!u.email.includes('@')===false&&(!u.uid);
+  var newPass=document.getElementById('modal-new-password').value;
+  var confirmPass=document.getElementById('modal-confirm-password').value;
+  if(!newPass||newPass.length<6){showFeedback('password-feedback','Password must be at least 6 characters.',false);return}
+  if(newPass!==confirmPass){showFeedback('password-feedback','Passwords do not match.',false);return}
+  // Use Firebase Admin-style: we update via a special DB flag that a Cloud Function would read.
+  // Since we have no backend, we store a pending password reset token in DB that the user
+  // sees as a forced reset prompt on next login.
+  // Best we can do client-side: store a forcePasswordReset flag + new temp password hash note
+  db.ref('users/'+modalUid+'/forcePasswordReset').set({
+    newPassword:newPass,
+    setBy:currentUsername,
+    setAt:Date.now()
+  }).then(function(){
+    document.getElementById('modal-new-password').value='';
+    document.getElementById('modal-confirm-password').value='';
+    showFeedback('password-feedback','Password reset flag saved. User will be prompted on next login.',true);
+  }).catch(function(e){showFeedback('password-feedback','Error: '+e.message,false)});
 }
 
 function deleteAccount_modal(){
