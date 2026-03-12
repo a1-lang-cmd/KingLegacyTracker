@@ -1181,9 +1181,32 @@ function sortEntries(arr, mode){
   return copy;
 }
 
-function renderFlat(container, arr, source, emptyMsg){
+function renderFlat(container, arr, source, emptyMsg, sortMode){
   if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
-  container.innerHTML=arr.map(function(e){return buildCard(e,source)}).join('');
+  // If sorting by type or grouping makes sense, show type headers
+  // Always group by type, but sort within each group by the chosen sort mode
+  var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr'];
+  var groups={};
+  TYPE_ORDER.forEach(function(t){groups[t]=[]});
+  arr.forEach(function(e){if(groups[e.type])groups[e.type].push(e);else{if(!groups['__other'])groups['__other']=[];groups['__other'].push(e);}});
+
+  // Sort within each group
+  TYPE_ORDER.forEach(function(t){
+    if(!groups[t].length)return;
+    if(sortMode==='latest')groups[t].sort(function(a,b){return b.spawnAt-a.spawnAt});
+    else if(sortMode==='user')groups[t].sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))});
+    else groups[t].sort(function(a,b){return a.spawnAt-b.spawnAt}); // soonest default
+  });
+
+  var html='';
+  TYPE_ORDER.forEach(function(t){
+    var grp=groups[t];
+    if(!grp||!grp.length)return;
+    var bi=BOSS_TYPES[t];
+    html+='<div class="section-header-inline"><span>'+bi.icon+' '+bi.label+'s</span><span style="font-size:.65rem;opacity:.6">'+grp.length+'</span></div>';
+    html+=grp.map(function(e){return buildCard(e,source)}).join('');
+  });
+  container.innerHTML=html||'<div class="no-results">'+esc(emptyMsg)+'</div>';
 }
 
 function renderPrivateCards(){
@@ -1192,7 +1215,7 @@ function renderPrivateCards(){
   var sorted=sortEntries(filtered,mySort);
   var container=document.getElementById('my-flat-cards');
   if(!container)return;
-  renderFlat(container,sorted,'private',q?'No timers match your search.':'No timers yet.');
+  renderFlat(container,sorted,'private',q?'No timers match your search.':'No timers yet.',mySort);
   // update badge
   document.getElementById('badge-my').textContent=privateEntries.length;
 }
@@ -1203,7 +1226,7 @@ function renderPublicCards(){
   var sorted=sortEntries(filtered,pubSort);
   var container=document.getElementById('pub-flat-cards');
   if(!container)return;
-  renderFlat(container,sorted,'public',q?'No public timers match your search.':'No public timers yet.');
+  renderFlat(container,sorted,'public',q?'No public timers match your search.':'No public timers yet.',pubSort);
   document.getElementById('badge-public').textContent=publicEntries.length;
 }
 
@@ -1555,11 +1578,29 @@ function tick(){
   var elMap={};
   allTimerEls.forEach(function(el){elMap[el.id]=el;});
 
+  var EXPIRE_AFTER=5*60*1000; // 5 minutes after spawn
+  var needsRerender=false;
+
   function upd(arr,src){
     arr.forEach(function(e){
+      var ms=e.spawnAt-now;
+      // Auto-remove entries that spawned more than 5 minutes ago
+      if(ms<=-EXPIRE_AFTER){
+        if(src==='private'){
+          // Remove from Firebase if it was public
+          if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
+          privateEntries=privateEntries.filter(function(x){return x.id!==e.id});
+          save();
+        } else {
+          // Public entries: remove from Firebase
+          if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
+          publicEntries=publicEntries.filter(function(x){return x.id!==e.id});
+        }
+        needsRerender=true;
+        return;
+      }
       var key='tdisplay-'+src+'-'+e.id;
       var el=elMap[key];if(!el)return;
-      var ms=e.spawnAt-now;
       if(ms<=0){
         if(el.textContent!=='SPAWNED'){
           el.textContent='SPAWNED';el.className='time-display done-text';
@@ -1574,7 +1615,8 @@ function tick(){
       }
     });
   }
-  upd(privateEntries,'private');upd(publicEntries,'public');
+  upd(privateEntries.slice(),'private');upd(publicEntries.slice(),'public');
+  if(needsRerender){renderPrivateCards();renderPublicCards();}
   if(!alarmActive&&alarmQueue.length>0)showAlarm(alarmQueue.shift());
   requestAnimationFrame(tick);
 }
