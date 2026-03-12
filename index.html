@@ -260,6 +260,19 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .modal-feedback{font-size:.75rem;padding:6px 10px;border-radius:6px;margin-top:8px;display:none}
 .modal-feedback.ok{background:rgba(34,197,94,.1);color:var(--priv-glow);border:1px solid rgba(34,197,94,.25);display:block}
 .modal-feedback.err{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.25);display:block}
+/* ── RESTRICTION BADGES ── */
+.muted-badge{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:20px;background:rgba(14,165,233,.12);color:var(--sea-glow);border:1px solid rgba(14,165,233,.3)}
+/* ── DURATION BUTTONS ── */
+.dur-btn{padding:6px 10px;border-radius:7px;border:1px solid rgba(14,165,233,.3);background:rgba(14,165,233,.07);color:var(--sea-glow);font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.05em}
+.dur-btn:hover{background:rgba(14,165,233,.18);border-color:var(--sea)}
+.dur-btn.dur-danger{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07);color:#fca5a5}
+.dur-btn.dur-danger:hover{background:rgba(239,68,68,.18);border-color:var(--danger)}
+.dur-btn.dur-perm{border-style:dashed}
+.restricted-badge{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:20px;background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.restrict-notice{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 14px;text-align:center;margin-bottom:12px;display:none}
+.restrict-notice.show{display:block}
+.restrict-notice p{font-size:.85rem;color:#fca5a5;font-weight:600}
+.restrict-notice span{font-size:.75rem;color:var(--text-dim)}
 
 /* ── ALARM ── */
 .alarm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center}
@@ -376,6 +389,14 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
   <div class="page-view active" id="page-my">
     <div class="add-section">
       <h2>&#43; Add Spawn Timer</h2>
+      <div class="restrict-notice" id="mute-notice">
+        <p>&#128263; You are muted from posting public timers.</p>
+        <span>You can still add private timers.</span>
+      </div>
+      <div class="restrict-notice" id="restrict-notice">
+        <p>&#128683; You are restricted from adding any timers.</p>
+        <span>Contact an admin if you believe this is a mistake.</span>
+      </div>
       <div class="type-toggle">
         <button class="type-btn sea active" onclick="selectType('sea')">&#127754; Sea Beast</button>
         <button class="type-btn hydra" onclick="selectType('hydra')">&#128009; Hydra</button>
@@ -517,6 +538,61 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         <div class="modal-feedback" id="password-feedback"></div>
       </div>
 
+      <!-- RESTRICTIONS (admin+) -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#128263; Restrictions</div>
+
+        <!-- Active mute display -->
+        <div id="mute-active-display" style="display:none;background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
+          <div>
+            <div style="font-size:.8rem;font-weight:700;color:var(--sea-glow)">&#128263; Muted from public timers</div>
+            <div style="font-size:.7rem;color:var(--text-dim);margin-top:2px">Expires: <span id="mute-expires-text">Never</span></div>
+          </div>
+          <button class="modal-btn success" onclick="unmute()" style="flex-shrink:0">&#9989; Unmute</button>
+        </div>
+
+        <!-- Active restrict display -->
+        <div id="restrict-active-display" style="display:none;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
+          <div>
+            <div style="font-size:.8rem;font-weight:700;color:#fca5a5">&#128683; Restricted from all timers</div>
+            <div style="font-size:.7rem;color:var(--text-dim);margin-top:2px">Expires: <span id="restrict-expires-text">Never</span></div>
+          </div>
+          <button class="modal-btn success" onclick="unrestrict()" style="flex-shrink:0">&#9989; Lift</button>
+        </div>
+
+        <!-- Mute duration picker -->
+        <div id="mute-picker">
+          <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128263; Mute from public timers</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="dur-btn" onclick="applyMute(15*60*1000)">15m</button>
+            <button class="dur-btn" onclick="applyMute(30*60*1000)">30m</button>
+            <button class="dur-btn" onclick="applyMute(60*60*1000)">1h</button>
+            <button class="dur-btn" onclick="applyMute(6*60*60*1000)">6h</button>
+            <button class="dur-btn" onclick="applyMute(24*60*60*1000)">1d</button>
+            <button class="dur-btn" onclick="applyMute(7*24*60*60*1000)">7d</button>
+            <button class="dur-btn" onclick="applyMute(30*24*60*60*1000)">30d</button>
+            <button class="dur-btn dur-perm" onclick="applyMute(-1)">Perm</button>
+          </div>
+        </div>
+
+        <!-- Restrict duration picker (owner only) -->
+        <div id="restrict-picker" style="display:none;margin-top:10px">
+          <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128683; Restrict all timers (owner only)</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="dur-btn dur-danger" onclick="applyRestrict(15*60*1000)">15m</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(30*60*1000)">30m</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(60*60*1000)">1h</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(6*60*60*1000)">6h</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(24*60*60*1000)">1d</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(7*24*60*60*1000)">7d</button>
+            <button class="dur-btn dur-danger" onclick="applyRestrict(30*24*60*60*1000)">30d</button>
+            <button class="dur-btn dur-perm dur-danger" onclick="applyRestrict(-1)">Perm</button>
+          </div>
+        </div>
+
+        <div class="modal-feedback" id="restrict-feedback" style="margin-top:8px"></div>
+      </div>
+
       <!-- ACTIONS -->
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
@@ -560,7 +636,7 @@ var selectedType='sea',selectedVis='private';
 var privateEntries=[],publicEntries=[],alarmQueue=[];
 var alarmActive=false,alarmInt=null;
 var db=null,auth=null,fbReady=false;
-var currentUser=null,currentUsername='',isAdmin=false,isOwner=false,currentUserRank='normal';
+var currentUser=null,currentUsername='',isAdmin=false,isOwner=false,currentUserRank='normal',currentUserData=null;
 var allUsers={};
 
 try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
@@ -680,15 +756,44 @@ function finishLogin(user,userData){
   if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
   document.getElementById('admin-badge').style.display=isAdmin?'inline-block':'none';
   document.getElementById('tab-admin').style.display=isAdmin?'flex':'none';
+  currentUserData=userData;
+  updateRestrictionUI();
   showApp();
   subscribePublic();
   if(isAdmin)loadAllUsers();
+  // Live-subscribe to own user record so mute/restrict takes effect immediately
+  if(currentUser&&db){
+    db.ref('users/'+currentUser.uid).on('value',function(snap){
+      currentUserData=snap.val()||{};
+      updateRestrictionUI();
+    });
+  }
 }
 
 function showApp(){
   document.getElementById('app').classList.add('show');
   renderPrivateCards();
   updateBadges();
+}
+
+function updateRestrictionUI(){
+  if(!currentUserData)return;
+  var isMuted=!!currentUserData.muted;
+  var isRestricted=!!currentUserData.restricted;
+  // Show notices on My Timers page
+  var muteNotice=document.getElementById('mute-notice');
+  var restrictNotice=document.getElementById('restrict-notice');
+  if(muteNotice)muteNotice.classList.toggle('show',isMuted&&!isRestricted&&!isAdmin&&!isOwner);
+  if(restrictNotice)restrictNotice.classList.toggle('show',isRestricted&&!isAdmin&&!isOwner);
+  // Hide public vis button if muted
+  var pubVisBtn=document.querySelector('.vis-btn.public');
+  if(pubVisBtn){
+    pubVisBtn.style.opacity=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'0.35':'';
+    pubVisBtn.style.pointerEvents=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'none':'';
+  }
+  // Dim entire add section if restricted
+  var addSection=document.querySelector('.add-section');
+  if(addSection)addSection.style.opacity=isRestricted&&!isAdmin&&!isOwner?'0.55':'';
 }
 
 // ═══════════════════════════════════════════
@@ -759,7 +864,7 @@ function signInWithGoogle(){
 function signOutUser(){
   if(auth)auth.signOut();
   privateEntries=[];
-  currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';
+  currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';currentUserData=null;
   hideVerifyWall();
   document.getElementById('app').classList.remove('show');
 }
@@ -923,6 +1028,11 @@ function addEntry(){
   if(mins===0&&secs===0){alert('Please enter a time until spawn!');return}
   var maxMins=BOSS_TYPES[selectedType].maxMins;
   if(mins>maxMins||(mins===maxMins&&secs>0)){alert('Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' minutes!');return}
+  // Check restrictions (admins/owners are immune)
+  if(!isAdmin&&!isOwner){
+    if(currentUserData&&currentUserData.restricted){alert('You are restricted from adding any timers.');return}
+    if(currentUserData&&currentUserData.muted&&selectedVis==='public'){alert('You are muted from posting public timers.');return}
+  }
   var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername};
   if(selectedVis==='public'){
     if(!fbReady){alert('Firebase not configured. Choose Private instead.');return}
@@ -1066,7 +1176,7 @@ function renderUsersPanel(){
       '<div class="user-card-top">'+
         '<div class="user-card-avatar '+RANK_CLASS[rank]+'">'+initials+'</div>'+
         '<div class="user-card-info">'+
-          '<div class="user-card-name">'+esc(u.username||'Unknown')+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+' </div>'+
+          '<div class="user-card-name">'+esc(u.username||'Unknown')+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+(u.muted&&!u.restricted?'<span class="muted-badge">&#128263; Muted</span>':'')+(u.restricted?'<span class="restricted-badge">&#128683; Restricted</span>':'')+' </div>'+
           '<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'+
           '<div class="user-card-meta">Joined: '+joined+' &nbsp;&#9679;&nbsp; '+warns.length+' warn'+(warns.length!==1?'s':'')+' </div>'+
         '</div>'+
@@ -1089,7 +1199,7 @@ function openUserModal(uid){
   var av=document.getElementById('modal-avatar');
   av.textContent=initials;
   av.className='modal-avatar '+RANK_CLASS[rank];
-  document.getElementById('modal-username-display').innerHTML=esc(u.username||'Unknown')+' '+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'');
+  document.getElementById('modal-username-display').innerHTML=esc(u.username||'Unknown')+' '+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+(u.muted&&!u.restricted?'<span class="muted-badge">&#128263; Muted</span>':'')+(u.restricted?'<span class="restricted-badge">&#128683; Restricted</span>':'');
   document.getElementById('modal-email-display').textContent=u.email||'Google login';
   document.getElementById('modal-rank').value=rank;
   document.getElementById('modal-new-username').value='';
@@ -1099,12 +1209,14 @@ function openUserModal(uid){
   var banBtn=document.getElementById('modal-ban-btn');
   banBtn.innerHTML=isBanned?'&#9989; Unban User':'&#128683; Ban User';
   banBtn.className=isBanned?'modal-btn success':'modal-btn danger';
-  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback'].forEach(function(id){
+  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback','restrict-feedback'].forEach(function(id){
     var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
   });
   // Show password section only for owners
   var pwSection=document.getElementById('modal-password-section');
   if(pwSection)pwSection.style.display=isOwner?'block':'none';
+  // Update mute/restrict buttons
+  updateModalRestrictionBtns(u);
   // Clear password fields
   var pwInput=document.getElementById('modal-new-password');
   var pwConfirm=document.getElementById('modal-confirm-password');
@@ -1241,6 +1353,100 @@ function deleteAccount_modal(){
     db.ref().update(updates).then(function(){closeUserModal();}).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false)});
   });
 }
+
+function fmtDuration(ms){
+  if(!ms||ms<0)return'Permanent';
+  var s=Math.ceil((ms-Date.now())/1000);
+  if(s<=0)return'Expired';
+  if(s<60)return s+'s';
+  if(s<3600)return Math.ceil(s/60)+'m';
+  if(s<86400)return Math.ceil(s/3600)+'h';
+  return Math.ceil(s/86400)+'d';
+}
+
+function applyMute(durationMs){
+  if(!modalUid||!db)return;
+  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
+  db.ref('users/'+modalUid+'/muted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
+    var label=durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs));
+    showFeedback('restrict-feedback','User muted '+label+'.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
+}
+
+function unmute(){
+  if(!modalUid||!db)return;
+  db.ref('users/'+modalUid+'/muted').remove().then(function(){
+    showFeedback('restrict-feedback','User unmuted.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
+}
+
+function applyRestrict(durationMs){
+  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can restrict all timers.',false);return}
+  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
+  db.ref('users/'+modalUid+'/restricted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
+    var label=durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs));
+    showFeedback('restrict-feedback','User restricted '+label+'.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
+}
+
+function unrestrict(){
+  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can lift restrictions.',false);return}
+  db.ref('users/'+modalUid+'/restricted').remove().then(function(){
+    showFeedback('restrict-feedback','Restriction lifted.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
+}
+
+function fmtDurationLabel(ms){
+  if(ms<3600000)return(ms/60000)+'m';
+  if(ms<86400000)return(ms/3600000)+'h';
+  return(ms/86400000)+'d';
+}
+
+function fmtExpiry(muteObj){
+  if(!muteObj||!muteObj.active)return null;
+  if(muteObj.expiresAt===-1)return'Never (permanent)';
+  var remaining=muteObj.expiresAt-Date.now();
+  if(remaining<=0)return'Expired';
+  if(remaining<3600000)return Math.ceil(remaining/60000)+'m remaining';
+  if(remaining<86400000)return Math.ceil(remaining/3600000)+'h remaining';
+  return Math.ceil(remaining/86400000)+'d remaining';
+}
+
+function updateModalRestrictionBtns(u){
+  var muteObj=u.muted&&u.muted.active?u.muted:null;
+  var restrictObj=u.restricted&&u.restricted.active?u.restricted:null;
+  // Handle legacy boolean format
+  if(u.muted===true)muteObj={active:true,expiresAt:-1};
+  if(u.restricted===true)restrictObj={active:true,expiresAt:-1};
+
+  var muteActive=document.getElementById('mute-active-display');
+  var restrictActive=document.getElementById('restrict-active-display');
+  var mutePicker=document.getElementById('mute-picker');
+  var restrictPicker=document.getElementById('restrict-picker');
+
+  // Mute active state
+  if(muteActive){
+    var showMute=!!muteObj;
+    muteActive.style.display=showMute?'flex':'none';
+    if(showMute){
+      var expiryEl=document.getElementById('mute-expires-text');
+      if(expiryEl)expiryEl.textContent=fmtExpiry(muteObj)||'Never';
+    }
+  }
+  if(mutePicker)mutePicker.style.display=muteObj?'none':'block';
+
+  // Restrict active state
+  if(restrictActive){
+    var showRestrict=!!restrictObj&&isOwner;
+    restrictActive.style.display=showRestrict?'flex':'none';
+    if(showRestrict){
+      var rExpiryEl=document.getElementById('restrict-expires-text');
+      if(rExpiryEl)rExpiryEl.textContent=fmtExpiry(restrictObj)||'Never';
+    }
+  }
+  if(restrictPicker)restrictPicker.style.display=isOwner&&!restrictObj?'block':'none';
+}
+
 
 function updateBadges(){
   document.getElementById('badge-my').textContent=privateEntries.length;
