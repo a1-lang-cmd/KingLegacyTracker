@@ -192,15 +192,74 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .admin-header{background:var(--surface);border:1px solid rgba(239,68,68,.2);border-radius:13px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
 .admin-header h3{font-family:'Cinzel Decorative',serif;font-size:.78rem;color:#fca5a5;letter-spacing:.1em;margin-bottom:2px}
 .admin-header p{font-size:.76rem;color:var(--text-dim)}
+.admin-search{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;width:100%;margin-bottom:14px;outline:none;transition:border-color .2s}
+.admin-search:focus{border-color:var(--sea)}
 .users-grid{display:grid;gap:8px;margin-bottom:24px}
-.user-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.user-card-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--sea-glow);border:2px solid var(--border);flex-shrink:0}
+.user-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .18s;position:relative}
+.user-card:hover{border-color:var(--sea);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.user-card.banned{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.04)}
+.user-card-top{display:flex;align-items:center;gap:12px}
+.user-card-avatar{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--sea-glow);border:2px solid var(--border);flex-shrink:0}
+.user-card-avatar.rank-owner{border-color:#f59e0b;color:#f59e0b}
+.user-card-avatar.rank-admin{border-color:#ef4444;color:#ef4444}
+.user-card-avatar.rank-premium{border-color:#a855f7;color:#a855f7}
 .user-card-info{flex:1;min-width:0}
-.user-card-name{font-size:.95rem;font-weight:700;color:var(--text)}
-.user-card-email{font-size:.72rem;color:var(--text-dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-card-name{font-size:.98rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rank-badge{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.rank-badge.owner{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
+.rank-badge.admin{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.rank-badge.premium{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.rank-badge.normal{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)}
+.banned-badge{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:20px;background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.35)}
+.user-card-email{font-size:.72rem;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .user-card-meta{font-size:.68rem;color:var(--text-dim);margin-top:1px}
-.ban-btn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:7px;color:#fca5a5;font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.06em;padding:5px 11px;cursor:pointer;text-transform:uppercase;transition:all .15s;flex-shrink:0}
-.ban-btn:hover{background:rgba(239,68,68,.2);border-color:var(--danger)}
+.user-card-arrow{color:var(--text-dim);font-size:.9rem;flex-shrink:0}
+.user-card-notes-preview{font-size:.7rem;color:var(--warn);margin-top:6px;padding:4px 8px;background:rgba(245,158,11,.06);border-radius:6px;border-left:2px solid var(--warn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── USER DETAIL MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:250;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:pop-in .25s cubic-bezier(.34,1.56,.64,1)}
+.modal-header{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;position:sticky;top:0;background:var(--surface);z-index:1;border-radius:20px 20px 0 0}
+.modal-avatar{width:46px;height:46px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;border:2px solid var(--border);flex-shrink:0}
+.modal-avatar.rank-owner{border-color:#f59e0b;color:#f59e0b}
+.modal-avatar.rank-admin{border-color:#ef4444;color:#ef4444}
+.modal-avatar.rank-premium{border-color:#a855f7;color:#a855f7}
+.modal-title{flex:1;min-width:0}
+.modal-title h3{font-size:1.05rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.modal-title p{font-size:.72rem;color:var(--text-dim);margin-top:2px}
+.modal-close{background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all .15s;flex-shrink:0}
+.modal-close:hover{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger)}
+.modal-body{padding:18px 22px 22px}
+.modal-section{margin-bottom:20px}
+.modal-section-title{font-family:'Cinzel Decorative',serif;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.modal-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.modal-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+.modal-input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+.modal-input:focus{border-color:var(--sea)}
+.modal-select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;outline:none;cursor:pointer;width:100%}
+.modal-btn{border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.08em;padding:7px 14px;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap}
+.modal-btn.save{background:linear-gradient(135deg,#0369a1,var(--sea));color:#fff}
+.modal-btn.save:hover{box-shadow:0 3px 10px rgba(14,165,233,.35)}
+.modal-btn.danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5}
+.modal-btn.danger:hover{background:rgba(239,68,68,.2)}
+.modal-btn.warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--pub-glow)}
+.modal-btn.warn:hover{background:rgba(245,158,11,.2)}
+.modal-btn.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--priv-glow)}
+.modal-btn.success:hover{background:rgba(34,197,94,.2)}
+.modal-btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.notes-area{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;outline:none;resize:vertical;min-height:80px;width:100%;transition:border-color .2s;line-height:1.5}
+.notes-area:focus{border-color:var(--sea)}
+.warn-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.warn-item{background:var(--surface2);border-radius:8px;padding:8px 10px;display:flex;align-items:flex-start;gap:8px;border-left:3px solid var(--warn)}
+.warn-item-text{flex:1;font-size:.82rem;color:var(--text);line-height:1.4}
+.warn-item-date{font-size:.65rem;color:var(--text-dim);white-space:nowrap;margin-top:1px}
+.warn-item-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.8rem;padding:0 2px;transition:color .15s;flex-shrink:0}
+.warn-item-del:hover{color:var(--danger)}
+.add-warn-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.modal-feedback{font-size:.75rem;padding:6px 10px;border-radius:6px;margin-top:8px;display:none}
+.modal-feedback.ok{background:rgba(34,197,94,.1);color:var(--priv-glow);border:1px solid rgba(34,197,94,.25);display:block}
+.modal-feedback.err{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.25);display:block}
 
 /* ── ALARM ── */
 .alarm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center}
@@ -378,11 +437,86 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
   <div class="page-view" id="page-admin">
     <div class="admin-header">
       <div class="ph-icon">&#128737;</div>
-      <div><h3>Admin — User Manager</h3><p>All registered usernames. Delete a user's timers if needed.</p></div>
+      <div><h3>Admin — User Manager</h3><p>Click any user to manage their account, rank, and warns.</p></div>
     </div>
+    <input class="admin-search" id="admin-search" placeholder="&#128269; Search by username or email..." oninput="filterUsers()" />
     <div class="users-grid" id="users-grid"><div class="empty">Loading users...</div></div>
   </div>
 </div>
+</div>
+
+<!-- USER DETAIL MODAL -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-avatar" id="modal-avatar">?</div>
+      <div class="modal-title">
+        <h3 id="modal-username-display">Username</h3>
+        <p id="modal-email-display">email</p>
+      </div>
+      <button class="modal-close" onclick="closeUserModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- RANK -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#9733; Rank</div>
+        <div class="modal-row">
+          <select class="modal-select" id="modal-rank">
+            <option value="normal">&#128100; Normal</option>
+            <option value="premium">&#128142; Premium</option>
+            <option value="admin">&#128737; Admin</option>
+            <option value="owner">&#128081; Owner</option>
+          </select>
+          <button class="modal-btn save" onclick="saveRank()">Save</button>
+        </div>
+        <div class="modal-feedback" id="rank-feedback"></div>
+      </div>
+
+      <!-- USERNAME -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#9999;&#65039; Change Username</div>
+        <div class="modal-row">
+          <input class="modal-input" id="modal-new-username" placeholder="New username (max 10 chars)" maxlength="10" />
+          <button class="modal-btn save" onclick="saveUsername_admin()">Save</button>
+        </div>
+        <div class="modal-feedback" id="username-feedback"></div>
+      </div>
+
+      <!-- WARNS -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#9888;&#65039; Warns &amp; Notes</div>
+        <div class="warn-list" id="modal-warns"></div>
+        <div class="add-warn-row">
+          <input class="modal-input" id="modal-warn-input" placeholder="Add a warn or note..." maxlength="200" />
+          <button class="modal-btn warn" onclick="addWarn()">&#43; Add</button>
+        </div>
+        <div class="modal-feedback" id="warn-feedback"></div>
+      </div>
+
+      <!-- ADMIN NOTES -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#128203; Admin Notes</div>
+        <textarea class="notes-area" id="modal-notes" placeholder="Private notes about this player (only admins can see this)..."></textarea>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button class="modal-btn save" onclick="saveNotes()">Save Notes</button>
+        </div>
+        <div class="modal-feedback" id="notes-feedback"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#128683; Actions</div>
+        <div class="modal-btn-row">
+          <button class="modal-btn warn" onclick="clearTimers_modal()">&#128465; Clear Timers</button>
+          <button class="modal-btn danger" id="modal-ban-btn" onclick="toggleBan()">&#128683; Ban User</button>
+          <button class="modal-btn danger" onclick="deleteAccount_modal()">&#10060; Delete Account</button>
+        </div>
+        <div class="modal-feedback" id="actions-feedback"></div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- ALARM -->
@@ -519,6 +653,13 @@ function finishLogin(user,userData){
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
   hideVerifyWall();
+  // Block banned users
+  if(userData&&userData.banned&&ADMIN_EMAILS.indexOf(user.email)===-1){
+    auth.signOut();
+    document.getElementById('auth-wall').classList.remove('hidden');
+    showAuthError('Your account has been banned. Contact an admin if you believe this is a mistake.');
+    return;
+  }
   isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1;
   document.getElementById('user-name-display').textContent=currentUsername;
   if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
@@ -873,26 +1014,187 @@ function renderPublicEmpty(msg){
     if(el)el.innerHTML='<div class="empty">'+esc(msg)+'</div>';
   });
 }
+// ═══════════════════════════════════════════
+// ADMIN USER PANEL
+// ═══════════════════════════════════════════
+var modalUid=null;
+var RANK_CLASS={owner:'rank-owner',admin:'rank-admin',premium:'rank-premium',normal:''};
+
+function rankBadgeHtml(rank){
+  var r=rank||'normal';
+  var labels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
+  return '<span class="rank-badge '+r+'">'+labels[r]+'</span>';
+}
+
 function renderUsersPanel(){
   var grid=document.getElementById('users-grid');
   var keys=Object.keys(allUsers);
   document.getElementById('badge-users').textContent=keys.length;
   if(keys.length===0){grid.innerHTML='<div class="empty">No registered users yet.</div>';return}
-  grid.innerHTML=keys.map(function(uid){
+  var searchEl=document.getElementById('admin-search');
+  var search=searchEl?searchEl.value.toLowerCase():'';
+  var filtered=keys.filter(function(uid){
+    var u=allUsers[uid];
+    if(!search)return true;
+    return (u.username||'').toLowerCase().indexOf(search)!==-1||(u.email||'').toLowerCase().indexOf(search)!==-1;
+  });
+  if(filtered.length===0){grid.innerHTML='<div class="empty">No users match that search.</div>';return}
+  grid.innerHTML=filtered.map(function(uid){
     var u=allUsers[uid];
     var initials=(u.username||'?').charAt(0).toUpperCase();
+    var rank=u.rank||'normal';
+    var isBanned=!!u.banned;
+    var warns=u.warns?Object.values(u.warns):[];
+    var latestWarn=warns.length>0?warns[warns.length-1].text:'';
     var joined=u.joinedAt?new Date(u.joinedAt).toLocaleDateString():'Unknown';
-    return '<div class="user-card">'
-      +'<div class="user-card-avatar">'+initials+'</div>'
-      +'<div class="user-card-info">'
-        +'<div class="user-card-name">'+esc(u.username||'Unknown')+'</div>'
-        +'<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'
-        +'<div class="user-card-meta">Joined: '+joined+'</div>'
-      +'</div>'
-      +(ADMIN_EMAILS.indexOf(u.email)===-1?'<button class="ban-btn" onclick="deleteUserTimers(\''+esc(uid)+'\',\''+esc(u.username||'this user')+'\')">&#128465; Clear Timers</button>':'<span style="font-size:.7rem;color:var(--pub-glow)">&#9733; Admin</span>')
-    +'</div>';
+    return '<div class="user-card'+(isBanned?' banned':'')+'" onclick="openUserModal(\''+esc(uid)+'\')">'+
+      '<div class="user-card-top">'+
+        '<div class="user-card-avatar '+RANK_CLASS[rank]+'">'+initials+'</div>'+
+        '<div class="user-card-info">'+
+          '<div class="user-card-name">'+esc(u.username||'Unknown')+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+' </div>'+
+          '<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'+
+          '<div class="user-card-meta">Joined: '+joined+' &nbsp;&#9679;&nbsp; '+warns.length+' warn'+(warns.length!==1?'s':'')+' </div>'+
+        '</div>'+
+        '<div class="user-card-arrow">&#10095;</div>'+
+      '</div>'+
+      (latestWarn?'<div class="user-card-notes-preview">&#9888; '+esc(latestWarn)+'</div>':'')+
+    '</div>';
   }).join('');
 }
+
+function filterUsers(){renderUsersPanel();}
+
+function openUserModal(uid){
+  var u=allUsers[uid];
+  if(!u)return;
+  modalUid=uid;
+  var rank=u.rank||'normal';
+  var isBanned=!!u.banned;
+  var initials=(u.username||'?').charAt(0).toUpperCase();
+  var av=document.getElementById('modal-avatar');
+  av.textContent=initials;
+  av.className='modal-avatar '+RANK_CLASS[rank];
+  document.getElementById('modal-username-display').innerHTML=esc(u.username||'Unknown')+' '+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'');
+  document.getElementById('modal-email-display').textContent=u.email||'Google login';
+  document.getElementById('modal-rank').value=rank;
+  document.getElementById('modal-new-username').value='';
+  document.getElementById('modal-new-username').placeholder='Current: '+(u.username||'Unknown');
+  renderModalWarns(u);
+  document.getElementById('modal-notes').value=u.adminNotes||'';
+  var banBtn=document.getElementById('modal-ban-btn');
+  banBtn.innerHTML=isBanned?'&#9989; Unban User':'&#128683; Ban User';
+  banBtn.className=isBanned?'modal-btn success':'modal-btn danger';
+  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback'].forEach(function(id){
+    var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
+  });
+  document.getElementById('user-modal').classList.add('show');
+}
+
+function closeUserModal(){document.getElementById('user-modal').classList.remove('show');modalUid=null;}
+
+function renderModalWarns(u){
+  var warns=u.warns?Object.entries(u.warns):[];
+  var container=document.getElementById('modal-warns');
+  if(warns.length===0){container.innerHTML='<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:6px">No warns yet.</div>';return;}
+  container.innerHTML=warns.map(function(entry){
+    var key=entry[0],w=entry[1];
+    var date=w.ts?new Date(w.ts).toLocaleDateString():'';
+    return '<div class="warn-item">'+
+      '<div class="warn-item-text">'+esc(w.text||'')+'</div>'+
+      '<div class="warn-item-date">'+date+'</div>'+
+      '<button class="warn-item-del" onclick="deleteWarn(\''+key+'\')" title="Delete">&#10005;</button>'+
+    '</div>';
+  }).join('');
+}
+
+function showFeedback(id,msg,ok){
+  var el=document.getElementById(id);if(!el)return;
+  el.textContent=msg;el.className='modal-feedback '+(ok?'ok':'err');
+  setTimeout(function(){if(el)el.className='modal-feedback';},3000);
+}
+
+function saveRank(){
+  if(!modalUid||!db)return;
+  var rank=document.getElementById('modal-rank').value;
+  db.ref('users/'+modalUid+'/rank').set(rank).then(function(){
+    showFeedback('rank-feedback','Rank updated to '+rank+'!',true);
+  }).catch(function(e){showFeedback('rank-feedback','Error: '+e.message,false)});
+}
+
+function saveUsername_admin(){
+  if(!modalUid||!db)return;
+  var newName=document.getElementById('modal-new-username').value.trim();
+  var err=validateUsername(newName);
+  if(err){showFeedback('username-feedback',err,false);return}
+  var oldName=(allUsers[modalUid]||{}).username||'';
+  db.ref('usernames/'+newName.toLowerCase()).once('value',function(snap){
+    if(snap.exists()&&snap.val()!==modalUid){showFeedback('username-feedback','That username is already taken.',false);return}
+    var updates={};
+    updates['users/'+modalUid+'/username']=newName;
+    updates['usernames/'+newName.toLowerCase()]=modalUid;
+    if(oldName)updates['usernames/'+oldName.toLowerCase()]=null;
+    db.ref().update(updates).then(function(){
+      showFeedback('username-feedback','Username changed to '+newName+'!',true);
+      document.getElementById('modal-new-username').value='';
+      document.getElementById('modal-new-username').placeholder='Current: '+newName;
+    }).catch(function(e){showFeedback('username-feedback','Error: '+e.message,false)});
+  });
+}
+
+function addWarn(){
+  if(!modalUid||!db)return;
+  var text=document.getElementById('modal-warn-input').value.trim();
+  if(!text){showFeedback('warn-feedback','Please enter a warn message.',false);return}
+  db.ref('users/'+modalUid+'/warns').push({text:text,ts:Date.now(),by:currentUsername}).then(function(){
+    document.getElementById('modal-warn-input').value='';
+    showFeedback('warn-feedback','Warn added.',true);
+  }).catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false)});
+}
+
+function deleteWarn(warnKey){
+  if(!modalUid||!db)return;
+  db.ref('users/'+modalUid+'/warns/'+warnKey).remove().catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false)});
+}
+
+function saveNotes(){
+  if(!modalUid||!db)return;
+  var notes=document.getElementById('modal-notes').value;
+  db.ref('users/'+modalUid+'/adminNotes').set(notes).then(function(){
+    showFeedback('notes-feedback','Notes saved.',true);
+  }).catch(function(e){showFeedback('notes-feedback','Error: '+e.message,false)});
+}
+
+function toggleBan(){
+  if(!modalUid||!db)return;
+  var isBanned=!!(allUsers[modalUid]||{}).banned;
+  db.ref('users/'+modalUid+'/banned').set(!isBanned).then(function(){
+    showFeedback('actions-feedback',isBanned?'User unbanned.':'User banned.',true);
+  }).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false)});
+}
+
+function clearTimers_modal(){
+  if(!modalUid||!db)return;
+  var u=allUsers[modalUid]||{};
+  if(!confirm('Delete ALL public timers posted by '+(u.username||'this user')+'?'))return;
+  db.ref('timers').orderByChild('uid').equalTo(modalUid).once('value',function(snap){
+    var updates={};snap.forEach(function(c){updates[c.key]=null});
+    db.ref('timers').update(updates).then(function(){showFeedback('actions-feedback','All timers cleared.',true);});
+  });
+}
+
+function deleteAccount_modal(){
+  if(!modalUid||!db)return;
+  var u=allUsers[modalUid]||{};
+  if(!confirm('Permanently delete '+(u.username||'this user')+"'s account data? This cannot be undone."))return;
+  var updates={};
+  updates['users/'+modalUid]=null;
+  if(u.username)updates['usernames/'+u.username.toLowerCase()]=null;
+  db.ref('timers').orderByChild('uid').equalTo(modalUid).once('value',function(snap){
+    snap.forEach(function(c){updates['timers/'+c.key]=null});
+    db.ref().update(updates).then(function(){closeUserModal();}).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false)});
+  });
+}
+
 function updateBadges(){
   document.getElementById('badge-my').textContent=privateEntries.length;
   document.getElementById('badge-public').textContent=publicEntries.length;
@@ -948,6 +1250,7 @@ document.addEventListener('keydown',function(e){
     else if(document.getElementById('app').classList.contains('show'))addEntry();
   }
   if(e.key==='Escape'&&alarmActive)dismissAlarm();
+  if(e.key==='Escape'&&modalUid)closeUserModal();
 });
 
 // ═══════════════════════════════════════════
