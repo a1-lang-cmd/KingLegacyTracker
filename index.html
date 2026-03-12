@@ -179,6 +179,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .server-code{font-size:.95rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .server-code span{font-size:.78rem;color:var(--text-dim);font-weight:400}
 .meta-line{font-size:.73rem;color:var(--text-dim);margin-top:2px}
+.created-line{opacity:.7;font-size:.68rem}
 .card-timer{text-align:right}
 .time-display{font-size:1.35rem;font-weight:700;letter-spacing:.05em;line-height:1;font-variant-numeric:tabular-nums}
 .time-display.urgent{color:var(--danger);animation:blink 1s step-end infinite}
@@ -1041,10 +1042,10 @@ function addEntry(){
     if(currentUserData&&currentUserData.restricted){alert('You are restricted from adding any timers.');return}
     if(currentUserData&&currentUserData.muted&&selectedVis==='public'){alert('You are muted from posting public timers.');return}
   }
-  var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername};
+  var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername,createdAt:Date.now()};
   if(selectedVis==='public'){
     if(!fbReady){alert('Firebase not configured. Choose Private instead.');return}
-    var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:''};
+    var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
     // Public entries use firebaseKey as id so RAF tick can find their DOM elements
@@ -1103,6 +1104,18 @@ function fmtCountdown(ms){
 }
 function pad(n){return n<10?'0'+n:''+n}
 function fmtEST(ts){return new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
+function fmtCreated(ts){
+  if(!ts)return'unknown';
+  var diff=Date.now()-ts;
+  if(diff<60000)return'just now';
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago';
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago';
+  return Math.floor(diff/86400000)+'d ago';
+}
+function fmtCreatedFull(ts){
+  if(!ts)return'Unknown';
+  return new Date(ts).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})+' EST';
+}
 function timerClass(ms){if(ms<=0)return 'done-text';if(ms<=30000)return 'urgent';if(ms<=120000)return 'warn';return 'ok'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
@@ -1125,6 +1138,7 @@ function buildCard(e,source){
       +'</div>'
       +'<div class="server-code"><span>Server:</span> '+esc(e.server)+'</div>'
       +'<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>'
+      +'<div class="meta-line created-line" title="'+fmtCreatedFull(e.createdAt||e.id)+'">&#128337; Added '+fmtCreated(e.createdAt||e.id)+'</div>'
     +'</div>'
     +'<div class="card-timer">'
       +'<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+source+'-'+e.id+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>'
