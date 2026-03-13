@@ -200,6 +200,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .chat-user-name{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-user-status{font-size:.65rem;color:var(--text-dim)}
 .chat-dm-hint{font-size:.65rem;color:var(--text-dim);padding:4px 8px 6px;text-align:center}
+.rank-divider{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);padding:6px 10px 3px;opacity:.6}
 .dm-badge{background:rgba(168,85,247,.25);color:#c084fc;border-radius:20px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-left:4px}
 .chat-user-item.dm-active{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25)}
 .card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
@@ -575,11 +576,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <!-- Sidebar -->
       <div class="chat-sidebar">
         <div class="chat-users-box">
-          <div class="chat-users-header"><span class="online-dot"></span>Online</div>
-          <div class="chat-users-list" id="online-users-list"><div style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
-          <div class="chat-users-header" style="margin-top:2px"><span class="offline-dot"></span>Offline</div>
-          <div class="chat-users-list" id="offline-users-list"></div>
-          <div class="chat-dm-hint">&#128172; Click to DM &nbsp;|&nbsp; hold to mention</div>
+          <div class="chat-users-header" style="padding:8px 10px">
+            <span style="flex:1;font-family:'Cinzel Decorative',serif;font-size:.62rem;letter-spacing:.12em">Players</span>
+            <span id="users-online-count" style="font-size:.65rem;color:#22c55e;font-family:'Rajdhani',sans-serif;font-weight:700"></span>
+          </div>
+          <div style="padding:6px 8px;border-bottom:1px solid var(--border)">
+            <input id="users-search" type="text" placeholder="&#128269; Search..." oninput="filterUsersList(this.value)"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.8rem;outline:none;box-sizing:border-box"/>
+          </div>
+          <div class="chat-users-list" id="all-users-list"><div style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
+          <div class="chat-dm-hint">&#128172; Click to DM &nbsp;|&nbsp; Right-click to mention</div>
         </div>
       </div>
     </div>
@@ -1971,68 +1977,87 @@ function bumpChatBadge(){
   }
 }
 
+// rank sort order
+var RANK_ORDER={owner:0,admin:1,premium:2,normal:3};
+// cached rendered items for search filtering
+var _allUserItems=[];
+
 function renderPresence(presSnap,usersMap){
-  var onlineList=document.getElementById('online-users-list');
-  var offlineList=document.getElementById('offline-users-list');
-  if(!onlineList||!offlineList)return;
+  var list=document.getElementById('all-users-list');
+  var countEl=document.getElementById('users-online-count');
+  if(!list)return;
 
   var myUid=currentUser?currentUser.uid:null;
   var onlineUids={};
+  if(presSnap){
+    presSnap.forEach(function(c){if(c.val())onlineUids[c.key]=true;});
+  }
 
-  // Collect who is online from presence snapshot
+  // merge anyone in presence not in usersMap
   if(presSnap){
     presSnap.forEach(function(c){
-      if(c.val())onlineUids[c.key]=true;
+      if(c.val()&&c.val().username&&!usersMap[c.key])usersMap[c.key]=c.val();
     });
   }
 
-  // Build combined user list - EVERYONE with an account
-  var allUids=Object.keys(usersMap||{});
+  var onlineCount=Object.keys(onlineUids).length;
+  if(countEl)countEl.textContent=onlineCount+' online';
 
-  // Also add anyone in presence not yet in usersMap
-  if(presSnap){
-    presSnap.forEach(function(c){
-      if(c.val()&&c.val().username&&!usersMap[c.key]){
-        allUids.push(c.key);
-        usersMap[c.key]=c.val();
-      }
-    });
-  }
+  // Build sorted list: by rank first, then online>offline, then alpha
+  var users=Object.keys(usersMap||{}).map(function(uid){
+    return {uid:uid,u:usersMap[uid],online:!!onlineUids[uid]};
+  }).filter(function(x){return x.u&&x.u.username;});
 
-  var onlineItems=[], offlineItems=[];
-
-  allUids.forEach(function(uid){
-    var u=usersMap[uid];
-    if(!u||!u.username)return;
-    var isOnline=!!onlineUids[uid];
-    var rank=u.rank||'normal';
-    var rankIcon={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''}[rank]||'';
-    var uname=esc(u.username);
-    var isSelf=uid===myUid;
-    var isDmActive=uid===_dmUid;
-    var unread=_dmUnread[uid]||0;
-    var item='<div class="chat-user-item'+(isDmActive?' dm-active':'')+'"'
-      +' data-uid="'+uid+'" data-uname="'+uname+'"'
-      +' onclick="openDM(this.dataset.uid,this.dataset.uname)"'
-      +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
-      +' title="Click to DM • Right-click to mention">'
-      +'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>'
-      +'<div style="min-width:0;flex:1">'
-        +'<div class="chat-user-name">'+rankIcon+uname+(isSelf?' <span style="font-size:.6rem;opacity:.5">(you)</span>':'')+'</div>'
-      +'</div>'
-      +(unread>0?'<span class="dm-badge">'+unread+'</span>':'')
-      +'</div>';
-    if(isOnline)onlineItems.push({uname:u.username,html:item});
-    else offlineItems.push({uname:u.username,html:item});
+  users.sort(function(a,b){
+    var ro=(RANK_ORDER[a.u.rank||'normal']||3)-(RANK_ORDER[b.u.rank||'normal']||3);
+    if(ro!==0)return ro;
+    var oo=(b.online?1:0)-(a.online?1:0);
+    if(oo!==0)return oo;
+    return (a.u.username||'').localeCompare(b.u.username||'');
   });
 
-  onlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
-  offlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
+  var rankColors={owner:'#fbbf24',admin:'#fca5a5',premium:'#c084fc',normal:'var(--text)'};
+  var rankIcons={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''};
 
-  onlineList.innerHTML=onlineItems.length
-    ? onlineItems.map(function(x){return x.html}).join('')
-    : '<div style="padding:8px 10px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
-  offlineList.innerHTML=offlineItems.map(function(x){return x.html}).join('');
+  _allUserItems=users.map(function(x){
+    var uid=x.uid,u=x.u,isOnline=x.online;
+    var rank=u.rank||'normal';
+    var uname=esc(u.username);
+    var isSelf=uid===myUid;
+    var unread=_dmUnread[uid]||0;
+    var isDmActive=uid===_dmUid;
+    return {
+      uname:u.username.toLowerCase(),
+      html:'<div class="chat-user-item'+(isDmActive?' dm-active':'')+'"'
+        +' data-uid="'+uid+'" data-uname="'+uname+'"'
+        +' onclick="openDM(this.dataset.uid,this.dataset.uname)"'
+        +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
+        +' title="Click to DM • Right-click to mention">'
+        +'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>'
+        +'<div style="min-width:0;flex:1">'
+          +'<div class="chat-user-name" style="color:'+rankColors[rank]+'">'+rankIcons[rank]+uname
+            +(isSelf?' <span style="font-size:.6rem;opacity:.5">(you)</span>':'')+'</div>'
+          +(isOnline?'':'<div style="font-size:.6rem;color:var(--text-dim);margin-top:1px">Offline</div>')
+        +'</div>'
+        +(unread>0?'<span class="dm-badge">'+unread+'</span>':'')
+        +'</div>'
+    };
+  });
+
+  var q=document.getElementById('users-search');
+  filterUsersList(q?q.value:'');
+}
+
+function filterUsersList(q){
+  var list=document.getElementById('all-users-list');
+  if(!list)return;
+  q=(q||'').toLowerCase().trim();
+  var filtered=q?_allUserItems.filter(function(x){return x.uname.indexOf(q)!==-1}):_allUserItems;
+  if(!filtered.length){
+    list.innerHTML='<div style="padding:10px;font-size:.75rem;color:var(--text-dim);text-align:center">No users found</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(function(x){return x.html}).join('');
 }
 
 function mentionUser(username){
