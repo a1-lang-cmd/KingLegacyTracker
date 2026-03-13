@@ -1842,11 +1842,35 @@ function initPresenceAndChat(user){
 
   // ── Presence: register self ──
   presenceRef=db.ref('presence/'+user.uid);
-  db.ref('.info/connected').on('value',function(snap){
-    if(!snap.val())return;
+
+  function goOnline(){
+    if(!presenceRef)return;
     presenceRef.onDisconnect().remove();
     presenceRef.set({username:currentUsername,rank:currentUserRank,uid:user.uid,ts:Date.now()});
+  }
+  function goOffline(){
+    if(!presenceRef)return;
+    presenceRef.remove();
+  }
+
+  // Firebase connection state — sets online when websocket connects
+  db.ref('.info/connected').on('value',function(snap){
+    if(!snap.val())return;
+    // Re-register onDisconnect every time connection is re-established
+    goOnline();
   });
+
+  // Page visibility — go offline when tab is hidden, online when visible
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'){
+      goOnline();
+    } else {
+      goOffline();
+    }
+  });
+
+  // Also go online immediately (don't wait for visibilitychange)
+  goOnline();
 
   // ── Load users FIRST, then start presence listener ──
   db.ref('users').on('value',function(snap){
