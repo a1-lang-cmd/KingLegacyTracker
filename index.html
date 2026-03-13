@@ -1840,37 +1840,54 @@ var _dmUid=null, _dmRef=null, _dmListener=null;
 function initPresenceAndChat(user){
   if(!db||!user)return;
 
-  // ── Presence: register self ──
+  // ── Presence ──
   presenceRef=db.ref('presence/'+user.uid);
+  var _isOnline=false;
 
   function goOnline(){
-    if(!presenceRef)return;
+    if(!presenceRef||!currentUsername)return;
     presenceRef.onDisconnect().remove();
-    presenceRef.set({username:currentUsername,rank:currentUserRank,uid:user.uid,ts:Date.now()});
+    presenceRef.set({
+      username:currentUsername,
+      rank:currentUserRank,
+      uid:user.uid,
+      ts:firebase.database.ServerValue.TIMESTAMP
+    }).then(function(){
+      _isOnline=true;
+    }).catch(function(e){
+      console.error('Presence write failed:',e.code, e.message);
+    });
   }
+
   function goOffline(){
     if(!presenceRef)return;
-    presenceRef.remove();
+    _isOnline=false;
+    presenceRef.remove().catch(function(){});
   }
 
-  // Firebase connection state — sets online when websocket connects
+  // Use .info/connected as the authoritative trigger —
+  // it fires true as soon as the websocket is established
   db.ref('.info/connected').on('value',function(snap){
-    if(!snap.val())return;
-    // Re-register onDisconnect every time connection is re-established
-    goOnline();
+    if(!snap.val()){
+      _isOnline=false;
+      return;
+    }
+    // Always re-register onDisconnect then write presence
+    presenceRef.onDisconnect().remove().then(function(){
+      goOnline();
+    });
   });
 
-  // Page visibility — go offline when tab is hidden, online when visible
-  document.addEventListener('visibilitychange',function(){
+  // Tab visibility
+  function handleVisibility(){
     if(document.visibilityState==='visible'){
       goOnline();
     } else {
       goOffline();
     }
-  });
-
-  // Also go online immediately (don't wait for visibilitychange)
-  goOnline();
+  }
+  document.removeEventListener('visibilitychange',handleVisibility);
+  document.addEventListener('visibilitychange',handleVisibility);
 
   // ── Load users FIRST, then start presence listener ──
   db.ref('users').on('value',function(snap){
