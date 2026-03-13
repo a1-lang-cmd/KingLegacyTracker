@@ -322,6 +322,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .alarm-dismiss{background:linear-gradient(135deg,#0369a1,var(--sea));border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.1em;padding:9px 26px;cursor:pointer;text-transform:uppercase;transition:all .2s}
 .alarm-dismiss.hydra-mode{background:linear-gradient(135deg,#7c3aed,var(--hydra))}
 .alarm-dismiss:hover{transform:scale(1.04)}
+/* ── ADMIN ALERT ── */
+.admin-alert-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;align-items:center;justify-content:center}
+.admin-alert-overlay.show{display:flex}
+.admin-alert-box{background:var(--surface);border-radius:20px;padding:32px 28px;text-align:center;border:2px solid rgba(239,68,68,.6);box-shadow:0 0 50px rgba(239,68,68,.25);max-width:360px;width:90%;animation:pop-in .3s cubic-bezier(.34,1.56,.64,1)}
+.admin-alert-icon{font-size:2.6rem;margin-bottom:10px}
+.admin-alert-from{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin-bottom:6px;font-weight:700}
+.admin-alert-box h2{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:#fca5a5;margin-bottom:12px}
+.admin-alert-msg{font-size:.92rem;color:var(--text);line-height:1.55;margin-bottom:20px;white-space:pre-wrap;word-break:break-word}
+.admin-alert-dismiss{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);border-radius:10px;color:#fca5a5;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.08em;padding:9px 26px;cursor:not-allowed;text-transform:uppercase;transition:all .2s;opacity:.5}
+.admin-alert-dismiss.ready{cursor:pointer;opacity:1;background:rgba(239,68,68,.2)}
+.admin-alert-dismiss.ready:hover{background:rgba(239,68,68,.35)}
 @media(max-width:500px){.card{grid-template-columns:auto 1fr auto}.time-display{font-size:1.05rem}.card-icon{font-size:1.3rem}}
 </style>
 </head>
@@ -633,6 +644,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       </div>
 
       <!-- ACTIONS -->
+      <!-- SEND ALERT -->
+      <div class="modal-section">
+        <div class="modal-section-title">&#128226; Send Alert</div>
+        <textarea id="modal-alert-text" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;resize:vertical;min-height:70px;outline:none;box-sizing:border-box" placeholder="Type your alert message..."></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button class="modal-btn warn" onclick="sendAdminAlert()">&#128226; Send Alert</button>
+        </div>
+        <div class="modal-feedback" id="alert-feedback"></div>
+      </div>
+
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
         <div class="modal-btn-row">
@@ -655,6 +676,19 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
     <p id="alarm-sub">Spawning!</p>
     <div class="alarm-server-big" id="alarm-server">Server: —</div>
     <button class="alarm-dismiss" id="alarm-dismiss-btn" onclick="dismissAlarm()">Dismiss</button>
+  </div>
+</div>
+
+<!-- ADMIN ALERT -->
+<div class="admin-alert-overlay" id="admin-alert-overlay">
+  <div class="admin-alert-box">
+    <div class="admin-alert-icon">&#128226;</div>
+    <div class="admin-alert-from" id="admin-alert-from">Message from Admin</div>
+    <h2>Admin Notice</h2>
+    <div class="admin-alert-msg" id="admin-alert-msg"></div>
+    <button class="admin-alert-dismiss" id="admin-alert-dismiss" onclick="dismissAdminAlert()">
+      <span id="admin-alert-countdown">Wait 5s</span>
+    </button>
   </div>
 </div>
 
@@ -800,6 +834,7 @@ function finishLogin(user,userData){
   showApp();
   subscribePublic();
   if(isAdmin)loadAllUsers();
+  subscribeAlerts(user.uid);
   // Live-subscribe to own user record so mute/restrict takes effect immediately
   if(currentUser&&db){
     db.ref('users/'+currentUser.uid).on('value',function(snap){
@@ -1416,7 +1451,7 @@ function openUserModal(uid){
   var banBtn=document.getElementById('modal-ban-btn');
   banBtn.innerHTML=isBanned?'&#9989; Unban User':'&#128683; Ban User';
   banBtn.className=isBanned?'modal-btn success':'modal-btn danger';
-  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback','restrict-feedback'].forEach(function(id){
+  ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback','restrict-feedback','alert-feedback'].forEach(function(id){
     var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
   });
   // Show password section only for owners
@@ -1429,6 +1464,8 @@ function openUserModal(uid){
   var pwConfirm=document.getElementById('modal-confirm-password');
   if(pwInput)pwInput.value='';
   if(pwConfirm)pwConfirm.value='';
+  var alertTa=document.getElementById('modal-alert-text');
+  if(alertTa)alertTa.value='';
   document.getElementById('user-modal').classList.add('show');
 }
 
@@ -1736,6 +1773,72 @@ function tick(){
 // ═══════════════════════════════════════════
 // ALARM
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// ADMIN ALERT
+// ═══════════════════════════════════════════
+var adminAlertCountdownInt=null;
+
+function sendAdminAlert(){
+  if(!modalUid||!db){showFeedback('alert-feedback','Error: not ready.',false);return}
+  var msg=document.getElementById('modal-alert-text').value.trim();
+  if(!msg){showFeedback('alert-feedback','Please enter a message.',false);return}
+  var u=allUsers[modalUid]||{};
+  // Write alert to Firebase — user's listener will pick it up
+  db.ref('alerts/'+modalUid).set({
+    msg:msg,
+    from:currentUsername,
+    ts:Date.now()
+  }).then(function(){
+    showFeedback('alert-feedback','Alert sent to '+(u.username||'user')+'!',true);
+    document.getElementById('modal-alert-text').value='';
+  }).catch(function(e){showFeedback('alert-feedback','Error: '+e.message,false)});
+}
+
+function subscribeAlerts(uid){
+  if(!db||!uid)return;
+  db.ref('alerts/'+uid).on('value',function(snap){
+    var data=snap.val();
+    if(!data||!data.msg)return;
+    // Show the alert overlay then delete it from Firebase
+    showAdminAlert(data.msg,data.from||'Admin');
+    db.ref('alerts/'+uid).remove();
+  });
+}
+
+function showAdminAlert(msg,from){
+  var overlay=document.getElementById('admin-alert-overlay');
+  var msgEl=document.getElementById('admin-alert-msg');
+  var fromEl=document.getElementById('admin-alert-from');
+  var btn=document.getElementById('admin-alert-dismiss');
+  var countdown=document.getElementById('admin-alert-countdown');
+  if(!overlay||!msgEl||!btn||!countdown)return;
+  msgEl.textContent=msg;
+  fromEl.textContent='Message from '+from;
+  btn.classList.remove('ready');
+  countdown.textContent='Wait 5s';
+  overlay.classList.add('show');
+  var secs=5;
+  if(adminAlertCountdownInt)clearInterval(adminAlertCountdownInt);
+  adminAlertCountdownInt=setInterval(function(){
+    secs--;
+    if(secs<=0){
+      clearInterval(adminAlertCountdownInt);
+      adminAlertCountdownInt=null;
+      btn.classList.add('ready');
+      countdown.textContent='Dismiss';
+    }else{
+      countdown.textContent='Wait '+secs+'s';
+    }
+  },1000);
+}
+
+function dismissAdminAlert(){
+  var btn=document.getElementById('admin-alert-dismiss');
+  if(!btn||!btn.classList.contains('ready'))return;
+  if(adminAlertCountdownInt){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;}
+  document.getElementById('admin-alert-overlay').classList.remove('show');
+}
+
 function showAlarm(entry){
   alarmActive=true;
   var bt=BOSS_TYPES[entry.type]||{label:entry.type,icon:'&#9733;'};
