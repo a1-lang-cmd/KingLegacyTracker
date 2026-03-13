@@ -1848,17 +1848,21 @@ function initPresenceAndChat(user){
     presenceRef.set({username:currentUsername,rank:currentUserRank,uid:user.uid,ts:Date.now()});
   });
 
-  // ── Load all users once, keep updated ──
+  // ── Load users FIRST, then start presence listener ──
   db.ref('users').on('value',function(snap){
     _usersSnap={};
-    snap.forEach(function(c){if(c.val()&&c.val().username)_usersSnap[c.key]=c.val();});
-    if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+    snap.forEach(function(c){
+      var v=c.val();
+      if(v&&v.username)_usersSnap[c.key]=v;
+    });
+    // Always re-render when users update
+    renderPresence(_presenceSnap,_usersSnap);
   });
 
   // ── Presence: listen live ──
   db.ref('presence').on('value',function(snap){
     _presenceSnap=snap;
-    renderPresence(snap,_usersSnap);
+    renderPresence(_presenceSnap,_usersSnap);
   });
 
   // ── Global chat ──
@@ -1927,57 +1931,67 @@ function bumpChatBadge(){
 }
 
 function renderPresence(presSnap,usersMap){
-  var online={},offline={};
-  var myUid=currentUser?currentUser.uid:null;
-  Object.keys(usersMap||{}).forEach(function(uid){
-    var u=usersMap[uid];
-    if(!u||!u.username)return;
-    if(presSnap&&presSnap.child(uid).exists()){
-      online[uid]=Object.assign({},u,presSnap.child(uid).val());
-    } else {
-      offline[uid]=u;
-    }
-  });
-  // anyone in presence not yet in usersMap
-  if(presSnap){
-    presSnap.forEach(function(c){
-      if(!online[c.key]&&c.val()&&c.val().username)online[c.key]=c.val();
-    });
-  }
-
   var onlineList=document.getElementById('online-users-list');
   var offlineList=document.getElementById('offline-users-list');
   if(!onlineList||!offlineList)return;
 
-  function userItem(uid,u,isOnline){
-    var rank=u.rank||'normal';
-    var rankLabel={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''}[rank]||'';
-    var uname=esc(u.username||'Unknown');
-    var isSelf=uid===myUid;
-    var isDmActive=uid===_dmUid;
-    var unreadDm=(_dmUnread[uid]||0);
-    var h='<div class="chat-user-item'+(isDmActive?' dm-active':'')+'" data-uid="'+uid+'" data-uname="'+uname+'"'
-      +' onclick="openDM(this.dataset.uid,this.dataset.uname)"'
-      +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
-      +' title="Click to DM | Right-click to mention">';
-    h+='<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>';
-    h+='<div style="min-width:0;flex:1"><div class="chat-user-name">'+rankLabel+uname+(isSelf?' <span style="font-size:.6rem;color:var(--text-dim)">(you)</span>':'')+'</div></div>';
-    if(unreadDm>0)h+='<span class="dm-badge">'+unreadDm+'</span>';
-    h+='</div>';
-    return h;
+  var myUid=currentUser?currentUser.uid:null;
+  var onlineUids={};
+
+  // Collect who is online from presence snapshot
+  if(presSnap){
+    presSnap.forEach(function(c){
+      if(c.val())onlineUids[c.key]=true;
+    });
   }
 
-  var onlineKeys=Object.keys(online).sort(function(a,b){
-    return (online[a].username||'').localeCompare(online[b].username||'');
-  });
-  var offlineKeys=Object.keys(offline).filter(function(k){return !online[k]}).sort(function(a,b){
-    return (offline[a].username||'').localeCompare(offline[b].username||'');
+  // Build combined user list - EVERYONE with an account
+  var allUids=Object.keys(usersMap||{});
+
+  // Also add anyone in presence not yet in usersMap
+  if(presSnap){
+    presSnap.forEach(function(c){
+      if(c.val()&&c.val().username&&!usersMap[c.key]){
+        allUids.push(c.key);
+        usersMap[c.key]=c.val();
+      }
+    });
+  }
+
+  var onlineItems=[], offlineItems=[];
+
+  allUids.forEach(function(uid){
+    var u=usersMap[uid];
+    if(!u||!u.username)return;
+    var isOnline=!!onlineUids[uid];
+    var rank=u.rank||'normal';
+    var rankIcon={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''}[rank]||'';
+    var uname=esc(u.username);
+    var isSelf=uid===myUid;
+    var isDmActive=uid===_dmUid;
+    var unread=_dmUnread[uid]||0;
+    var item='<div class="chat-user-item'+(isDmActive?' dm-active':'')+'"'
+      +' data-uid="'+uid+'" data-uname="'+uname+'"'
+      +' onclick="openDM(this.dataset.uid,this.dataset.uname)"'
+      +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
+      +' title="Click to DM • Right-click to mention">'
+      +'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>'
+      +'<div style="min-width:0;flex:1">'
+        +'<div class="chat-user-name">'+rankIcon+uname+(isSelf?' <span style="font-size:.6rem;opacity:.5">(you)</span>':'')+'</div>'
+      +'</div>'
+      +(unread>0?'<span class="dm-badge">'+unread+'</span>':'')
+      +'</div>';
+    if(isOnline)onlineItems.push({uname:u.username,html:item});
+    else offlineItems.push({uname:u.username,html:item});
   });
 
-  onlineList.innerHTML=onlineKeys.length
-    ? onlineKeys.map(function(uid){return userItem(uid,online[uid],true)}).join('')
-    : '<div style="padding:8px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
-  offlineList.innerHTML=offlineKeys.map(function(uid){return userItem(uid,offline[uid],false)}).join('');
+  onlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
+  offlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
+
+  onlineList.innerHTML=onlineItems.length
+    ? onlineItems.map(function(x){return x.html}).join('')
+    : '<div style="padding:8px 10px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
+  offlineList.innerHTML=offlineItems.map(function(x){return x.html}).join('');
 }
 
 function mentionUser(username){
