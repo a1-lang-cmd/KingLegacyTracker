@@ -200,6 +200,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .chat-user-name{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-user-status{font-size:.65rem;color:var(--text-dim)}
 .chat-dm-hint{font-size:.65rem;color:var(--text-dim);padding:4px 8px 6px;text-align:center}
+.dm-badge{background:rgba(168,85,247,.25);color:#c084fc;border-radius:20px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-left:4px}
+.chat-user-item.dm-active{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25)}
 .card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
@@ -553,10 +555,13 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
   <!-- CHAT -->
   <div class="page-view" id="page-chat">
     <div class="chat-layout">
-      <!-- Main chat -->
+      <!-- Main chat area (global or DM) -->
       <div class="chat-main">
         <div class="chat-header">
-          <h3>&#128172; Global Chat</h3>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button id="chat-back-btn" onclick="openGlobalChat()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0">&#8592;</button>
+            <h3 id="chat-title">&#128172; Global Chat</h3>
+          </div>
           <span style="font-size:.7rem;color:var(--text-dim)" id="chat-status">Live</span>
         </div>
         <div class="chat-msgs" id="chat-msgs">
@@ -571,10 +576,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <div class="chat-sidebar">
         <div class="chat-users-box">
           <div class="chat-users-header"><span class="online-dot"></span>Online</div>
-          <div class="chat-users-list" id="online-users-list"><div class="chat-user-status" style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
+          <div class="chat-users-list" id="online-users-list"><div style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
           <div class="chat-users-header" style="margin-top:2px"><span class="offline-dot"></span>Offline</div>
           <div class="chat-users-list" id="offline-users-list"></div>
-          <div class="chat-dm-hint">Click a user to mention them</div>
+          <div class="chat-dm-hint">&#128172; Click to DM &nbsp;|&nbsp; hold to mention</div>
         </div>
       </div>
     </div>
@@ -1828,158 +1833,289 @@ function updateBadges(){
 var presenceRef=null, chatRef=null, chatLoaded=false, _unreadChat=0;
 var CHAT_MAX=100; // keep last 100 messages
 
+// ── shared state for presence + DM ──
+var _presenceSnap=null, _usersSnap={};
+var _dmUid=null, _dmRef=null, _dmListener=null;
+
 function initPresenceAndChat(user){
   if(!db||!user)return;
-  // ── Presence ──
+
+  // ── Presence: register self ──
   presenceRef=db.ref('presence/'+user.uid);
-  var connRef=db.ref('.info/connected');
-  connRef.on('value',function(snap){
+  db.ref('.info/connected').on('value',function(snap){
     if(!snap.val())return;
     presenceRef.onDisconnect().remove();
-    presenceRef.set({username:currentUsername,rank:currentUserRank,ts:Date.now()});
+    presenceRef.set({username:currentUsername,rank:currentUserRank,uid:user.uid,ts:Date.now()});
   });
-  // Subscribe to all users once for presence display (works for non-admins too)
-  db.ref('users').on('value',function(userSnap){
-    var usersCache={};
-    userSnap.forEach(function(c){usersCache[c.key]=c.val();});
-    // Merge into allUsers without overwriting (admin already has it)
-    Object.keys(usersCache).forEach(function(k){if(!allUsers[k])allUsers[k]=usersCache[k];});
-    // Re-render presence with latest users
-    db.ref('presence').once('value',function(presSnap){
-      buildPresence(presSnap,usersCache);
-    });
+
+  // ── Load all users once, keep updated ──
+  db.ref('users').on('value',function(snap){
+    _usersSnap={};
+    snap.forEach(function(c){if(c.val()&&c.val().username)_usersSnap[c.key]=c.val();});
+    if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
   });
-  // Listen to presence changes live
+
+  // ── Presence: listen live ──
   db.ref('presence').on('value',function(snap){
-    buildPresence(snap,allUsers);
+    _presenceSnap=snap;
+    renderPresence(snap,_usersSnap);
   });
-  // ── Chat ──
+
+  // ── Global chat ──
   chatRef=db.ref('chat');
-  chatRef.limitToLast(CHAT_MAX).on('child_added',function(snap){
-    var msg=snap.val();
-    if(!msg)return;
-    msg.key=snap.key;
-    appendChatMsg(msg);
-    // Badge if not on chat tab
-    var chatPage=document.getElementById('page-chat');
-    if(!chatPage||!chatPage.classList.contains('active')){
-      _unreadChat++;
-      document.getElementById('badge-chat').textContent=_unreadChat>99?'99+':String(_unreadChat);
+  subscribeGlobalChat();
+  // Subscribe to incoming DM notifications
+  db.ref('dmnotify/'+user.uid).on('child_added',function(snap){
+    var fromUid=snap.key;
+    var data=snap.val();
+    if(!data)return;
+    // Bump unread if not currently in that DM
+    if(_dmUid!==fromUid){
+      _dmUnread[fromUid]=(_dmUnread[fromUid]||0)+1;
+      if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+      bumpChatBadge();
     }
+    // Clear the notification node
+    snap.ref.remove();
+  });
+
+  chatLoaded=true;
+}
+
+function subscribeGlobalChat(){
+  if(!chatRef)return;
+  var globalInitDone=false;
+  // Load existing messages first via once()
+  chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
+    var msgsEl=document.getElementById('chat-msgs');
+    if(msgsEl)msgsEl.innerHTML='';
+    snap.forEach(function(c){
+      var msg=c.val();if(!msg)return;
+      msg.key=c.key;
+      appendChatMsg(msg,'global');
+    });
+    scrollChatToBottom();
+    globalInitDone=true;
+    // Now listen for NEW messages only
+    chatRef.limitToLast(1).on('child_added',function(snap){
+      if(!globalInitDone)return;
+      if(_dmUid)return;
+      var msg=snap.val();if(!msg)return;
+      msg.key=snap.key;
+      appendChatMsg(msg,'global');
+      // Only badge if not from self
+      if(!currentUser||msg.uid!==currentUser.uid)bumpChatBadge();
+    });
   });
   chatRef.on('child_removed',function(snap){
     var el=document.getElementById('chatmsg-'+snap.key);
     if(el){
       el.classList.add('deleted');
-      var textEl=el.querySelector('.chat-msg-text');
-      if(textEl)textEl.textContent='[message deleted]';
-      var delBtn=el.querySelector('.chat-msg-del');
-      if(delBtn)delBtn.remove();
+      var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[message deleted]';
+      var d=el.querySelector('.chat-msg-del');if(d)d.remove();
     }
   });
-  chatLoaded=true;
 }
 
-function buildPresence(presSnap,usersMap){
+function bumpChatBadge(){
+  var chatPage=document.getElementById('page-chat');
+  if(!chatPage||!chatPage.classList.contains('active')){
+    _unreadChat++;
+    var b=document.getElementById('badge-chat');
+    if(b)b.textContent=_unreadChat>99?'99+':String(_unreadChat);
+  }
+}
+
+function renderPresence(presSnap,usersMap){
   var online={},offline={};
-  // Everyone in usersMap
+  var myUid=currentUser?currentUser.uid:null;
   Object.keys(usersMap||{}).forEach(function(uid){
     var u=usersMap[uid];
     if(!u||!u.username)return;
-    if(presSnap.child(uid).exists()){
+    if(presSnap&&presSnap.child(uid).exists()){
       online[uid]=Object.assign({},u,presSnap.child(uid).val());
     } else {
       offline[uid]=u;
     }
   });
-  // Anyone online not yet in usersMap (edge case)
-  presSnap.forEach(function(c){
-    if(!online[c.key]&&c.val()&&c.val().username)online[c.key]=c.val();
-  });
-  renderPresence(online,offline);
-}
+  // anyone in presence not yet in usersMap
+  if(presSnap){
+    presSnap.forEach(function(c){
+      if(!online[c.key]&&c.val()&&c.val().username)online[c.key]=c.val();
+    });
+  }
 
-function renderPresence(online,offline){
   var onlineList=document.getElementById('online-users-list');
   var offlineList=document.getElementById('offline-users-list');
   if(!onlineList||!offlineList)return;
+
   function userItem(uid,u,isOnline){
     var rank=u.rank||'normal';
-    var rankLabel={owner:'&#128081;',admin:'&#128737;',premium:'&#128142;',normal:''}[rank]||'';
-    var uname=esc(u.username||u.email||'Unknown');
-    var h='<div class="chat-user-item" data-uname="'+uname+'" onclick="mentionUser(this.dataset.uname)" title="Click to mention">';
+    var rankLabel={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''}[rank]||'';
+    var uname=esc(u.username||'Unknown');
+    var isSelf=uid===myUid;
+    var isDmActive=uid===_dmUid;
+    var unreadDm=(_dmUnread[uid]||0);
+    var h='<div class="chat-user-item'+(isDmActive?' dm-active':'')+'" data-uid="'+uid+'" data-uname="'+uname+'"'
+      +' onclick="openDM(this.dataset.uid,this.dataset.uname)"'
+      +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
+      +' title="Click to DM | Right-click to mention">';
     h+='<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>';
-    h+='<div style="min-width:0"><div class="chat-user-name">'+rankLabel+' '+uname+'</div></div>';
+    h+='<div style="min-width:0;flex:1"><div class="chat-user-name">'+rankLabel+uname+(isSelf?' <span style="font-size:.6rem;color:var(--text-dim)">(you)</span>':'')+'</div></div>';
+    if(unreadDm>0)h+='<span class="dm-badge">'+unreadDm+'</span>';
     h+='</div>';
     return h;
   }
-  var onlineHtml=Object.keys(online).map(function(uid){return userItem(uid,online[uid],true)}).join('');
-  var offlineHtml=Object.keys(offline).map(function(uid){return userItem(uid,offline[uid],false)}).join('');
-  onlineList.innerHTML=onlineHtml||'<div style="padding:8px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
-  offlineList.innerHTML=offlineHtml||'';
+
+  var onlineKeys=Object.keys(online).sort(function(a,b){
+    return (online[a].username||'').localeCompare(online[b].username||'');
+  });
+  var offlineKeys=Object.keys(offline).filter(function(k){return !online[k]}).sort(function(a,b){
+    return (offline[a].username||'').localeCompare(offline[b].username||'');
+  });
+
+  onlineList.innerHTML=onlineKeys.length
+    ? onlineKeys.map(function(uid){return userItem(uid,online[uid],true)}).join('')
+    : '<div style="padding:8px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
+  offlineList.innerHTML=offlineKeys.map(function(uid){return userItem(uid,offline[uid],false)}).join('');
 }
 
 function mentionUser(username){
+  openGlobalChat();
   var inp=document.getElementById('chat-input');
   if(!inp)return;
   inp.value='@'+username+' '+inp.value;
   inp.focus();
+}
+
+var _dmUnread={};
+
+function openDM(uid,username){
+  if(!db||!currentUser)return;
+  if(uid===currentUser.uid)return; // can't DM self
+  _dmUid=uid;
+  // DM path: sorted uid pair so both sides share same path
+  var pair=[currentUser.uid,uid].sort().join('_');
+  // Detach previous DM listener
+  if(_dmRef&&_dmListener){_dmRef.off('child_added',_dmListener);_dmRef.off('child_removed');}
+  _dmRef=db.ref('dms/'+pair);
+  // Clear unread badge for this user
+  _dmUnread[uid]=0;
+  // Update UI
+  var titleEl=document.getElementById('chat-title');
+  if(titleEl)titleEl.innerHTML='&#128172; <span style="color:#c084fc">'+esc(username)+'</span>';
+  var backBtn=document.getElementById('chat-back-btn');
+  if(backBtn)backBtn.style.display='inline';
+  var inp=document.getElementById('chat-input');
+  if(inp)inp.placeholder='Message '+username+'...';
+  // Clear messages
+  var msgs=document.getElementById('chat-msgs');
+  if(msgs)msgs.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:.78rem">DM with '+esc(username)+'</div>';
+  // Re-render presence to highlight active DM
+  if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+  // Subscribe DM messages
+  _dmListener=_dmRef.limitToLast(50).on('child_added',function(snap){
+    var msg=snap.val();if(!msg)return;
+    msg.key=snap.key;
+    appendChatMsg(msg,'dm');
+  });
+  _dmRef.on('child_removed',function(snap){
+    var el=document.getElementById('chatmsg-'+snap.key);
+    if(el){el.classList.add('deleted');var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[deleted]';}
+  });
   switchPage('chat');
 }
 
-function sendChat(){
-  if(!db||!currentUser||!chatRef)return;
+function openGlobalChat(){
+  if(_dmRef&&_dmListener){_dmRef.off('child_added',_dmListener);_dmRef.off('child_removed');_dmListener=null;}
+  _dmUid=null;_dmRef=null;
+  var titleEl=document.getElementById('chat-title');
+  if(titleEl)titleEl.innerHTML='&#128172; Global Chat';
+  var backBtn=document.getElementById('chat-back-btn');
+  if(backBtn)backBtn.style.display='none';
   var inp=document.getElementById('chat-input');
-  var msg=inp.value.trim();
+  if(inp)inp.placeholder='Say something...';
+  var msgs=document.getElementById('chat-msgs');
+  if(msgs)msgs.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>';
+  // Re-subscribe global
+  if(chatRef){
+    chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
+      var msgsEl=document.getElementById('chat-msgs');
+      if(msgsEl)msgsEl.innerHTML='';
+      snap.forEach(function(c){
+        var msg=c.val();if(!msg)return;
+        msg.key=c.key;
+        appendChatMsg(msg,'global');
+      });
+      scrollChatToBottom();
+    });
+  }
+  if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+}
+
+function sendChat(){
+  if(!db||!currentUser)return;
+  var inp=document.getElementById('chat-input');
+  var msg=(inp?inp.value:'').trim();
   if(!msg)return;
   if(msg.length>300){alert('Message too long (max 300 chars)');return}
-  // Check if muted
   if(currentUserData&&currentUserData.chatMuted&&!isAdmin){
     alert('You are muted from chat.');return;
   }
-  chatRef.push({
-    uid:currentUser.uid,
-    username:currentUsername,
-    rank:currentUserRank,
-    text:msg,
-    ts:Date.now()
-  });
+  var payload={uid:currentUser.uid,username:currentUsername,rank:currentUserRank,text:msg,ts:Date.now()};
+  if(_dmUid){
+    // DM send
+    var pair=[currentUser.uid,_dmUid].sort().join('_');
+    db.ref('dms/'+pair).push(payload);
+    // Notify recipient via their DM unread count
+    db.ref('dmnotify/'+_dmUid+'/'+currentUser.uid).set({from:currentUsername,ts:Date.now()});
+  } else {
+    if(!chatRef){return;}
+    chatRef.push(payload);
+  }
   inp.value='';
   scrollChatToBottom();
 }
 
-function appendChatMsg(msg){
+function appendChatMsg(msg,source){
   var container=document.getElementById('chat-msgs');
   if(!container)return;
+  // Skip if already rendered
+  if(document.getElementById('chatmsg-'+msg.key))return;
   // Remove loading placeholder
   var placeholder=container.querySelector('div[style]');
-  if(placeholder&&placeholder.textContent.includes('Loading'))placeholder.remove();
-
+  if(placeholder&&(placeholder.textContent.includes('Loading')||placeholder.textContent.includes('DM with')))placeholder.remove();
   var rank=msg.rank||'normal';
-  var rankLabel={owner:'Owner',admin:'Admin',premium:'Premium',normal:''}[rank]||'';
+  var rankColors={owner:'#fbbf24',admin:'#fca5a5',premium:'#c084fc',normal:'var(--text-dim)'};
+  var rankLabel={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:''}[rank]||'';
   var time=new Date(msg.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-  var canDel=isAdmin||(currentUser&&msg.uid===currentUser.uid);
+  var isMine=currentUser&&msg.uid===currentUser.uid;
+  var canDel=isAdmin||isMine;
   var el=document.createElement('div');
-  el.className='chat-msg';
+  el.className='chat-msg'+(isMine?' chat-msg-mine':'');
   el.id='chatmsg-'+msg.key;
   el.innerHTML='<div class="chat-msg-header">'
-    +'<span class="chat-msg-user">'+esc(msg.username||'Unknown')+'</span>'
+    +'<span class="chat-msg-user" style="color:'+(rankColors[rank]||'var(--text)')+'">'+esc(msg.username||'Unknown')+'</span>'
     +(rankLabel?'<span class="chat-msg-rank '+rank+'">'+rankLabel+'</span>':'')
     +'<span class="chat-msg-time">'+time+'</span>'
-    +(canDel?'<button class="chat-msg-del" data-key="'+msg.key+'" onclick="deleteChatMsg(this.dataset.key)" title="Delete">&#10005;</button>':'')
+    +(canDel?'<button class="chat-msg-del" data-key="'+msg.key+'" data-src="'+(source||'global')+'" onclick="deleteChatMsg(this.dataset.key,this.dataset.src)" title="Delete">&#10005;</button>':'')
     +'</div>'
     +'<div class="chat-msg-text">'+esc(msg.text)+'</div>';
   container.appendChild(el);
-  // Trim to max 100 displayed
   var msgs=container.querySelectorAll('.chat-msg');
   if(msgs.length>CHAT_MAX)msgs[0].remove();
   scrollChatToBottom();
 }
 
-function deleteChatMsg(key){
-  if(!db||!isAdmin&&!(currentUser))return;
+function deleteChatMsg(key,source){
+  if(!db||!currentUser)return;
   if(!confirm('Delete this message?'))return;
-  db.ref('chat/'+key).remove();
+  if(source==='dm'&&_dmUid){
+    var pair=[currentUser.uid,_dmUid].sort().join('_');
+    db.ref('dms/'+pair+'/'+key).remove();
+  } else {
+    db.ref('chat/'+key).remove();
+  }
 }
 
 function scrollChatToBottom(){
