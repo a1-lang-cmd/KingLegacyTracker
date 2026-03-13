@@ -738,6 +738,583 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   .time-display{font-size:1rem}
   .card-icon{font-size:1.2rem}
 }
+
+
+/* ═══════════════════════════════════════
+   APP LAYOUT — SIDEBAR + MAIN
+═══════════════════════════════════════ */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 20px 14px 24px;
+  background: rgba(6,14,36,0.9);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Logo */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.sidebar-logo-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(34,211,238,.4));
+}
+.sidebar-logo-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: .78rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--sea-glow), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: .04em;
+  line-height: 1.2;
+}
+.sidebar-logo-sub {
+  font-size: .6rem;
+  color: var(--text-dim);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Status */
+.sidebar-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.sidebar-status .est-clock {
+  padding: 5px 10px;
+  font-size: .78rem;
+}
+.sidebar-status .fb-status {
+  font-size: .62rem;
+  padding: 4px 10px;
+}
+
+/* Profile card */
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 18px;
+}
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34,211,238,.18), rgba(167,139,250,.18));
+  border: 2px solid var(--sea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(34,211,238,.08);
+  overflow: hidden;
+}
+.sidebar-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+.sidebar-profile-info { flex: 1; min-width: 0; }
+.sidebar-username {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-rank {
+  font-size: .6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.sidebar-signout {
+  background: none;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  color: var(--text-dim);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .85rem;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.sidebar-signout:hover { background: rgba(248,113,113,.1); color: var(--rose); border-color: rgba(248,113,113,.3); }
+
+/* Nav */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.snav-btn {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 13px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-family: 'Outfit', sans-serif;
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  text-align: left;
+  position: relative;
+}
+.snav-btn:hover {
+  background: var(--glass);
+  color: var(--text);
+  border-color: var(--border);
+}
+.snav-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+.snav-label { flex: 1; }
+.snav-badge {
+  background: var(--rose);
+  color: #fff;
+  border-radius: 100px;
+  font-size: .56rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.snav-badge:empty { display: none; }
+
+/* Nav active states */
+.snav-btn.active.my-tab    { background: rgba(52,211,153,.08); color: var(--green); border-color: rgba(52,211,153,.2); }
+.snav-btn.active.public-tab{ background: rgba(251,191,36,.07); color: var(--gold);  border-color: rgba(251,191,36,.18); }
+.snav-btn.active.chat-tab  { background: rgba(167,139,250,.08);color: var(--hydra-glow); border-color: rgba(167,139,250,.2); }
+.snav-btn.active.admin-tab { background: rgba(251,113,133,.07); color: var(--rose);  border-color: rgba(251,113,133,.18); }
+.snav-btn.active .snav-icon { filter: drop-shadow(0 0 6px currentColor); }
+
+/* Sidebar add button */
+.sidebar-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, rgba(14,116,144,.8), rgba(34,211,238,.6));
+  border: 1px solid rgba(34,211,238,.35);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: .88rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  transition: all .2s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(34,211,238,.15), inset 0 1px 0 rgba(255,255,255,.1);
+  margin-bottom: 10px;
+}
+.sidebar-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(34,211,238,.3), inset 0 1px 0 rgba(255,255,255,.15);
+  background: linear-gradient(135deg, rgba(14,116,144,1), rgba(34,211,238,.85));
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-topbar {
+  display: none;
+}
+.page-views-wrap {
+  flex: 1;
+  padding: 24px 28px 40px;
+  max-width: 820px;
+}
+
+/* Page header bar */
+.page-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.page-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: .06em;
+}
+.page-subtitle {
+  font-size: .74rem;
+  color: var(--text-dim);
+  margin-top: 3px;
+  font-weight: 400;
+}
+
+/* Chat fills height on desktop */
+@media(min-width:700px) {
+  #page-chat { height: calc(100vh - 48px); display: flex; flex-direction: column; }
+  #page-chat .chat-layout { flex: 1; min-height: 0; }
+}
+
+/* ── MOBILE: hide sidebar, show dock ── */
+@media(max-width:768px) {
+  .sidebar { display: none; }
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(6,14,36,0.9);
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .page-views-wrap {
+    padding: 14px 14px 120px;
+    max-width: 100%;
+  }
+  .page-header-bar { margin-bottom: 14px; }
+  .page-title { font-size: .85rem; }
+  #page-chat { height: calc(100vh - 130px); display: flex; flex-direction: column; }
+  #page-chat .chat-layout { flex:1; min-height:0; }
+}
+
+/* Keep old .container for things that reference it but it's no longer used for main layout */
+.container { display: none; }
+
+/* ═══════════════════════════════════════
+   FLOATING DOCK
+═══════════════════════════════════════ */
+.floating-dock {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  background: rgba(8,18,42,0.82);
+  border: 1px solid rgba(56,130,220,0.28);
+  border-radius: 100px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(34,211,238,0.06), 0 0 30px rgba(34,211,238,0.07);
+}
+
+.dock-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .22s cubic-bezier(.34,1.56,.64,1);
+  color: var(--text-dim);
+  font-family: 'Outfit', sans-serif;
+  padding: 8px 18px;
+  min-width: 70px;
+}
+.dock-btn:hover { background: rgba(255,255,255,0.09); color: var(--text); transform: translateY(-2px); }
+.dock-btn:active { transform: scale(0.93); }
+.dock-btn .dock-icon { font-size: 1.2rem; line-height: 1; }
+.dock-btn .dock-label { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; line-height: 1; }
+.dock-btn.active-tab { color: var(--sea-glow); border-color: rgba(34,211,238,0.3); background: rgba(34,211,238,0.08); }
+.dock-btn.chat-dock.active-tab { color: var(--hydra-glow); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+
+.dock-badge {
+  position: absolute;
+  top: 4px; right: 8px;
+  background: var(--rose);
+  color: #fff;
+  border-radius: 100px;
+  font-size: .55rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 1.4;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(251,113,133,0.5);
+}
+.dock-badge:empty { display: none; }
+
+/* FAB — center add button */
+.dock-fab {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(145deg, #0e7490, var(--sea), #6ee7f7);
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 0 0 6px rgba(34,211,238,0.12), 0 6px 24px rgba(34,211,238,0.4);
+  flex-shrink: 0;
+}
+.dock-fab:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 0 0 10px rgba(34,211,238,0.1), 0 10px 32px rgba(34,211,238,0.5); }
+.dock-fab:active { transform: scale(0.92); }
+.dock-fab.open { transform: rotate(45deg) scale(1.05); background: linear-gradient(145deg,#7c3aed,var(--hydra)); box-shadow: 0 0 0 6px rgba(167,139,250,0.15), 0 6px 24px rgba(167,139,250,0.4); }
+
+/* ═══════════════════════════════════════
+   BOTTOM SHEETS
+═══════════════════════════════════════ */
+.sheet-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(2,8,20,0.7);
+  z-index: 130;
+  backdrop-filter: blur(3px);
+  animation: fade-in .2s ease;
+}
+.sheet-backdrop.open { display: block; }
+@keyframes fade-in { from{opacity:0} to{opacity:1} }
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 140;
+  background: linear-gradient(180deg, rgba(10,20,50,0.98) 0%, rgba(6,14,36,0.99) 100%);
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  border-radius: 28px 28px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom);
+  transform: translateY(105%);
+  transition: transform .38s cubic-bezier(.32,1,.32,1);
+  box-shadow: 0 -8px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,211,238,0.06);
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.bottom-sheet.open { transform: translateY(0); }
+
+.sheet-handle {
+  width: 40px; height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+  cursor: grab;
+}
+.sheet-handle:active { cursor: grabbing; }
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.sheet-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: .78rem;
+  letter-spacing: .14em;
+  color: var(--sea-glow);
+  text-transform: uppercase;
+}
+.sheet-close {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: .9rem;
+  transition: all .15s;
+}
+.sheet-close:hover { background: rgba(248,113,113,0.12); color: var(--rose); border-color: rgba(248,113,113,0.3); }
+
+.sheet-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 16px 20px 24px;
+  overscroll-behavior: contain;
+}
+.sheet-body::-webkit-scrollbar { width: 3px; }
+.sheet-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Add sheet specifics */
+#add-sheet .sheet-title { color: var(--sea-glow); }
+.sheet-section-label {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sheet-section-label::after { content:''; flex:1; height:1px; background: linear-gradient(90deg,var(--border),transparent); }
+.sheet-divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+/* Timer list inside sheet */
+.sheet-timer-count {
+  font-size: .72rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.sheet-timer-count strong { color: var(--sea-glow); font-weight: 700; }
+
+/* Profile sheet */
+.profile-avatar-lg {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15));
+  border: 2px solid var(--sea);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 12px;
+  box-shadow: 0 0 0 6px rgba(34,211,238,0.07);
+}
+.profile-username {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: .02em;
+}
+.profile-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin: 0 auto 20px;
+}
+.profile-rank-pill.owner { background: rgba(251,191,36,.12); color: var(--gold); border: 1px solid rgba(251,191,36,.3); }
+.profile-rank-pill.admin  { background: rgba(251,113,133,.1);  color: var(--rose); border: 1px solid rgba(251,113,133,.25); }
+.profile-rank-pill.premium{ background: rgba(167,139,250,.1); color: var(--hydra-glow); border: 1px solid rgba(167,139,250,.25); }
+.profile-rank-pill.normal { background: rgba(255,255,255,.06); color: var(--text-dim); border: 1px solid rgba(255,255,255,.1); }
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.profile-stat {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+}
+.profile-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--sea-glow); line-height: 1; }
+.profile-stat-lbl { font-size: .62rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-top: 4px; font-weight: 600; }
+.profile-signout-btn {
+  width: 100%;
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.2);
+  border-radius: var(--radius-sm);
+  color: var(--rose);
+  font-family: 'Outfit', sans-serif;
+  font-size: .88rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all .2s;
+}
+.profile-signout-btn:hover { background: rgba(248,113,113,0.16); }
+
+/* My Timers page — remove the old add-section from the page,
+   just show the timer list directly */
+#page-my .add-section { display: none !important; }
+#page-my { padding-bottom: 10px; }
+
+/* Container gets more bottom padding for the dock */
+.container { padding-bottom: 130px; }
+
+/* Nav tabs hidden on mobile — dock replaces them */
+@media(max-width:600px) {
+  .page-tabs { display: none !important; }
+  .floating-dock { bottom: 18px; }
+}
+/* On desktop show tabs, hide dock */
+@media(min-width:601px) {
+  .floating-dock { display: none; }
+}
 </style>
 </head>
 <body>
@@ -822,144 +1399,274 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 
 <!-- ══════════════ MAIN APP ══════════════ -->
 <div id="app">
-<div class="container">
-  <header>
-    <h1>&#128081; King Legacy<br>Spawn Tracker</h1>
-    <p>Sea Beast &amp; Boss Spawn Codes</p>
-    <div class="header-meta">
+
+<!-- ═══ DESKTOP SIDEBAR LAYOUT ═══ -->
+<div class="app-layout">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">&#128081;</div>
+      <div>
+        <div class="sidebar-logo-title">King Legacy</div>
+        <div class="sidebar-logo-sub">Spawn Tracker</div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="sidebar-status">
       <div class="est-clock"><div class="dot"></div><span id="est-clock">--:--:-- --</span></div>
-      <div class="fb-status disconnected" id="fb-status"><div class="fb-dot"></div><span id="fb-status-text">Public sync: not configured</span></div>
+      <div class="fb-status disconnected" id="fb-status"><div class="fb-dot"></div><span id="fb-status-text">Offline</span></div>
     </div>
-    <div class="user-bar">
-      <div class="user-pill">
-        <img class="user-avatar" id="user-avatar" src="" alt="" onerror="this.style.display='none'" />
-        <span class="user-name" id="user-name-display">Player</span>
-        <span class="admin-badge" id="admin-badge" style="display:none">&#9733; Admin</span>
-        <button class="sign-out-btn" onclick="signOutUser()">Sign out</button>
-      </div>
-    </div>
-  </header>
 
-  <div class="page-tabs" id="page-tabs">
-    <button class="page-tab my-tab active" onclick="switchPage('my')" id="tab-my"><span class="tab-icon">&#128274;</span><span class="tab-label">My Timers</span> <span class="tab-badge" id="badge-my">0</span></button>
-    <button class="page-tab public-tab" onclick="switchPage('public')" id="tab-public"><span class="tab-icon">&#127758;</span><span class="tab-label">Public</span> <span class="tab-badge" id="badge-public">0</span></button>
-    <button class="page-tab admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none"><span class="tab-icon">&#128737;</span><span class="tab-label">Admin</span> <span class="tab-badge" id="badge-users">0</span></button>
-    <button class="page-tab chat-tab" onclick="switchPage('chat')" id="tab-chat"><span class="tab-icon">&#128172;</span><span class="tab-label">Chat</span> <span class="tab-badge" id="badge-chat">0</span></button>
-  </div>
+    <!-- Profile card -->
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" id="sidebar-avatar">&#128100;</div>
+      <div class="sidebar-profile-info">
+        <div class="sidebar-username" id="sidebar-username">Player</div>
+        <div class="sidebar-rank" id="sidebar-rank">Normal</div>
+      </div>
+      <button class="sidebar-signout" onclick="signOutUser()" title="Sign out">&#128682;</button>
+    </div>
 
-  <!-- MY TIMERS -->
-  <div class="page-view active" id="page-my">
-    <div class="add-section">
-      <h2>&#43; Add Spawn Timer</h2>
-      <div class="restrict-notice" id="mute-notice">
-        <p>&#128263; You are muted from posting public timers.</p>
-        <span>You can still add private timers.</span>
-      </div>
-      <div class="restrict-notice" id="restrict-notice">
-        <p>&#128683; You are restricted from adding any timers.</p>
-        <span>Contact an admin if you believe this is a mistake.</span>
-      </div>
-      <div class="type-toggle">
-        <button class="type-btn sea active" onclick="selectType('sea')">&#127754; Sea Beast</button>
-        <button class="type-btn hydra" onclick="selectType('hydra')">&#128009; Hydra</button>
-        <button class="type-btn crab" onclick="selectType('crab')">&#129408; Crab</button>
-        <button class="type-btn abyssal" onclick="selectType('abyssal')">&#129422; Abyssal</button>
-        <button class="type-btn kraken" onclick="selectType('kraken')">&#129065; Kraken</button>
-        <button class="type-btn drakenfyr" onclick="selectType('drakenfyr')">&#128293; Drakenfyr</button>
-      </div>
-      <div class="vis-toggle">
-        <button class="vis-btn private active" onclick="selectVis('private')">&#128274; Private</button>
-        <button class="vis-btn public" onclick="selectVis('public')">&#127758; Public</button>
-      </div>
-      <div class="public-notice" id="public-notice">&#9888;&#65039; Public timers are visible to all players.</div>
-      <div class="form-grid">
-        <div class="field"><label>Server Code</label><input type="number" id="inp-server" placeholder="e.g. 1234" min="1000" max="9999" /></div>
-        <div class="field"><label>Minutes Until Spawn</label><input type="number" id="inp-minutes" placeholder="max 60 min" min="0" max="60" /></div>
-        <div class="field"><label>Seconds Until Spawn</label><input type="number" id="inp-seconds" placeholder="0-59" min="0" max="59" /></div>
-      </div>
-      <div class="form-grid2">
-        <button class="submit-btn" id="add-btn" onclick="addEntry()">&#43; Add Timer</button>
-      </div>
-    </div>
-    <!-- MY FILTER BAR -->
-    <div class="filter-bar">
-      <input type="text" id="my-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyMyFilters()" />
-      <div class="sort-btn-group">
-        <button class="sort-btn active" id="my-sort-soonest" onclick="setMySort('soonest')">&#9650; Soonest</button>
-        <button class="sort-btn" id="my-sort-latest" onclick="setMySort('latest')">&#9660; Latest</button>
-        <button class="sort-btn" id="my-sort-type" onclick="setMySort('type')">&#127793; Type</button>
-      </div>
-    </div>
-    <div class="flat-cards" id="my-flat-cards"></div>
-  </div>
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <button class="snav-btn my-tab active" onclick="switchPage('my')" id="tab-my">
+        <span class="snav-icon">&#128274;</span>
+        <span class="snav-label">My Timers</span>
+        <span class="snav-badge" id="badge-my"></span>
+      </button>
+      <button class="snav-btn public-tab" onclick="switchPage('public')" id="tab-public">
+        <span class="snav-icon">&#127758;</span>
+        <span class="snav-label">Public Board</span>
+        <span class="snav-badge" id="badge-public"></span>
+      </button>
+      <button class="snav-btn chat-tab" onclick="switchPage('chat')" id="tab-chat">
+        <span class="snav-icon">&#128172;</span>
+        <span class="snav-label">Chat</span>
+        <span class="snav-badge" id="badge-chat"></span>
+      </button>
+      <button class="snav-btn admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none">
+        <span class="snav-icon">&#128737;</span>
+        <span class="snav-label">Admin</span>
+        <span class="snav-badge" id="badge-users"></span>
+      </button>
+    </nav>
 
-  <!-- PUBLIC -->
-  <div class="page-view" id="page-public">
-    <div class="public-page-header">
-      <div class="ph-icon">&#127758;</div>
-      <div><h3>Public Spawn Board</h3><p>Live timers shared by all players. Posted by username.</p></div>
-      <button class="refresh-btn" onclick="loadPublicTimers()">&#8635; Refresh</button>
-    </div>
-    <!-- PUBLIC FILTER BAR -->
-    <div class="filter-bar">
-      <input type="text" id="pub-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyPubFilters()" />
-      <div class="sort-btn-group">
-        <button class="sort-btn active" id="pub-sort-soonest" onclick="setPubSort('soonest')">&#9650; Soonest</button>
-        <button class="sort-btn" id="pub-sort-latest" onclick="setPubSort('latest')">&#9660; Latest</button>
-        <button class="sort-btn" id="pub-sort-type" onclick="setPubSort('type')">&#127793; Type</button>
-        <button class="sort-btn" id="pub-sort-user" onclick="setPubSort('user')">&#128100; User</button>
-      </div>
-    </div>
-    <div class="flat-cards" id="pub-flat-cards"></div>
-  </div>
+    <!-- Add timer button in sidebar -->
+    <button class="sidebar-add-btn" onclick="toggleAddSheet()">
+      <span style="font-size:1.3rem;line-height:1">&#43;</span>
+      Add Spawn Timer
+    </button>
 
-  <!-- CHAT -->
-  <div class="page-view" id="page-chat">
-    <div class="chat-layout">
-      <!-- Main chat area (global or DM) -->
-      <div class="chat-main">
-        <div class="chat-header">
-          <div style="display:flex;align-items:center;gap:8px">
-            <button id="chat-back-btn" onclick="openGlobalChat()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0">&#8592;</button>
-            <h3 id="chat-title">&#128172; Global Chat</h3>
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <span id="admin-badge" style="display:none" class="admin-badge">&#9733; Admin</span>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Mobile top bar (hidden on desktop) -->
+    <div class="mobile-topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="dot" style="width:7px;height:7px"></div>
+        <span style="font-family:'Cinzel Decorative',serif;font-size:.75rem;color:var(--sea-glow);letter-spacing:.1em">King Legacy</span>
+      </div>
+      <div class="fb-status disconnected" id="fb-status-mobile" style="font-size:.6rem;padding:3px 8px"><div class="fb-dot"></div><span id="fb-status-text-mobile"></span></div>
+    </div>
+
+    <!-- Page views -->
+    <div class="page-views-wrap">
+
+      <!-- MY TIMERS -->
+      <div class="page-view active" id="page-my">
+        <div class="page-header-bar">
+          <div>
+            <h2 class="page-title">&#128274; My Timers</h2>
+            <p class="page-subtitle">Your private &amp; public spawn timers</p>
           </div>
-          <span style="font-size:.7rem;color:var(--text-dim)" id="chat-status">Live</span>
         </div>
-        <div class="chat-msgs" id="chat-msgs">
-          <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>
-        </div>
-        <div class="chat-input-row">
-          <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter')sendChat()" />
-          <button class="chat-send-btn" onclick="sendChat()">&#9658; Send</button>
-        </div>
-      </div>
-      <!-- Sidebar -->
-      <div class="chat-sidebar">
-        <div class="chat-users-box">
-          <div class="chat-users-header">
-            <span class="chat-users-header-title">Players</span>
-            <span id="users-online-count" style="font-size:.62rem;color:#22c55e;font-family:'Outfit',sans-serif;font-weight:700"></span>
+        <div class="filter-bar">
+          <input type="text" id="my-search" placeholder="&#128269; Search server, boss..." oninput="applyMyFilters()" />
+          <div class="sort-btn-group">
+            <button class="sort-btn active" id="my-sort-soonest" onclick="setMySort('soonest')">&#9650; Soonest</button>
+            <button class="sort-btn" id="my-sort-latest" onclick="setMySort('latest')">&#9660; Latest</button>
+            <button class="sort-btn" id="my-sort-type" onclick="setMySort('type')">&#127793; Type</button>
           </div>
-          <div class="chat-users-search">
-            <input id="users-search" type="text" placeholder="&#128269; Search users..." oninput="filterUsersList(this.value)" />
-          </div>
-          <div class="chat-users-scroll" id="all-users-list"><div style="padding:10px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
-          <div class="chat-dm-hint">&#128172; DM &nbsp;&#183;&nbsp; Right-click to mention</div>
         </div>
+        <div class="flat-cards" id="my-flat-cards"></div>
       </div>
-    </div>
-  </div>
 
-  <!-- ADMIN -->
-  <div class="page-view" id="page-admin">
-    <div class="admin-header">
-      <div class="ph-icon">&#128737;</div>
-      <div><h3>Admin — User Manager</h3><p>Click any user to manage their account, rank, and warns.</p></div>
+      <!-- PUBLIC -->
+      <div class="page-view" id="page-public">
+        <div class="page-header-bar">
+          <div>
+            <h2 class="page-title">&#127758; Public Board</h2>
+            <p class="page-subtitle">Live timers shared by all players</p>
+          </div>
+          <button class="refresh-btn" onclick="loadPublicTimers()">&#8635; Refresh</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="pub-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyPubFilters()" />
+          <div class="sort-btn-group">
+            <button class="sort-btn active" id="pub-sort-soonest" onclick="setPubSort('soonest')">&#9650; Soonest</button>
+            <button class="sort-btn" id="pub-sort-latest" onclick="setPubSort('latest')">&#9660; Latest</button>
+            <button class="sort-btn" id="pub-sort-type" onclick="setPubSort('type')">&#127793; Type</button>
+            <button class="sort-btn" id="pub-sort-user" onclick="setPubSort('user')">&#128100; User</button>
+          </div>
+        </div>
+        <div class="flat-cards" id="pub-flat-cards"></div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="page-view" id="page-chat">
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div class="chat-header">
+              <div style="display:flex;align-items:center;gap:8px">
+                <button id="chat-back-btn" onclick="openGlobalChat()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0">&#8592;</button>
+                <h3 id="chat-title">&#128172; Global Chat</h3>
+              </div>
+              <span style="font-size:.7rem;color:var(--text-dim)" id="chat-status">Live</span>
+            </div>
+            <div class="chat-msgs" id="chat-msgs">
+              <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter')sendChat()" />
+              <button class="chat-send-btn" onclick="sendChat()">&#9658; Send</button>
+            </div>
+          </div>
+          <div class="chat-sidebar">
+            <div class="chat-users-box">
+              <div class="chat-users-header">
+                <span class="chat-users-header-title">Players</span>
+                <span id="users-online-count" style="font-size:.62rem;color:#22c55e;font-family:'Outfit',sans-serif;font-weight:700"></span>
+              </div>
+              <div class="chat-users-search">
+                <input id="users-search" type="text" placeholder="&#128269; Search users..." oninput="filterUsersList(this.value)" />
+              </div>
+              <div class="chat-users-scroll" id="all-users-list"><div style="padding:10px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
+              <div class="chat-dm-hint">&#128172; DM &nbsp;&#183;&nbsp; Right-click to mention</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="page-view" id="page-admin">
+        <div class="page-header-bar">
+          <div>
+            <h2 class="page-title">&#128737; Admin Panel</h2>
+            <p class="page-subtitle">Manage users, ranks, and moderation</p>
+          </div>
+        </div>
+        <input class="admin-search" id="admin-search" placeholder="&#128269; Search by username or email..." oninput="filterUsers()" />
+        <div class="users-grid" id="users-grid"><div class="empty">Loading users...</div></div>
+      </div>
+
+    </div><!-- end .page-views-wrap -->
+  </main>
+</div><!-- end .app-layout -->
+</div><!-- end #app -->
+
+<!-- ══════════════ FLOATING DOCK ══════════════ -->
+<div class="floating-dock" id="floating-dock">
+  <button class="dock-btn profile-dock" onclick="openProfileSheet()" id="dock-profile">
+    <span class="dock-icon">&#128100;</span>
+    <span class="dock-label">Profile</span>
+  </button>
+  <button class="dock-fab" id="dock-fab" onclick="toggleAddSheet()">&#43;</button>
+  <button class="dock-btn chat-dock" onclick="dockGoChat()" id="dock-chat">
+    <span class="dock-badge" id="dock-badge-chat"></span>
+    <span class="dock-icon">&#128172;</span>
+    <span class="dock-label">Chat</span>
+  </button>
+</div>
+
+<!-- ══════════════ ADD SHEET ══════════════ -->
+<div class="sheet-backdrop" id="add-backdrop" onclick="closeAddSheet()"></div>
+<div class="bottom-sheet" id="add-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">&#43; Add Spawn Timer</span>
+    <button class="sheet-close" onclick="closeAddSheet()">&#10005;</button>
+  </div>
+  <div class="sheet-body">
+    <div class="restrict-notice" id="mute-notice">
+      <p>&#128263; Muted from posting public timers.</p>
+      <span>You can still add private timers.</span>
     </div>
-    <input class="admin-search" id="admin-search" placeholder="&#128269; Search by username or email..." oninput="filterUsers()" />
-    <div class="users-grid" id="users-grid"><div class="empty">Loading users...</div></div>
+    <div class="restrict-notice" id="restrict-notice">
+      <p>&#128683; You are restricted from adding any timers.</p>
+      <span>Contact an admin if you believe this is a mistake.</span>
+    </div>
+    <div class="sheet-section-label">Boss Type</div>
+    <div class="type-toggle" style="margin-bottom:14px">
+      <button class="type-btn sea active" onclick="selectType('sea')">&#127754; Sea Beast</button>
+      <button class="type-btn hydra" onclick="selectType('hydra')">&#128009; Hydra</button>
+      <button class="type-btn crab" onclick="selectType('crab')">&#129408; Crab</button>
+      <button class="type-btn abyssal" onclick="selectType('abyssal')">&#129422; Abyssal</button>
+      <button class="type-btn kraken" onclick="selectType('kraken')">&#129065; Kraken</button>
+      <button class="type-btn drakenfyr" onclick="selectType('drakenfyr')">&#128293; Drakenfyr</button>
+    </div>
+    <div class="sheet-section-label">Visibility</div>
+    <div class="vis-toggle" style="margin-bottom:10px">
+      <button class="vis-btn private active" onclick="selectVis('private')">&#128274; Private</button>
+      <button class="vis-btn public" onclick="selectVis('public')">&#127758; Public</button>
+    </div>
+    <div class="public-notice" id="public-notice">&#9888;&#65039; Public timers are visible to all players.</div>
+    <div class="sheet-section-label">Timer Info</div>
+    <div class="form-grid" style="margin-bottom:12px">
+      <div class="field"><label>Server Code</label><input type="number" id="inp-server" placeholder="e.g. 1234" min="1000" max="9999" /></div>
+      <div class="field"><label>Minutes</label><input type="number" id="inp-minutes" placeholder="max 60" min="0" max="60" /></div>
+      <div class="field"><label>Seconds</label><input type="number" id="inp-seconds" placeholder="0–59" min="0" max="59" /></div>
+    </div>
+    <button class="submit-btn" id="add-btn" onclick="addEntryFromSheet()" style="width:100%;padding:13px;font-size:1rem;border-radius:var(--radius-sm);margin-bottom:4px">&#43; Add Timer</button>
+    <div id="add-sheet-feedback" style="font-size:.78rem;text-align:center;min-height:20px;color:var(--green);margin-top:6px"></div>
+    <div class="sheet-divider"></div>
+    <div class="sheet-section-label">My Active Timers</div>
+    <div class="sheet-timer-count" id="sheet-timer-count"></div>
+    <div class="flat-cards" id="sheet-my-cards"></div>
   </div>
 </div>
+
+<!-- ══════════════ PROFILE SHEET ══════════════ -->
+<div class="sheet-backdrop" id="profile-backdrop" onclick="closeProfileSheet()"></div>
+<div class="bottom-sheet" id="profile-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" style="color:var(--hydra-glow)">&#128100; Profile</span>
+    <button class="sheet-close" onclick="closeProfileSheet()">&#10005;</button>
+  </div>
+  <div class="sheet-body" style="text-align:center">
+    <div class="profile-avatar-lg" id="profile-avatar-lg">&#128100;</div>
+    <div class="profile-username" id="profile-username-lg">—</div>
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="profile-rank-pill normal" id="profile-rank-pill">Normal</div>
+    </div>
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <div class="profile-stat-val" id="profile-timer-count">—</div>
+        <div class="profile-stat-lbl">My Timers</div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-val" id="profile-pub-count">—</div>
+        <div class="profile-stat-lbl">Public Posted</div>
+      </div>
+    </div>
+    <div class="sheet-section-label" style="text-align:left">Account</div>
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;text-align:left;margin-bottom:16px">
+      <div style="font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px">Email</div>
+      <div style="font-size:.9rem;color:var(--text-2)" id="profile-email-display">—</div>
+    </div>
+    <button class="profile-signout-btn" onclick="signOutUser()">&#128682; Sign Out</button>
+  </div>
 </div>
 
 <!-- USER DETAIL MODAL -->
@@ -1549,9 +2256,163 @@ function switchPage(p){
   });
   if(p==='chat'){
     scrollChatToBottom();
-    document.getElementById('badge-chat').textContent='';
+    var bc=document.getElementById('badge-chat');
+    if(bc)bc.textContent='';
+    var dbc=document.getElementById('dock-badge-chat');
+    if(dbc)dbc.textContent='';
+    var dc=document.getElementById('dock-chat');
+    if(dc)dc.classList.add('active-tab');
+  } else {
+    var dc=document.getElementById('dock-chat');
+    if(dc)dc.classList.remove('active-tab');
   }
 }
+
+// Update sidebar profile on login
+function updateSidebarProfile(){
+  var el=document.getElementById('sidebar-username');
+  if(el)el.textContent=currentUsername||'Player';
+  var av=document.getElementById('sidebar-avatar');
+  var img=document.getElementById('user-avatar');
+  if(av&&img&&img.src&&!img.getAttribute('style')){
+    av.innerHTML='<img src="'+img.src+'" />';
+  } else if(av) {
+    av.textContent=(currentUsername||'?')[0].toUpperCase();
+  }
+  var rk=document.getElementById('sidebar-rank');
+  var rankLabels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
+  if(rk)rk.innerHTML=rankLabels[currentUserRank||'normal']||'Normal';
+  // color rank
+  var rankColors={owner:'var(--gold)',admin:'var(--rose)',premium:'var(--hydra-glow)',normal:'var(--text-dim)'};
+  if(rk)rk.style.color=rankColors[currentUserRank||'normal'];
+}
+
+// ═══════════════════════════════════════
+// FLOATING DOCK
+// ═══════════════════════════════════════
+var _addSheetOpen=false, _profileSheetOpen=false;
+
+function toggleAddSheet(){
+  if(_addSheetOpen){closeAddSheet();}else{openAddSheet();}
+}
+function openAddSheet(){
+  _addSheetOpen=true;
+  document.getElementById('add-sheet').classList.add('open');
+  document.getElementById('add-backdrop').classList.add('open');
+  document.getElementById('dock-fab').classList.add('open');
+  document.body.style.overflow='hidden';
+  // Sync sheet timer list with current private entries
+  syncSheetTimers();
+}
+function closeAddSheet(){
+  _addSheetOpen=false;
+  document.getElementById('add-sheet').classList.remove('open');
+  document.getElementById('add-backdrop').classList.remove('open');
+  document.getElementById('dock-fab').classList.remove('open');
+  document.body.style.overflow='';
+}
+function openProfileSheet(){
+  _profileSheetOpen=true;
+  // Populate profile data
+  var uname=currentUsername||'—';
+  document.getElementById('profile-username-lg').textContent=uname;
+  document.getElementById('profile-email-display').textContent=(currentUser&&currentUser.email)||'—';
+  var rank=currentUserRank||'normal';
+  var pill=document.getElementById('profile-rank-pill');
+  var rankLabels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
+  pill.className='profile-rank-pill '+rank;
+  pill.innerHTML=rankLabels[rank]||'Normal';
+  // Stats
+  document.getElementById('profile-timer-count').textContent=privateEntries?privateEntries.length:'0';
+  var pubMine=(publicEntries||[]).filter(function(e){return e.uid&&currentUser&&e.uid===currentUser.uid});
+  document.getElementById('profile-pub-count').textContent=pubMine.length;
+  // Avatar initial
+  var av=document.getElementById('profile-avatar-lg');
+  var img=document.getElementById('user-avatar');
+  if(img&&img.src&&!img.style.display){
+    av.innerHTML='<img src="'+img.src+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>';
+  } else {
+    av.textContent=uname?uname[0].toUpperCase():'?';
+  }
+  document.getElementById('profile-sheet').classList.add('open');
+  document.getElementById('profile-backdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeProfileSheet(){
+  _profileSheetOpen=false;
+  document.getElementById('profile-sheet').classList.remove('open');
+  document.getElementById('profile-backdrop').classList.remove('open');
+  document.body.style.overflow='';
+}
+function dockGoChat(){
+  closeAddSheet(); closeProfileSheet();
+  switchPage('chat');
+  // On mobile, scroll to top of page
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function syncSheetTimers(){
+  var container=document.getElementById('sheet-my-cards');
+  if(!container)return;
+  var sorted=sortEntries(privateEntries||[],'soonest');
+  var countEl=document.getElementById('sheet-timer-count');
+  if(countEl){
+    var n=sorted.length;
+    countEl.innerHTML=n>0?'You have <strong>'+n+'</strong> active timer'+(n!==1?'s':''):'No timers yet — add one above.';
+  }
+  renderFlat(container,sorted,'private','No timers yet.',mySort||'soonest');
+}
+function addEntryFromSheet(){
+  // Reuse main addEntry logic then refresh sheet list + show feedback
+  var server=document.getElementById('inp-server').value.trim();
+  var mins=parseInt(document.getElementById('inp-minutes').value)||0;
+  var secs=parseInt(document.getElementById('inp-seconds').value)||0;
+  var fb=document.getElementById('add-sheet-feedback');
+  if(!server){if(fb)showSheetFeedback(fb,'Enter a server code!',true);return}
+  if(!/^[0-9]{4}$/.test(server)){if(fb)showSheetFeedback(fb,'Server code must be 4 digits!',true);return}
+  if(mins===0&&secs===0){if(fb)showSheetFeedback(fb,'Enter a time until spawn!',true);return}
+  var maxMins=BOSS_TYPES[selectedType].maxMins;
+  if(mins>maxMins||(mins===maxMins&&secs>0)){if(fb)showSheetFeedback(fb,'Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' min!',true);return}
+  if(!isAdmin&&!isOwner){
+    if(currentUserData&&currentUserData.restricted){if(fb)showSheetFeedback(fb,'You are restricted from adding timers.',true);return}
+    if(currentUserData&&currentUserData.muted&&selectedVis==='public'){if(fb)showSheetFeedback(fb,'You are muted from public timers.',true);return}
+  }
+  var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername,createdAt:Date.now()};
+  if(selectedVis==='public'){
+    if(!fbReady){if(fb)showSheetFeedback(fb,'Firebase not connected. Use Private.',true);return}
+    var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
+    var ref=db.ref('timers').push(fbEntry);
+    entry.firebaseKey=ref.key;
+  }
+  privateEntries.push(entry);save();
+  document.getElementById('inp-server').value='';
+  document.getElementById('inp-minutes').value='';
+  document.getElementById('inp-seconds').value='';
+  renderPrivateCards();updateBadges();updateSidebarProfile();syncSheetTimers();
+  if(fb)showSheetFeedback(fb,'&#10003; Timer added!',false);
+}
+function showSheetFeedback(el,msg,isErr){
+  el.innerHTML=msg;
+  el.style.color=isErr?'var(--rose)':'var(--green)';
+  clearTimeout(el._t);
+  el._t=setTimeout(function(){el.innerHTML='';},3500);
+}
+// Patch renderPrivateCards to also sync sheet when open
+var _origRPC=null;
+document.addEventListener('DOMContentLoaded',function(){
+  _origRPC=renderPrivateCards;
+  renderPrivateCards=function(){
+    _origRPC();
+    if(_addSheetOpen)syncSheetTimers();
+  };
+  // Mirror chat unread badge to dock
+  var _origUpdateBadges=updateBadges;
+  updateBadges=function(){
+    _origUpdateBadges();
+    var chatBadge=document.getElementById('badge-chat');
+    var dockBadge=document.getElementById('dock-badge-chat');
+    if(chatBadge&&dockBadge)dockBadge.textContent=chatBadge.textContent;
+  };
+});
 function selectType(t){
   selectedType=t;
   document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active')});
