@@ -71,7 +71,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 #username-wall{position:fixed;inset:0;z-index:190;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
 #username-wall.hidden{display:none}
 
-/* ── VERIFY WALL ── FIX: use a class to show/hide, no inline display style on the element */
+/* ── VERIFY WALL ── */
 #verify-wall{position:fixed;inset:0;z-index:185;background:var(--bg);padding:16px;display:none;align-items:center;justify-content:center}
 #verify-wall.show{display:flex}
 
@@ -163,6 +163,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .flat-cards{display:grid;gap:9px;margin-bottom:8px}
 .section-header-inline{font-family:'Cinzel Decorative',serif;font-size:.6rem;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;padding:10px 2px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
 .no-results{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:.9rem}
+
 /* ── CHAT PAGE ── */
 .chat-layout{display:grid;grid-template-columns:1fr 200px;gap:14px;height:calc(100vh - 220px);min-height:400px}
 @media(max-width:600px){.chat-layout{grid-template-columns:1fr;grid-template-rows:1fr auto}}
@@ -170,7 +171,11 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .chat-header h3{font-family:'Cinzel Decorative',serif;font-size:.7rem;color:#c084fc;letter-spacing:.1em}
 .chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
-.chat-msg{display:flex;flex-direction:column;gap:2px}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-track{background:transparent}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.chat-msg{display:flex;flex-direction:column;gap:2px;padding:4px 6px;border-radius:8px;transition:background .15s}
+.chat-msg:hover{background:rgba(255,255,255,.03)}
 .chat-msg-header{display:flex;align-items:center;gap:7px}
 .chat-msg-user{font-size:.75rem;font-weight:700;color:var(--text)}
 .chat-msg-time{font-size:.62rem;color:var(--text-dim)}
@@ -183,25 +188,34 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .chat-msg-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;padding:1px 4px;border-radius:4px;opacity:0;transition:.15s;margin-left:auto}
 .chat-msg:hover .chat-msg-del{opacity:.6}
 .chat-msg-del:hover{opacity:1!important;color:var(--danger)}
-.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0}
-.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none}
-.chat-input:focus{border-color:#c084fc}
+.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:#c084fc;box-shadow:0 0 0 2px rgba(168,85,247,.1)}
 .chat-send-btn{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);border-radius:8px;color:#c084fc;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;padding:8px 14px;cursor:pointer;transition:.15s;white-space:nowrap}
-.chat-send-btn:hover{background:rgba(168,85,247,.22)}
+.chat-send-btn:hover{background:rgba(168,85,247,.25);border-color:var(--hydra)}
+/* Chat day divider */
+.chat-day-divider{display:flex;align-items:center;gap:8px;margin:8px 0;color:var(--text-dim);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase}
+.chat-day-divider::before,.chat-day-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+/* Chat system message */
+.chat-system-msg{text-align:center;font-size:.72rem;color:var(--text-dim);padding:4px 8px;font-style:italic}
 /* Users sidebar */
 .chat-sidebar{display:flex;flex-direction:column;gap:10px}
-.chat-users-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;flex:1}
-.chat-users-header{padding:10px 13px;border-bottom:1px solid var(--border);font-family:'Cinzel Decorative',serif;font-size:.62rem;color:var(--text-dim);letter-spacing:.12em;display:flex;align-items:center;gap:6px}
+.chat-users-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;flex:1;display:flex;flex-direction:column}
+.chat-users-header{padding:10px 13px;border-bottom:1px solid var(--border);font-family:'Cinzel Decorative',serif;font-size:.62rem;color:var(--text-dim);letter-spacing:.12em;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .online-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px #22c55e}
 .offline-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
-.chat-users-list{padding:8px;display:flex;flex-direction:column;gap:3px;max-height:300px;overflow-y:auto}
+.chat-users-list{padding:8px;display:flex;flex-direction:column;gap:3px;max-height:200px;overflow-y:auto}
+.chat-users-list::-webkit-scrollbar{width:3px}
+.chat-users-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .chat-user-item{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:7px;cursor:pointer;transition:.12s}
 .chat-user-item:hover{background:var(--surface2)}
 .chat-user-name{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-user-status{font-size:.65rem;color:var(--text-dim)}
-.chat-dm-hint{font-size:.65rem;color:var(--text-dim);padding:4px 8px 6px;text-align:center}
-.dm-badge{background:rgba(168,85,247,.25);color:#c084fc;border-radius:20px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-left:4px}
+.chat-dm-hint{font-size:.65rem;color:var(--text-dim);padding:6px 10px 8px;text-align:center;border-top:1px solid var(--border);flex-shrink:0}
+.dm-badge{background:rgba(168,85,247,.25);color:#c084fc;border-radius:20px;padding:1px 6px;font-size:.6rem;font-weight:700;margin-left:auto;flex-shrink:0}
 .chat-user-item.dm-active{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25)}
+/* DM pill */
+.dm-banner{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:6px 12px;margin:4px 12px 0;font-size:.72rem;color:#c084fc;text-align:center;flex-shrink:0}
 .card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
@@ -392,13 +406,11 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <button class="auth-tab" onclick="switchAuthTab('signup')" id="atab-signup">Create Account</button>
     </div>
     <div id="auth-error" class="auth-error"></div>
-    <!-- LOGIN FORM -->
     <div id="login-form">
       <div class="auth-field"><label>Email</label><input type="email" id="li-email" placeholder="your@email.com" /></div>
       <div class="auth-field"><label>Password</label><input type="password" id="li-pass" placeholder="••••••••" /></div>
       <button class="auth-submit" onclick="emailSignIn()">Sign In</button>
     </div>
-    <!-- SIGNUP FORM -->
     <div id="signup-form" style="display:none">
       <div class="privacy-notice">
         <div class="pn-icon">&#9888;&#65039;</div>
@@ -446,7 +458,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 </div>
 
 <!-- ══════════════ EMAIL VERIFICATION PENDING ══════════════ -->
-<!-- FIX: removed inline display:flex — visibility now controlled entirely by .show class -->
 <div id="verify-wall">
   <div class="auth-card">
     <div style="font-size:3rem;margin-bottom:12px">&#128231;</div>
@@ -483,7 +494,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
     <button class="page-tab my-tab active" onclick="switchPage('my')" id="tab-my">&#128274; My Timers <span class="tab-badge" id="badge-my">0</span></button>
     <button class="page-tab public-tab" onclick="switchPage('public')" id="tab-public">&#127758; Public <span class="tab-badge" id="badge-public">0</span></button>
     <button class="page-tab admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none">&#128737; Admin <span class="tab-badge" id="badge-users">0</span></button>
-    <button class="page-tab chat-tab" onclick="switchPage('chat')" id="tab-chat">&#128172; Chat <span class="tab-badge" id="badge-chat">0</span></button>
+    <button class="page-tab chat-tab" onclick="switchPage('chat')" id="tab-chat">&#128172; Chat <span class="tab-badge" id="badge-chat"></span></button>
   </div>
 
   <!-- MY TIMERS -->
@@ -520,7 +531,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         <button class="submit-btn" id="add-btn" onclick="addEntry()">&#43; Add Timer</button>
       </div>
     </div>
-    <!-- MY FILTER BAR -->
     <div class="filter-bar">
       <input type="text" id="my-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyMyFilters()" />
       <div class="sort-btn-group">
@@ -539,7 +549,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <div><h3>Public Spawn Board</h3><p>Live timers shared by all players. Posted by username.</p></div>
       <button class="refresh-btn" onclick="loadPublicTimers()">&#8635; Refresh</button>
     </div>
-    <!-- PUBLIC FILTER BAR -->
     <div class="filter-bar">
       <input type="text" id="pub-search" placeholder="&#128269; Search server, boss, or username..." oninput="applyPubFilters()" />
       <div class="sort-btn-group">
@@ -555,31 +564,32 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
   <!-- CHAT -->
   <div class="page-view" id="page-chat">
     <div class="chat-layout">
-      <!-- Main chat area (global or DM) -->
       <div class="chat-main">
         <div class="chat-header">
           <div style="display:flex;align-items:center;gap:8px">
-            <button id="chat-back-btn" onclick="openGlobalChat()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0">&#8592;</button>
+            <button id="chat-back-btn" onclick="openGlobalChat()" style="display:none;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1.1rem;padding:2px 4px;border-radius:6px;transition:.15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-dim)'">&#8592;</button>
             <h3 id="chat-title">&#128172; Global Chat</h3>
           </div>
-          <span style="font-size:.7rem;color:var(--text-dim)" id="chat-status">Live</span>
+          <span style="font-size:.7rem;color:var(--text-dim);display:flex;align-items:center;gap:5px" id="chat-status">
+            <span class="online-dot" style="width:5px;height:5px"></span> Live
+          </span>
         </div>
+        <div id="dm-banner" class="dm-banner" style="display:none"></div>
         <div class="chat-msgs" id="chat-msgs">
-          <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>
+          <div class="chat-system-msg">Loading messages...</div>
         </div>
         <div class="chat-input-row">
-          <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter')sendChat()" />
+          <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" />
           <button class="chat-send-btn" onclick="sendChat()">&#9658; Send</button>
         </div>
       </div>
-      <!-- Sidebar -->
       <div class="chat-sidebar">
         <div class="chat-users-box">
           <div class="chat-users-header"><span class="online-dot"></span>Online</div>
           <div class="chat-users-list" id="online-users-list"><div style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
           <div class="chat-users-header" style="margin-top:2px"><span class="offline-dot"></span>Offline</div>
           <div class="chat-users-list" id="offline-users-list"></div>
-          <div class="chat-dm-hint">&#128172; Click to DM &nbsp;|&nbsp; hold to mention</div>
+          <div class="chat-dm-hint">&#128172; Click to DM &nbsp;|&nbsp; Right-click to mention</div>
         </div>
       </div>
     </div>
@@ -609,8 +619,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <button class="modal-close" onclick="closeUserModal()">&#10005;</button>
     </div>
     <div class="modal-body">
-
-      <!-- RANK -->
       <div class="modal-section">
         <div class="modal-section-title">&#9733; Rank</div>
         <div class="modal-row">
@@ -624,8 +632,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="rank-feedback"></div>
       </div>
-
-      <!-- USERNAME -->
       <div class="modal-section">
         <div class="modal-section-title">&#9999;&#65039; Change Username</div>
         <div class="modal-row">
@@ -634,8 +640,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="username-feedback"></div>
       </div>
-
-      <!-- WARNS -->
       <div class="modal-section">
         <div class="modal-section-title">&#9888;&#65039; Warns &amp; Notes</div>
         <div class="warn-list" id="modal-warns"></div>
@@ -645,8 +649,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="warn-feedback"></div>
       </div>
-
-      <!-- ADMIN NOTES -->
       <div class="modal-section">
         <div class="modal-section-title">&#128203; Admin Notes</div>
         <textarea class="notes-area" id="modal-notes" placeholder="Private notes about this player (only admins can see this)..."></textarea>
@@ -655,8 +657,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="notes-feedback"></div>
       </div>
-
-      <!-- CHANGE PASSWORD (owner only) -->
       <div class="modal-section" id="modal-password-section" style="display:none">
         <div class="modal-section-title">&#128272; Change Password</div>
         <div style="margin-bottom:8px">
@@ -668,12 +668,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="password-feedback"></div>
       </div>
-
-      <!-- RESTRICTIONS (admin+) -->
       <div class="modal-section">
         <div class="modal-section-title">&#128263; Restrictions</div>
-
-        <!-- Active mute display -->
         <div id="mute-active-display" style="display:none;background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
           <div>
             <div style="font-size:.8rem;font-weight:700;color:var(--sea-glow)">&#128263; Muted from public timers</div>
@@ -681,8 +677,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
           </div>
           <button class="modal-btn success" onclick="unmute()" style="flex-shrink:0">&#9989; Unmute</button>
         </div>
-
-        <!-- Active restrict display -->
         <div id="restrict-active-display" style="display:none;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
           <div>
             <div style="font-size:.8rem;font-weight:700;color:#fca5a5">&#128683; Restricted from all timers</div>
@@ -690,14 +684,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
           </div>
           <button class="modal-btn success" onclick="unrestrict()" style="flex-shrink:0">&#9989; Lift</button>
         </div>
-
-        <!-- Chat mute toggle -->
         <div style="margin-bottom:10px">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128172; Chat Mute</div>
           <button class="modal-btn warn" id="modal-chatmute-btn" onclick="toggleChatMute()">&#128172; Mute from Chat</button>
         </div>
-
-        <!-- Mute duration picker -->
         <div id="mute-picker">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128263; Mute from public timers</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap">
@@ -711,8 +701,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
             <button class="dur-btn dur-perm" onclick="applyMute(-1)">Perm</button>
           </div>
         </div>
-
-        <!-- Restrict duration picker (owner only) -->
         <div id="restrict-picker" style="display:none;margin-top:10px">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128683; Restrict all timers (owner only)</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap">
@@ -726,12 +714,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
             <button class="dur-btn dur-perm dur-danger" onclick="applyRestrict(-1)">Perm</button>
           </div>
         </div>
-
         <div class="modal-feedback" id="restrict-feedback" style="margin-top:8px"></div>
       </div>
-
-      <!-- ACTIONS -->
-      <!-- SEND ALERT -->
       <div class="modal-section">
         <div class="modal-section-title">&#128226; Send Alert</div>
         <textarea id="modal-alert-text" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;resize:vertical;min-height:70px;outline:none;box-sizing:border-box;margin-bottom:8px" placeholder="Type your alert message..."></textarea>
@@ -748,7 +732,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="alert-feedback"></div>
       </div>
-
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
         <div class="modal-btn-row">
@@ -758,7 +741,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
         </div>
         <div class="modal-feedback" id="actions-feedback"></div>
       </div>
-
     </div>
   </div>
 </div>
@@ -788,9 +770,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 </div>
 
 <script>
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // CONFIG & STATE
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 var BOSS_TYPES={
   sea:      {label:'Sea Beast',     icon:'&#127754;',maxMins:60, color:'var(--sea)'},
   hydra:    {label:'Hydra',         icon:'&#128009;',maxMins:60, color:'var(--hydra)'},
@@ -800,18 +782,19 @@ var BOSS_TYPES={
   drakenfyr:{label:'Drakenfyr',     icon:'&#128293;',maxMins:240,color:'#f87171'}
 };
 
-var selectedType='sea',selectedVis='private';
-var privateEntries=[],publicEntries=[],alarmQueue=[];
-var alarmActive=false,alarmInt=null;
-var db=null,auth=null,fbReady=false;
-var currentUser=null,currentUsername='',isAdmin=false,isOwner=false,currentUserRank='normal',currentUserData=null;
+var selectedType='sea', selectedVis='private';
+var privateEntries=[], publicEntries=[], alarmQueue=[];
+var alarmActive=false, alarmInt=null;
+var db=null, auth=null, fbReady=false;
+var currentUser=null, currentUsername='', isAdmin=false, isOwner=false;
+var currentUserRank='normal', currentUserData=null;
 var allUsers={};
 
 try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
 
-// ═══════════════════════════════════════════
-// VERIFY WALL HELPERS
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// VERIFY WALL
+// ═══════════════════════════════════════════════════════
 var verifyPollInterval=null;
 
 function showVerifyWall(email){
@@ -820,17 +803,11 @@ function showVerifyWall(email){
   document.getElementById('verify-wall').classList.add('show');
   document.getElementById('app').classList.remove('show');
   document.getElementById('verify-email-shown').textContent=email||'';
-  // Auto-poll every 3 seconds — when the user clicks the link in their email,
-  // Firebase updates their account. We reload the user and detect it automatically.
   stopVerifyPoll();
   verifyPollInterval=setInterval(function(){
     if(!currentUser)return;
     currentUser.reload().then(function(){
-      if(currentUser.emailVerified){
-        stopVerifyPoll();
-        hideVerifyWall();
-        onAuthStateChanged(currentUser);
-      }
+      if(currentUser.emailVerified){stopVerifyPoll();hideVerifyWall();onAuthStateChanged(currentUser);}
     }).catch(function(){});
   },3000);
 }
@@ -842,9 +819,9 @@ function stopVerifyPoll(){
   if(verifyPollInterval){clearInterval(verifyPollInterval);verifyPollInterval=null;}
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // FIREBASE INIT
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function initFirebase(){
   if(!FIREBASE_ENABLED||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){
     setFbStatus(false,'Public sync: not configured');
@@ -875,9 +852,9 @@ function setFbStatus(ok,msg){
   document.getElementById('fb-status-text').textContent=msg;
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // AUTH STATE
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function onAuthStateChanged(user){
   currentUser=user;
   if(!user){
@@ -889,10 +866,7 @@ function onAuthStateChanged(user){
   }
   var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
   var isApple=user.providerData&&user.providerData.some(function(p){return p.providerId==='apple.com'});
-  if(!isGoogle&&!isApple&&!user.emailVerified){
-    showVerifyWall(user.email);
-    return;
-  }
+  if(!isGoogle&&!isApple&&!user.emailVerified){showVerifyWall(user.email);return;}
   hideVerifyWall();
   db.ref('users/'+user.uid).once('value',function(snap){
     var userData=snap.val();
@@ -912,7 +886,6 @@ function finishLogin(user,userData){
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
   hideVerifyWall();
-  // Block banned users
   if(userData&&userData.banned&&ADMIN_EMAILS.indexOf(user.email)===-1){
     auth.signOut();
     document.getElementById('auth-wall').classList.remove('hidden');
@@ -923,22 +896,22 @@ function finishLogin(user,userData){
   currentUserRank=userData.rank||'normal';
   isOwner=currentUserRank==='owner';
   document.getElementById('user-name-display').textContent=currentUsername;
-  if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
+  if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL;}
   document.getElementById('admin-badge').style.display=isAdmin?'inline-block':'none';
   document.getElementById('tab-admin').style.display=isAdmin?'flex':'none';
   currentUserData=userData;
   updateRestrictionUI();
   showApp();
-  // Only set up Firebase subscriptions once — prevent duplicate listeners on token refresh
   if(!_loginDone){
     _loginDone=true;
     subscribePublic();
     if(isAdmin)loadAllUsers();
     subscribeAlerts(user.uid);
     initPresenceAndChat(user);
-    // Live-subscribe to own user record for mute/restrict/rank changes
     db.ref('users/'+user.uid).on('value',function(snap){
       currentUserData=snap.val()||{};
+      currentUserRank=currentUserData.rank||'normal';
+      isOwner=currentUserRank==='owner';
       updateRestrictionUI();
     });
   }
@@ -954,25 +927,22 @@ function updateRestrictionUI(){
   if(!currentUserData)return;
   var isMuted=!!currentUserData.muted;
   var isRestricted=!!currentUserData.restricted;
-  // Show notices on My Timers page
   var muteNotice=document.getElementById('mute-notice');
   var restrictNotice=document.getElementById('restrict-notice');
   if(muteNotice)muteNotice.classList.toggle('show',isMuted&&!isRestricted&&!isAdmin&&!isOwner);
   if(restrictNotice)restrictNotice.classList.toggle('show',isRestricted&&!isAdmin&&!isOwner);
-  // Hide public vis button if muted
   var pubVisBtn=document.querySelector('.vis-btn.public');
   if(pubVisBtn){
     pubVisBtn.style.opacity=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'0.35':'';
     pubVisBtn.style.pointerEvents=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'none':'';
   }
-  // Dim entire add section if restricted
   var addSection=document.querySelector('.add-section');
   if(addSection)addSection.style.opacity=isRestricted&&!isAdmin&&!isOwner?'0.55':'';
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // AUTH ACTIONS
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function switchAuthTab(t){
   document.getElementById('atab-login').classList.toggle('active',t==='login');
   document.getElementById('atab-signup').classList.toggle('active',t==='signup');
@@ -980,15 +950,8 @@ function switchAuthTab(t){
   document.getElementById('signup-form').style.display=t==='signup'?'block':'none';
   clearAuthError();
 }
-
-function showAuthError(msg){
-  var el=document.getElementById('auth-error');
-  el.textContent=msg; el.classList.add('show');
-}
-function clearAuthError(){
-  document.getElementById('auth-error').classList.remove('show');
-}
-
+function showAuthError(msg){var el=document.getElementById('auth-error');el.textContent=msg;el.classList.add('show');}
+function clearAuthError(){document.getElementById('auth-error').classList.remove('show');}
 function validateUsername(u){
   if(!u)return'Username is required.';
   if(u.length>10)return'Username must be 10 characters or less.';
@@ -997,17 +960,13 @@ function validateUsername(u){
   for(var i=0;i<BAD_WORDS.length;i++){if(lower.indexOf(BAD_WORDS[i])!==-1)return'That username is not allowed.';}
   return null;
 }
-
 function emailSignIn(){
   if(!fbReady){showAuthError('Firebase not configured.');return}
   var email=document.getElementById('li-email').value.trim();
   var pass=document.getElementById('li-pass').value;
   if(!email||!pass){showAuthError('Please fill in all fields.');return}
-  auth.signInWithEmailAndPassword(email,pass).catch(function(e){
-    showAuthError(friendlyAuthError(e.code));
-  });
+  auth.signInWithEmailAndPassword(email,pass).catch(function(e){showAuthError(friendlyAuthError(e.code));});
 }
-
 function emailSignUp(){
   if(!fbReady){showAuthError('Firebase not configured.');return}
   var username=document.getElementById('su-username').value.trim();
@@ -1020,46 +979,39 @@ function emailSignUp(){
   db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
     if(snap.exists()){showAuthError('That username is already taken.');return}
     auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
-      // FIX: show verify wall immediately after account creation, THEN send email + save record
       showVerifyWall(cred.user.email);
-      return cred.user.sendEmailVerification().then(function(){
-        return saveUserRecord(cred.user,username);
-      });
-    }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
+      return cred.user.sendEmailVerification().then(function(){return saveUserRecord(cred.user,username);});
+    }).catch(function(e){showAuthError(friendlyAuthError(e.code));});
   });
 }
-
 function signInWithGoogle(){
   if(!fbReady){showAuthError('Firebase not configured.');return}
   var provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
+  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message);});
 }
-
 function signInWithApple(){
   if(!fbReady){showAuthError('Firebase not configured.');return}
   var provider=new firebase.auth.OAuthProvider('apple.com');
-  provider.addScope('email');
-  provider.addScope('name');
-  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
+  provider.addScope('email');provider.addScope('name');
+  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message);});
 }
-
 function signOutUser(){
+  // Tear down all listeners before signing out
+  teardownChat();
+  if(presenceRef)presenceRef.remove();
   if(auth)auth.signOut();
   privateEntries=[];
   currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';currentUserData=null;_loginDone=false;
-  if(presenceRef)presenceRef.remove();
   hideVerifyWall();
   document.getElementById('app').classList.remove('show');
 }
-
 function checkVerification(){
-  if(!currentUser){return}
+  if(!currentUser)return;
   var btn=document.getElementById('verify-check-btn');
   if(btn){btn.textContent='Checking...';btn.disabled=true;}
   currentUser.reload().then(function(){
     if(currentUser.emailVerified){
-      hideVerifyWall();
-      onAuthStateChanged(currentUser);
+      hideVerifyWall();onAuthStateChanged(currentUser);
     }else{
       if(btn){btn.textContent='I verified my email ✓';btn.disabled=false;}
       var existing=document.getElementById('verify-notice');
@@ -1073,17 +1025,14 @@ function checkVerification(){
     }
   });
 }
-
 function resendVerification(){
   if(!currentUser)return;
   currentUser.sendEmailVerification().then(function(){
     var btn=document.getElementById('resend-btn');
-    btn.textContent='Sent! Check your inbox';
-    btn.disabled=true;
-    setTimeout(function(){btn.textContent='Resend Email';btn.disabled=false},30000);
-  }).catch(function(e){alert('Could not resend: '+e.message)});
+    btn.textContent='Sent! Check your inbox';btn.disabled=true;
+    setTimeout(function(){btn.textContent='Resend Email';btn.disabled=false;},30000);
+  }).catch(function(e){alert('Could not resend: '+e.message);});
 }
-
 function saveUsername(){
   var username=document.getElementById('uname-input').value.trim();
   var unErr=validateUsername(username);
@@ -1094,20 +1043,16 @@ function saveUsername(){
     if(snap.exists()){errEl.textContent='That username is already taken.';errEl.classList.add('show');return}
     saveUserRecord(currentUser,username).then(function(){
       currentUsername=username;
-      db.ref('users/'+currentUser.uid).once('value',function(snap){
-        finishLogin(currentUser,snap.val());
-      });
+      db.ref('users/'+currentUser.uid).once('value',function(snap){finishLogin(currentUser,snap.val());});
     });
   });
 }
-
 function saveUserRecord(user,username){
   var record={username:username,email:user.email||'',uid:user.uid,joinedAt:Date.now()};
   return db.ref('users/'+user.uid).set(record).then(function(){
     return db.ref('usernames/'+username.toLowerCase()).set(user.uid);
   });
 }
-
 function friendlyAuthError(code){
   var map={
     'auth/user-not-found':'No account found with that email.',
@@ -1116,41 +1061,40 @@ function friendlyAuthError(code){
     'auth/invalid-email':'Please enter a valid email address.',
     'auth/weak-password':'Password must be at least 6 characters.',
     'auth/too-many-requests':'Too many attempts. Please try again later.',
-    'auth/popup-closed-by-user':'Sign in cancelled.'
+    'auth/popup-closed-by-user':'Sign in cancelled.',
+    'auth/invalid-credential':'Incorrect email or password.'
   };
   return map[code]||'Something went wrong. Please try again.';
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // FIREBASE DATA
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function subscribePublic(){
   if(!db)return;
   db.ref('timers').on('value',function(snap){
     publicEntries=[];
-    snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;publicEntries.push(v)});
+    snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;publicEntries.push(v);});
     renderPublicCards();updateBadges();
   });
 }
-
 function loadAllUsers(){
   if(!db||!isAdmin)return;
   db.ref('users').on('value',function(snap){
     allUsers={};
-    snap.forEach(function(c){allUsers[c.key]=c.val()});
+    snap.forEach(function(c){allUsers[c.key]=c.val();});
     renderUsersPanel();
   });
 }
-
 function loadPublicTimers(){
   var b=document.querySelector('.refresh-btn');
   b.textContent='Syncing...';
-  setTimeout(function(){b.innerHTML='&#8635; Refresh'},800);
+  setTimeout(function(){b.innerHTML='&#8635; Refresh';},800);
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // AUDIO
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function playAlarmSound(){
   try{
     var ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -1168,15 +1112,14 @@ function playAlarmSound(){
     tone(1046.5,.62,.38,'sawtooth');tone(523.25,.78,.5,'sine');
   }catch(e){}
 }
-function startAlarmLoop(){if(alarmInt)return;playAlarmSound();alarmInt=setInterval(function(){if(alarmActive)playAlarmSound()},1900)}
-function stopAlarmLoop(){clearInterval(alarmInt);alarmInt=null}
+function startAlarmLoop(){if(alarmInt)return;playAlarmSound();alarmInt=setInterval(function(){if(alarmActive)playAlarmSound();},1900);}
+function stopAlarmLoop(){clearInterval(alarmInt);alarmInt=null;}
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // UI CONTROLS
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function switchPage(p){
-  var pages=['my','public','admin','chat'];
-  pages.forEach(function(x){
+  ['my','public','admin','chat'].forEach(function(x){
     var pv=document.getElementById('page-'+x);
     var tb=document.getElementById('tab-'+x);
     if(pv)pv.classList.toggle('active',p===x);
@@ -1184,28 +1127,30 @@ function switchPage(p){
   });
   if(p==='chat'){
     scrollChatToBottom();
+    // Clear unread badge
+    _unreadChat=0;
     document.getElementById('badge-chat').textContent='';
   }
 }
 function selectType(t){
   selectedType=t;
-  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelector('.type-btn.'+t).classList.add('active');
   var maxM=BOSS_TYPES[t].maxMins;
   var mi=document.getElementById('inp-minutes');
-  mi.max=maxM; mi.placeholder='max '+maxM+' min';
+  mi.max=maxM;mi.placeholder='max '+maxM+' min';
   document.getElementById('add-btn').className=(t==='hydra'||t==='kraken')?'submit-btn hydra-mode':'submit-btn';
 }
 function selectVis(v){
   selectedVis=v;
-  document.querySelectorAll('.vis-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.vis-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelector('.vis-btn.'+v).classList.add('active');
   document.getElementById('public-notice').classList.toggle('show',v==='public');
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // ADD ENTRY
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function addEntry(){
   var server=document.getElementById('inp-server').value.trim();
   var mins=parseInt(document.getElementById('inp-minutes').value)||0;
@@ -1215,7 +1160,6 @@ function addEntry(){
   if(mins===0&&secs===0){alert('Please enter a time until spawn!');return}
   var maxMins=BOSS_TYPES[selectedType].maxMins;
   if(mins>maxMins||(mins===maxMins&&secs>0)){alert('Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' minutes!');return}
-  // Check restrictions (admins/owners are immune)
   if(!isAdmin&&!isOwner){
     if(currentUserData&&currentUserData.restricted){alert('You are restricted from adding any timers.');return}
     if(currentUserData&&currentUserData.muted&&selectedVis==='public'){alert('You are muted from posting public timers.');return}
@@ -1226,8 +1170,6 @@ function addEntry(){
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
-    // Public entries use firebaseKey as id so RAF tick can find their DOM elements
-    // (Firebase subscription will overwrite publicEntries on next snap anyway)
   }
   privateEntries.push(entry);save();
   document.getElementById('inp-server').value='';
@@ -1236,47 +1178,32 @@ function addEntry(){
   renderPrivateCards();updateBadges();
 }
 
-// ═══════════════════════════════════════════
-// DELETE
-// ═══════════════════════════════════════════
-function handleDelete(btn){
-  deleteEntry(btn.getAttribute('data-delid'),btn.getAttribute('data-source'));
-}
+// ═══════════════════════════════════════════════════════
+// DELETE / EDIT
+// ═══════════════════════════════════════════════════════
+function handleDelete(btn){deleteEntry(btn.getAttribute('data-delid'),btn.getAttribute('data-source'));}
 function deleteEntry(id,source){
   if(source==='private'){
-    var numId=parseInt(id,10);
-    var entry=privateEntries.find(function(e){return e.id===numId});
-    if(entry&&entry.firebaseKey&&db)db.ref('timers/'+entry.firebaseKey).remove().catch(function(e){alert('Delete failed: '+e.message)});
-    privateEntries=privateEntries.filter(function(e){return e.id!==numId});
+    var numId=isNaN(id)?id:parseInt(id,10);
+    var entry=privateEntries.find(function(e){return String(e.id)===String(numId)||e.id===numId;});
+    if(entry&&entry.firebaseKey&&db)db.ref('timers/'+entry.firebaseKey).remove().catch(function(e){alert('Delete failed: '+e.message);});
+    privateEntries=privateEntries.filter(function(e){return String(e.id)!==String(numId);});
     save();renderPrivateCards();
   }else{
     if(!isAdmin){alert('Admins only.');return}
     if(!db){alert('Firebase not connected.');return}
-    db.ref('timers/'+id).remove().catch(function(e){alert('Delete failed: '+e.message)});
+    db.ref('timers/'+id).remove().catch(function(e){alert('Delete failed: '+e.message);});
   }
   updateBadges();
 }
-function deleteUserTimers(uid,username){
-  if(!confirm('Delete ALL public timers posted by '+username+'?'))return;
-  if(!db)return;
-  db.ref('timers').orderByChild('uid').equalTo(uid).once('value',function(snap){
-    var updates={};
-    snap.forEach(function(c){updates[c.key]=null});
-    db.ref('timers').update(updates);
-  });
-}
-
-function save(){try{localStorage.setItem('kl-private',JSON.stringify(privateEntries))}catch(e){}}
-
+function save(){try{localStorage.setItem('kl-private',JSON.stringify(privateEntries));}catch(e){}}
 function toggleEditPanel(eid){
   var panel=document.getElementById(eid);
   if(!panel)return;
   var isOpen=panel.classList.contains('open');
-  // Close all other open panels first
-  document.querySelectorAll('.card-edit-panel.open').forEach(function(p){p.classList.remove('open')});
+  document.querySelectorAll('.card-edit-panel.open').forEach(function(p){p.classList.remove('open');});
   if(!isOpen)panel.classList.add('open');
 }
-
 function saveCardEdit(source,entryId,delId){
   var server=document.getElementById('ei-server-'+source+'-'+entryId);
   var minsEl=document.getElementById('ei-mins-'+source+'-'+entryId);
@@ -1289,36 +1216,28 @@ function saveCardEdit(source,entryId,delId){
   function showEditFb(msg,ok){
     if(!fb)return;
     fb.textContent=msg;fb.className='edit-feedback show'+(ok?'':' err');
-    setTimeout(function(){fb.className='edit-feedback'},2500);
+    setTimeout(function(){fb.className='edit-feedback';},2500);
   }
   if(!/^[0-9]{4}$/.test(srv)){showEditFb('Server code must be 4 digits.',false);return}
   if(mins===0&&secs===0){showEditFb('Time must be greater than 0.',false);return}
   var newSpawnAt=Date.now()+(mins*60+secs)*1000;
-
   if(source==='private'){
-    var entry=privateEntries.find(function(e){return String(e.id)===String(entryId)});
+    var entry=privateEntries.find(function(e){return String(e.id)===String(entryId);});
     if(!entry){showEditFb('Timer not found.',false);return}
-    entry.server=srv;
-    entry.spawnAt=newSpawnAt;
-    entry.alerted=false;
-    // If it was also synced publicly, update Firebase too
-    if(entry.firebaseKey&&db){
-      db.ref('timers/'+entry.firebaseKey).update({server:srv,spawnAt:newSpawnAt});
-    }
-    save();
-    renderPrivateCards();
-    showEditFb('Saved!',true);
-  } else if(source==='public'&&isAdmin){
+    entry.server=srv;entry.spawnAt=newSpawnAt;entry.alerted=false;
+    if(entry.firebaseKey&&db){db.ref('timers/'+entry.firebaseKey).update({server:srv,spawnAt:newSpawnAt});}
+    save();renderPrivateCards();showEditFb('Saved!',true);
+  }else if(source==='public'&&isAdmin){
     if(!db){showEditFb('Firebase not ready.',false);return}
     db.ref('timers/'+delId).update({server:srv,spawnAt:newSpawnAt}).then(function(){
       showEditFb('Saved!',true);
-    }).catch(function(e){showEditFb('Error: '+e.message,false)});
+    }).catch(function(e){showEditFb('Error: '+e.message,false);});
   }
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function fmtCountdown(ms){
   if(ms<=0)return null;
   var t=Math.ceil(ms/1000);
@@ -1328,8 +1247,8 @@ function fmtCountdown(ms){
   if(h>0)return h+':'+pad(m)+':'+pad(s);
   return pad(m)+':'+pad(s);
 }
-function pad(n){return n<10?'0'+n:''+n}
-function fmtEST(ts){return new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}
+function pad(n){return n<10?'0'+n:''+n;}
+function fmtEST(ts){return new Date(ts).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});}
 function fmtCreated(ts){
   if(!ts)return'unknown';
   var diff=Date.now()-ts;
@@ -1342,12 +1261,12 @@ function fmtCreatedFull(ts){
   if(!ts)return'Unknown';
   return new Date(ts).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})+' EST';
 }
-function timerClass(ms){if(ms<=0)return 'done-text';if(ms<=30000)return 'urgent';if(ms<=120000)return 'warn';return 'ok'}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function timerClass(ms){if(ms<=0)return'done-text';if(ms<=30000)return'urgent';if(ms<=120000)return'warn';return'ok';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // CARD HTML
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function buildCard(e,source){
   var ms=e.spawnAt-Date.now(),done=ms<=0;
   var bi=BOSS_TYPES[e.type]||{label:e.type,icon:'&#9733;'};
@@ -1393,82 +1312,63 @@ function buildCard(e,source){
   return h;
 }
 
-
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════════
-// ── FILTER/SORT STATE ──
+// ═══════════════════════════════════════════════════════
 var mySort='soonest', pubSort='soonest';
 
 function setMySort(s){
   mySort=s;
-  ['soonest','latest','type'].forEach(function(k){
-    var b=document.getElementById('my-sort-'+k);
-    if(b)b.classList.toggle('active',k===s);
-  });
+  ['soonest','latest','type'].forEach(function(k){var b=document.getElementById('my-sort-'+k);if(b)b.classList.toggle('active',k===s);});
   renderPrivateCards();
 }
 function setPubSort(s){
   pubSort=s;
-  ['soonest','latest','type','user'].forEach(function(k){
-    var b=document.getElementById('pub-sort-'+k);
-    if(b)b.classList.toggle('active',k===s);
-  });
+  ['soonest','latest','type','user'].forEach(function(k){var b=document.getElementById('pub-sort-'+k);if(b)b.classList.toggle('active',k===s);});
   renderPublicCards();
 }
-
 function getMySearch(){var el=document.getElementById('my-search');return el?el.value.trim().toLowerCase():'';}
 function getPubSearch(){var el=document.getElementById('pub-search');return el?el.value.trim().toLowerCase():'';}
 function applyMyFilters(){renderPrivateCards();}
 function applyPubFilters(){renderPublicCards();}
-
-function filterEntries(arr, query){
+function filterEntries(arr,query){
   if(!query)return arr;
   return arr.filter(function(e){
     return String(e.server||'').includes(query)
-      || String(e.type||'').includes(query)
-      || String((BOSS_TYPES[e.type]||{}).label||'').toLowerCase().includes(query)
-      || String(e.username||'').toLowerCase().includes(query);
+      ||String(e.type||'').includes(query)
+      ||String((BOSS_TYPES[e.type]||{}).label||'').toLowerCase().includes(query)
+      ||String(e.username||'').toLowerCase().includes(query);
   });
 }
-
-function sortEntries(arr, mode){
+function sortEntries(arr,mode){
   var copy=arr.slice();
-  if(mode==='soonest')copy.sort(function(a,b){return a.spawnAt-b.spawnAt});
-  else if(mode==='latest')copy.sort(function(a,b){return b.spawnAt-a.spawnAt});
-  else if(mode==='type')copy.sort(function(a,b){return a.type.localeCompare(b.type)||a.spawnAt-b.spawnAt});
-  else if(mode==='user')copy.sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))||a.spawnAt-b.spawnAt});
+  if(mode==='soonest')copy.sort(function(a,b){return a.spawnAt-b.spawnAt;});
+  else if(mode==='latest')copy.sort(function(a,b){return b.spawnAt-a.spawnAt;});
+  else if(mode==='type')copy.sort(function(a,b){return a.type.localeCompare(b.type)||a.spawnAt-b.spawnAt;});
+  else if(mode==='user')copy.sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))||a.spawnAt-b.spawnAt;});
   return copy;
 }
-
-function renderFlat(container, arr, source, emptyMsg, sortMode){
+function renderFlat(container,arr,source,emptyMsg,sortMode){
   if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
-  // If sorting by type or grouping makes sense, show type headers
-  // Always group by type, but sort within each group by the chosen sort mode
   var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr'];
   var groups={};
-  TYPE_ORDER.forEach(function(t){groups[t]=[]});
+  TYPE_ORDER.forEach(function(t){groups[t]=[];});
   arr.forEach(function(e){if(groups[e.type])groups[e.type].push(e);else{if(!groups['__other'])groups['__other']=[];groups['__other'].push(e);}});
-
-  // Sort within each group
   TYPE_ORDER.forEach(function(t){
     if(!groups[t].length)return;
-    if(sortMode==='latest')groups[t].sort(function(a,b){return b.spawnAt-a.spawnAt});
-    else if(sortMode==='user')groups[t].sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))});
-    else groups[t].sort(function(a,b){return a.spawnAt-b.spawnAt}); // soonest default
+    if(sortMode==='latest')groups[t].sort(function(a,b){return b.spawnAt-a.spawnAt;});
+    else if(sortMode==='user')groups[t].sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''));});
+    else groups[t].sort(function(a,b){return a.spawnAt-b.spawnAt;});
   });
-
   var html='';
   TYPE_ORDER.forEach(function(t){
-    var grp=groups[t];
-    if(!grp||!grp.length)return;
+    var grp=groups[t];if(!grp||!grp.length)return;
     var bi=BOSS_TYPES[t];
     html+='<div class="section-header-inline"><span>'+bi.icon+' '+bi.label+'s</span><span style="font-size:.65rem;opacity:.6">'+grp.length+'</span></div>';
-    html+=grp.map(function(e){return buildCard(e,source)}).join('');
+    html+=grp.map(function(e){return buildCard(e,source);}).join('');
   });
   container.innerHTML=html||'<div class="no-results">'+esc(emptyMsg)+'</div>';
 }
-
 function renderPrivateCards(){
   var q=getMySearch();
   var filtered=filterEntries(privateEntries,q);
@@ -1476,10 +1376,8 @@ function renderPrivateCards(){
   var container=document.getElementById('my-flat-cards');
   if(!container)return;
   renderFlat(container,sorted,'private',q?'No timers match your search.':'No timers yet.',mySort);
-  // update badge
   document.getElementById('badge-my').textContent=privateEntries.length;
 }
-
 function renderPublicCards(){
   var q=getPubSearch();
   var filtered=filterEntries(publicEntries,q);
@@ -1489,14 +1387,11 @@ function renderPublicCards(){
   renderFlat(container,sorted,'public',q?'No public timers match your search.':'No public timers yet.',pubSort);
   document.getElementById('badge-public').textContent=publicEntries.length;
 }
+function renderPublicEmpty(msg){var el=document.getElementById('pub-flat-cards');if(el)el.innerHTML='<div class="no-results">'+esc(msg)+'</div>';}
 
-function renderPublicEmpty(msg){
-  var el=document.getElementById('pub-flat-cards');
-  if(el)el.innerHTML='<div class="no-results">'+esc(msg)+'</div>';
-}
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // ADMIN USER PANEL
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 var modalUid=null;
 var RANK_CLASS={owner:'rank-owner',admin:'rank-admin',premium:'rank-premium',normal:''};
 
@@ -1505,20 +1400,19 @@ function rankBadgeHtml(rank){
   var labels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
   return '<span class="rank-badge '+r+'">'+labels[r]+'</span>';
 }
-
 function renderUsersPanel(){
   var grid=document.getElementById('users-grid');
   var keys=Object.keys(allUsers);
   document.getElementById('badge-users').textContent=keys.length;
-  if(keys.length===0){grid.innerHTML='<div class="empty">No registered users yet.</div>';return}
+  if(keys.length===0){grid.innerHTML='<div class="empty">No registered users yet.</div>';return;}
   var searchEl=document.getElementById('admin-search');
   var search=searchEl?searchEl.value.toLowerCase():'';
   var filtered=keys.filter(function(uid){
     var u=allUsers[uid];
     if(!search)return true;
-    return (u.username||'').toLowerCase().indexOf(search)!==-1||(u.email||'').toLowerCase().indexOf(search)!==-1;
+    return(u.username||'').toLowerCase().indexOf(search)!==-1||(u.email||'').toLowerCase().indexOf(search)!==-1;
   });
-  if(filtered.length===0){grid.innerHTML='<div class="empty">No users match that search.</div>';return}
+  if(filtered.length===0){grid.innerHTML='<div class="empty">No users match that search.</div>';return;}
   grid.innerHTML=filtered.map(function(uid){
     var u=allUsers[uid];
     var initials=(u.username||'?').charAt(0).toUpperCase();
@@ -1527,23 +1421,21 @@ function renderUsersPanel(){
     var warns=u.warns?Object.values(u.warns):[];
     var latestWarn=warns.length>0?warns[warns.length-1].text:'';
     var joined=u.joinedAt?new Date(u.joinedAt).toLocaleDateString():'Unknown';
-    return '<div class="user-card'+(isBanned?' banned':'')+'" onclick="openUserModal(\''+esc(uid)+'\')">'+
-      '<div class="user-card-top">'+
-        '<div class="user-card-avatar '+RANK_CLASS[rank]+'">'+initials+'</div>'+
-        '<div class="user-card-info">'+
-          '<div class="user-card-name">'+esc(u.username||'Unknown')+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+(u.muted&&!u.restricted?'<span class="muted-badge">&#128263; Muted</span>':'')+(u.restricted?'<span class="restricted-badge">&#128683; Restricted</span>':'')+' </div>'+
-          '<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'+
-          '<div class="user-card-meta">Joined: '+joined+' &nbsp;&#9679;&nbsp; '+warns.length+' warn'+(warns.length!==1?'s':'')+' </div>'+
-        '</div>'+
-        '<div class="user-card-arrow">&#10095;</div>'+
-      '</div>'+
-      (latestWarn?'<div class="user-card-notes-preview">&#9888; '+esc(latestWarn)+'</div>':'')+
-    '</div>';
+    return '<div class="user-card'+(isBanned?' banned':'')+'" onclick="openUserModal(\''+esc(uid)+'\')">'
+      +'<div class="user-card-top">'
+        +'<div class="user-card-avatar '+RANK_CLASS[rank]+'">'+initials+'</div>'
+        +'<div class="user-card-info">'
+          +'<div class="user-card-name">'+esc(u.username||'Unknown')+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+(u.muted&&!u.restricted?'<span class="muted-badge">&#128263; Muted</span>':'')+(u.restricted?'<span class="restricted-badge">&#128683; Restricted</span>':'')+'</div>'
+          +'<div class="user-card-email">'+esc(u.email||'Google login')+'</div>'
+          +'<div class="user-card-meta">Joined: '+joined+' &nbsp;&#9679;&nbsp; '+warns.length+' warn'+(warns.length!==1?'s':'')+'</div>'
+        +'</div>'
+        +'<div class="user-card-arrow">&#10095;</div>'
+      +'</div>'
+      +(latestWarn?'<div class="user-card-notes-preview">&#9888; '+esc(latestWarn)+'</div>':'')
+      +'</div>';
   }).join('');
 }
-
 function filterUsers(){renderUsersPanel();}
-
 function openUserModal(uid){
   var u=allUsers[uid];
   if(!u)return;
@@ -1552,8 +1444,7 @@ function openUserModal(uid){
   var isBanned=!!u.banned;
   var initials=(u.username||'?').charAt(0).toUpperCase();
   var av=document.getElementById('modal-avatar');
-  av.textContent=initials;
-  av.className='modal-avatar '+RANK_CLASS[rank];
+  av.textContent=initials;av.className='modal-avatar '+RANK_CLASS[rank];
   document.getElementById('modal-username-display').innerHTML=esc(u.username||'Unknown')+' '+rankBadgeHtml(rank)+(isBanned?'<span class="banned-badge">&#128683; Banned</span>':'')+(u.muted&&!u.restricted?'<span class="muted-badge">&#128263; Muted</span>':'')+(u.restricted?'<span class="restricted-badge">&#128683; Restricted</span>':'');
   document.getElementById('modal-email-display').textContent=u.email||'Google login';
   document.getElementById('modal-rank').value=rank;
@@ -1567,29 +1458,22 @@ function openUserModal(uid){
   ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback','restrict-feedback','alert-feedback'].forEach(function(id){
     var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
   });
-  // Show password section only for owners
   var pwSection=document.getElementById('modal-password-section');
   if(pwSection)pwSection.style.display=isOwner?'block':'none';
-  // Update mute/restrict buttons
   updateModalRestrictionBtns(u);
-  // Update chat mute btn
   var chatMuteBtn=document.getElementById('modal-chatmute-btn');
   if(chatMuteBtn){
     chatMuteBtn.innerHTML=u.chatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat';
     chatMuteBtn.className=u.chatMuted?'modal-btn success':'modal-btn warn';
   }
-  // Clear password fields
   var pwInput=document.getElementById('modal-new-password');
   var pwConfirm=document.getElementById('modal-confirm-password');
-  if(pwInput)pwInput.value='';
-  if(pwConfirm)pwConfirm.value='';
+  if(pwInput)pwInput.value='';if(pwConfirm)pwConfirm.value='';
   var alertTa=document.getElementById('modal-alert-text');
   if(alertTa)alertTa.value='';
   document.getElementById('user-modal').classList.add('show');
 }
-
 function closeUserModal(){document.getElementById('user-modal').classList.remove('show');modalUid=null;}
-
 function renderModalWarns(u){
   var warns=u.warns?Object.entries(u.warns):[];
   var container=document.getElementById('modal-warns');
@@ -1597,28 +1481,23 @@ function renderModalWarns(u){
   container.innerHTML=warns.map(function(entry){
     var key=entry[0],w=entry[1];
     var date=w.ts?new Date(w.ts).toLocaleDateString():'';
-    return '<div class="warn-item">'+
-      '<div class="warn-item-text">'+esc(w.text||'')+'</div>'+
-      '<div class="warn-item-date">'+date+'</div>'+
-      '<button class="warn-item-del" onclick="deleteWarn(\''+key+'\')" title="Delete">&#10005;</button>'+
-    '</div>';
+    return '<div class="warn-item">'
+      +'<div class="warn-item-text">'+esc(w.text||'')+'</div>'
+      +'<div class="warn-item-date">'+date+'</div>'
+      +'<button class="warn-item-del" onclick="deleteWarn(\''+key+'\')" title="Delete">&#10005;</button>'
+      +'</div>';
   }).join('');
 }
-
 function showFeedback(id,msg,ok){
   var el=document.getElementById(id);if(!el)return;
   el.textContent=msg;el.className='modal-feedback '+(ok?'ok':'err');
   setTimeout(function(){if(el)el.className='modal-feedback';},3000);
 }
-
 function saveRank(){
   if(!modalUid||!db)return;
   var rank=document.getElementById('modal-rank').value;
-  db.ref('users/'+modalUid+'/rank').set(rank).then(function(){
-    showFeedback('rank-feedback','Rank updated to '+rank+'!',true);
-  }).catch(function(e){showFeedback('rank-feedback','Error: '+e.message,false)});
+  db.ref('users/'+modalUid+'/rank').set(rank).then(function(){showFeedback('rank-feedback','Rank updated to '+rank+'!',true);}).catch(function(e){showFeedback('rank-feedback','Error: '+e.message,false);});
 }
-
 function saveUsername_admin(){
   if(!modalUid||!db)return;
   var newName=document.getElementById('modal-new-username').value.trim();
@@ -1635,75 +1514,52 @@ function saveUsername_admin(){
       showFeedback('username-feedback','Username changed to '+newName+'!',true);
       document.getElementById('modal-new-username').value='';
       document.getElementById('modal-new-username').placeholder='Current: '+newName;
-    }).catch(function(e){showFeedback('username-feedback','Error: '+e.message,false)});
+    }).catch(function(e){showFeedback('username-feedback','Error: '+e.message,false);});
   });
 }
-
 function addWarn(){
   if(!modalUid||!db)return;
   var text=document.getElementById('modal-warn-input').value.trim();
   if(!text){showFeedback('warn-feedback','Please enter a warn message.',false);return}
   db.ref('users/'+modalUid+'/warns').push({text:text,ts:Date.now(),by:currentUsername}).then(function(){
-    document.getElementById('modal-warn-input').value='';
-    showFeedback('warn-feedback','Warn added.',true);
-  }).catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false)});
+    document.getElementById('modal-warn-input').value='';showFeedback('warn-feedback','Warn added.',true);
+  }).catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false);});
 }
-
 function deleteWarn(warnKey){
   if(!modalUid||!db)return;
-  db.ref('users/'+modalUid+'/warns/'+warnKey).remove().catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false)});
+  db.ref('users/'+modalUid+'/warns/'+warnKey).remove().catch(function(e){showFeedback('warn-feedback','Error: '+e.message,false);});
 }
-
 function saveNotes(){
   if(!modalUid||!db)return;
   var notes=document.getElementById('modal-notes').value;
-  db.ref('users/'+modalUid+'/adminNotes').set(notes).then(function(){
-    showFeedback('notes-feedback','Notes saved.',true);
-  }).catch(function(e){showFeedback('notes-feedback','Error: '+e.message,false)});
+  db.ref('users/'+modalUid+'/adminNotes').set(notes).then(function(){showFeedback('notes-feedback','Notes saved.',true);}).catch(function(e){showFeedback('notes-feedback','Error: '+e.message,false);});
 }
-
 function toggleBan(){
   if(!modalUid||!db)return;
   var isBanned=!!(allUsers[modalUid]||{}).banned;
-  db.ref('users/'+modalUid+'/banned').set(!isBanned).then(function(){
-    showFeedback('actions-feedback',isBanned?'User unbanned.':'User banned.',true);
-  }).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false)});
+  db.ref('users/'+modalUid+'/banned').set(!isBanned).then(function(){showFeedback('actions-feedback',isBanned?'User unbanned.':'User banned.',true);}).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false);});
 }
-
 function clearTimers_modal(){
   if(!modalUid||!db)return;
   var u=allUsers[modalUid]||{};
   if(!confirm('Delete ALL public timers posted by '+(u.username||'this user')+'?'))return;
   db.ref('timers').orderByChild('uid').equalTo(modalUid).once('value',function(snap){
-    var updates={};snap.forEach(function(c){updates[c.key]=null});
+    var updates={};snap.forEach(function(c){updates[c.key]=null;});
     db.ref('timers').update(updates).then(function(){showFeedback('actions-feedback','All timers cleared.',true);});
   });
 }
-
 function changePassword_modal(){
   if(!modalUid||!db||!isOwner){showFeedback('password-feedback','Only owners can change passwords.',false);return}
-  var u=allUsers[modalUid]||{};
-  // Can't change password for Google-only accounts
-  var isGoogle=u.email&&!u.email.includes('@')===false&&(!u.uid);
   var newPass=document.getElementById('modal-new-password').value;
   var confirmPass=document.getElementById('modal-confirm-password').value;
   if(!newPass||newPass.length<6){showFeedback('password-feedback','Password must be at least 6 characters.',false);return}
   if(newPass!==confirmPass){showFeedback('password-feedback','Passwords do not match.',false);return}
-  // Use Firebase Admin-style: we update via a special DB flag that a Cloud Function would read.
-  // Since we have no backend, we store a pending password reset token in DB that the user
-  // sees as a forced reset prompt on next login.
-  // Best we can do client-side: store a forcePasswordReset flag + new temp password hash note
-  db.ref('users/'+modalUid+'/forcePasswordReset').set({
-    newPassword:newPass,
-    setBy:currentUsername,
-    setAt:Date.now()
-  }).then(function(){
+  db.ref('users/'+modalUid+'/forcePasswordReset').set({newPassword:newPass,setBy:currentUsername,setAt:Date.now()}).then(function(){
     document.getElementById('modal-new-password').value='';
     document.getElementById('modal-confirm-password').value='';
     showFeedback('password-feedback','Password reset flag saved. User will be prompted on next login.',true);
-  }).catch(function(e){showFeedback('password-feedback','Error: '+e.message,false)});
+  }).catch(function(e){showFeedback('password-feedback','Error: '+e.message,false);});
 }
-
 function deleteAccount_modal(){
   if(!modalUid||!db)return;
   var u=allUsers[modalUid]||{};
@@ -1712,70 +1568,15 @@ function deleteAccount_modal(){
   updates['users/'+modalUid]=null;
   if(u.username)updates['usernames/'+u.username.toLowerCase()]=null;
   db.ref('timers').orderByChild('uid').equalTo(modalUid).once('value',function(snap){
-    snap.forEach(function(c){updates['timers/'+c.key]=null});
-    db.ref().update(updates).then(function(){closeUserModal();}).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false)});
+    snap.forEach(function(c){updates['timers/'+c.key]=null;});
+    db.ref().update(updates).then(function(){closeUserModal();}).catch(function(e){showFeedback('actions-feedback','Error: '+e.message,false);});
   });
 }
-
-function fmtDuration(ms){
-  if(!ms||ms<0)return'Permanent';
-  var s=Math.ceil((ms-Date.now())/1000);
-  if(s<=0)return'Expired';
-  if(s<60)return s+'s';
-  if(s<3600)return Math.ceil(s/60)+'m';
-  if(s<86400)return Math.ceil(s/3600)+'h';
-  return Math.ceil(s/86400)+'d';
-}
-
-function applyMute(durationMs){
-  if(!modalUid||!db)return;
-  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
-  db.ref('users/'+modalUid+'/muted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
-    var label=durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs));
-    showFeedback('restrict-feedback','User muted '+label+'.',true);
-  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
-}
-
-function unmute(){
-  if(!modalUid||!db)return;
-  db.ref('users/'+modalUid+'/muted').remove().then(function(){
-    showFeedback('restrict-feedback','User unmuted.',true);
-  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
-}
-
-function toggleChatMute(){
-  if(!modalUid||!db)return;
-  var u=allUsers[modalUid]||{};
-  var isChatMuted=!!u.chatMuted;
-  db.ref('users/'+modalUid+'/chatMuted').set(!isChatMuted).then(function(){
-    showFeedback('restrict-feedback',isChatMuted?'User can chat again.':'User muted from chat.',true);
-    var btn=document.getElementById('modal-chatmute-btn');
-    if(btn){btn.innerHTML=(!isChatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat');btn.className=!isChatMuted?'modal-btn success':'modal-btn warn';}
-  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
-}
-
-function applyRestrict(durationMs){
-  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can restrict all timers.',false);return}
-  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
-  db.ref('users/'+modalUid+'/restricted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
-    var label=durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs));
-    showFeedback('restrict-feedback','User restricted '+label+'.',true);
-  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
-}
-
-function unrestrict(){
-  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can lift restrictions.',false);return}
-  db.ref('users/'+modalUid+'/restricted').remove().then(function(){
-    showFeedback('restrict-feedback','Restriction lifted.',true);
-  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
-}
-
 function fmtDurationLabel(ms){
   if(ms<3600000)return(ms/60000)+'m';
   if(ms<86400000)return(ms/3600000)+'h';
   return(ms/86400000)+'d';
 }
-
 function fmtExpiry(muteObj){
   if(!muteObj||!muteObj.active)return null;
   if(muteObj.expiresAt===-1)return'Never (permanent)';
@@ -1785,163 +1586,181 @@ function fmtExpiry(muteObj){
   if(remaining<86400000)return Math.ceil(remaining/3600000)+'h remaining';
   return Math.ceil(remaining/86400000)+'d remaining';
 }
-
+function applyMute(durationMs){
+  if(!modalUid||!db)return;
+  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
+  db.ref('users/'+modalUid+'/muted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
+    showFeedback('restrict-feedback','User muted '+(durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs)))+'.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false);});
+}
+function unmute(){
+  if(!modalUid||!db)return;
+  db.ref('users/'+modalUid+'/muted').remove().then(function(){showFeedback('restrict-feedback','User unmuted.',true);}).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false);});
+}
+function toggleChatMute(){
+  if(!modalUid||!db)return;
+  var u=allUsers[modalUid]||{};
+  var isChatMuted=!!u.chatMuted;
+  db.ref('users/'+modalUid+'/chatMuted').set(!isChatMuted).then(function(){
+    showFeedback('restrict-feedback',isChatMuted?'User can chat again.':'User muted from chat.',true);
+    var btn=document.getElementById('modal-chatmute-btn');
+    if(btn){btn.innerHTML=(!isChatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat');btn.className=!isChatMuted?'modal-btn success':'modal-btn warn';}
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false);});
+}
+function applyRestrict(durationMs){
+  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can restrict all timers.',false);return}
+  var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
+  db.ref('users/'+modalUid+'/restricted').set({active:true,expiresAt:expiresAt,by:currentUsername,at:Date.now()}).then(function(){
+    showFeedback('restrict-feedback','User restricted '+(durationMs===-1?'permanently':('for '+fmtDurationLabel(durationMs)))+'.',true);
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false);});
+}
+function unrestrict(){
+  if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can lift restrictions.',false);return}
+  db.ref('users/'+modalUid+'/restricted').remove().then(function(){showFeedback('restrict-feedback','Restriction lifted.',true);}).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false);});
+}
 function updateModalRestrictionBtns(u){
   var muteObj=u.muted&&u.muted.active?u.muted:null;
   var restrictObj=u.restricted&&u.restricted.active?u.restricted:null;
-  // Handle legacy boolean format
   if(u.muted===true)muteObj={active:true,expiresAt:-1};
   if(u.restricted===true)restrictObj={active:true,expiresAt:-1};
-
   var muteActive=document.getElementById('mute-active-display');
   var restrictActive=document.getElementById('restrict-active-display');
   var mutePicker=document.getElementById('mute-picker');
   var restrictPicker=document.getElementById('restrict-picker');
-
-  // Mute active state
   if(muteActive){
     var showMute=!!muteObj;
     muteActive.style.display=showMute?'flex':'none';
-    if(showMute){
-      var expiryEl=document.getElementById('mute-expires-text');
-      if(expiryEl)expiryEl.textContent=fmtExpiry(muteObj)||'Never';
-    }
+    if(showMute){var expiryEl=document.getElementById('mute-expires-text');if(expiryEl)expiryEl.textContent=fmtExpiry(muteObj)||'Never';}
   }
   if(mutePicker)mutePicker.style.display=muteObj?'none':'block';
-
-  // Restrict active state
   if(restrictActive){
     var showRestrict=!!restrictObj&&isOwner;
     restrictActive.style.display=showRestrict?'flex':'none';
-    if(showRestrict){
-      var rExpiryEl=document.getElementById('restrict-expires-text');
-      if(rExpiryEl)rExpiryEl.textContent=fmtExpiry(restrictObj)||'Never';
-    }
+    if(showRestrict){var rExpiryEl=document.getElementById('restrict-expires-text');if(rExpiryEl)rExpiryEl.textContent=fmtExpiry(restrictObj)||'Never';}
   }
   if(restrictPicker)restrictPicker.style.display=isOwner&&!restrictObj?'block':'none';
 }
-
-
 function updateBadges(){
   document.getElementById('badge-my').textContent=privateEntries.length;
   document.getElementById('badge-public').textContent=publicEntries.length;
 }
 
-// ═══════════════════════════════════════════
-// PRESENCE & CHAT
-// ═══════════════════════════════════════════
-var presenceRef=null, chatRef=null, chatLoaded=false, _unreadChat=0;
-var CHAT_MAX=100; // keep last 100 messages
-
-// ── shared state for presence + DM ──
+// ═══════════════════════════════════════════════════════
+// PRESENCE & CHAT — FULLY REBUILT
+// ═══════════════════════════════════════════════════════
+var presenceRef=null;
 var _presenceSnap=null, _usersSnap={};
-var _dmUid=null, _dmRef=null, _dmListener=null;
+var _dmUid=null, _dmRef=null;
+var _dmListenerRef=null;       // holds the actual Firebase listener function for removal
+var _globalListenerRef=null;   // holds global child_added listener
+var _dmUnread={};
+var _unreadChat=0;
+var CHAT_MAX=100;
+var _globalLoaded=false;       // true once initial global messages have been rendered
+var _chatInitDone=false;       // prevents duplicate initPresenceAndChat calls
+
+// Tear down all chat listeners cleanly
+function teardownChat(){
+  if(_globalListenerRef&&db){db.ref('chat').off('child_added',_globalListenerRef);_globalListenerRef=null;}
+  if(_dmListenerRef&&_dmRef){_dmRef.off('child_added',_dmListenerRef);_dmListenerRef=null;}
+  _dmUid=null;_dmRef=null;_globalLoaded=false;_chatInitDone=false;
+  _dmUnread={};_unreadChat=0;
+}
 
 function initPresenceAndChat(user){
+  if(_chatInitDone)return;
+  _chatInitDone=true;
   if(!db||!user)return;
 
   // ── Presence: register self ──
   presenceRef=db.ref('presence/'+user.uid);
-
   function goOnline(){
     if(!presenceRef)return;
     presenceRef.onDisconnect().remove();
     presenceRef.set({username:currentUsername,rank:currentUserRank,uid:user.uid,ts:Date.now()});
   }
-  function goOffline(){
-    if(!presenceRef)return;
-    presenceRef.remove();
-  }
+  function goOffline(){if(presenceRef)presenceRef.remove();}
 
-  // Firebase connection state — sets online when websocket connects
-  db.ref('.info/connected').on('value',function(snap){
-    if(!snap.val())return;
-    // Re-register onDisconnect every time connection is re-established
-    goOnline();
-  });
-
-  // Page visibility — go offline when tab is hidden, online when visible
+  db.ref('.info/connected').on('value',function(snap){if(snap.val())goOnline();});
   document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible'){
-      goOnline();
-    } else {
-      goOffline();
-    }
+    if(document.visibilityState==='visible')goOnline();else goOffline();
   });
-
-  // Also go online immediately (don't wait for visibilitychange)
   goOnline();
 
-  // ── Load users FIRST, then start presence listener ──
+  // ── Users snapshot (used by presence renderer) ──
   db.ref('users').on('value',function(snap){
     _usersSnap={};
-    snap.forEach(function(c){
-      var v=c.val();
-      if(v&&v.username)_usersSnap[c.key]=v;
-    });
-    // Always re-render when users update
+    snap.forEach(function(c){var v=c.val();if(v&&v.username)_usersSnap[c.key]=v;});
     renderPresence(_presenceSnap,_usersSnap);
   });
 
-  // ── Presence: listen live ──
+  // ── Presence live feed ──
   db.ref('presence').on('value',function(snap){
     _presenceSnap=snap;
     renderPresence(_presenceSnap,_usersSnap);
   });
 
-  // ── Global chat ──
-  chatRef=db.ref('chat');
-  subscribeGlobalChat();
-  // Subscribe to incoming DM notifications
+  // ── DM notification listener ──
   db.ref('dmnotify/'+user.uid).on('child_added',function(snap){
     var fromUid=snap.key;
-    var data=snap.val();
-    if(!data)return;
-    // Bump unread if not currently in that DM
     if(_dmUid!==fromUid){
       _dmUnread[fromUid]=(_dmUnread[fromUid]||0)+1;
       if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
       bumpChatBadge();
     }
-    // Clear the notification node
     snap.ref.remove();
   });
 
-  chatLoaded=true;
+  // ── Load global chat ──
+  loadGlobalChat();
 }
 
-function subscribeGlobalChat(){
-  if(!chatRef)return;
-  var globalInitDone=false;
-  // Load existing messages first via once()
-  chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
+// ── Load/reload global chat messages and attach a single child_added listener ──
+function loadGlobalChat(){
+  if(!db)return;
+  _globalLoaded=false;
+
+  // Remove old global listener if any
+  if(_globalListenerRef){db.ref('chat').off('child_added',_globalListenerRef);_globalListenerRef=null;}
+
+  var msgsEl=document.getElementById('chat-msgs');
+  if(msgsEl)msgsEl.innerHTML='<div class="chat-system-msg">Loading messages...</div>';
+
+  // Load last CHAT_MAX messages once to get history
+  db.ref('chat').limitToLast(CHAT_MAX).once('value',function(snap){
     var msgsEl=document.getElementById('chat-msgs');
-    if(msgsEl)msgsEl.innerHTML='';
+    if(!msgsEl||_dmUid)return; // don't render global if now in DM
+    msgsEl.innerHTML='';
+
+    // Track all keys already rendered so child_added doesn't double-add them
+    var renderedKeys={};
     snap.forEach(function(c){
       var msg=c.val();if(!msg)return;
       msg.key=c.key;
+      renderedKeys[c.key]=true;
       appendChatMsg(msg,'global');
     });
     scrollChatToBottom();
-    globalInitDone=true;
-    // Now listen for NEW messages only
-    chatRef.limitToLast(1).on('child_added',function(snap){
-      if(!globalInitDone)return;
-      if(_dmUid)return;
+    _globalLoaded=true;
+
+    // Now attach child_added for NEW messages only
+    _globalListenerRef=function(snap){
+      if(!_globalLoaded)return;             // guard: ignore if still loading
+      if(_dmUid)return;                     // ignore global messages while in a DM
+      if(renderedKeys[snap.key])return;     // already rendered from initial load
+      renderedKeys[snap.key]=true;
       var msg=snap.val();if(!msg)return;
       msg.key=snap.key;
       appendChatMsg(msg,'global');
-      // Only badge if not from self
       if(!currentUser||msg.uid!==currentUser.uid)bumpChatBadge();
+    };
+    db.ref('chat').limitToLast(CHAT_MAX).on('child_added',_globalListenerRef);
+
+    // child_removed for global
+    db.ref('chat').on('child_removed',function(snap){
+      var el=document.getElementById('chatmsg-'+snap.key);
+      if(el){el.classList.add('deleted');var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[message deleted]';var d=el.querySelector('.chat-msg-del');if(d)d.remove();}
     });
-  });
-  chatRef.on('child_removed',function(snap){
-    var el=document.getElementById('chatmsg-'+snap.key);
-    if(el){
-      el.classList.add('deleted');
-      var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[message deleted]';
-      var d=el.querySelector('.chat-msg-del');if(d)d.remove();
-    }
   });
 }
 
@@ -1958,35 +1777,19 @@ function renderPresence(presSnap,usersMap){
   var onlineList=document.getElementById('online-users-list');
   var offlineList=document.getElementById('offline-users-list');
   if(!onlineList||!offlineList)return;
-
   var myUid=currentUser?currentUser.uid:null;
   var onlineUids={};
-
-  // Collect who is online from presence snapshot
-  if(presSnap){
-    presSnap.forEach(function(c){
-      if(c.val())onlineUids[c.key]=true;
-    });
-  }
-
-  // Build combined user list - EVERYONE with an account
+  if(presSnap){presSnap.forEach(function(c){if(c.val())onlineUids[c.key]=true;});}
   var allUids=Object.keys(usersMap||{});
-
   // Also add anyone in presence not yet in usersMap
   if(presSnap){
     presSnap.forEach(function(c){
-      if(c.val()&&c.val().username&&!usersMap[c.key]){
-        allUids.push(c.key);
-        usersMap[c.key]=c.val();
-      }
+      if(c.val()&&c.val().username&&!usersMap[c.key]){allUids.push(c.key);usersMap[c.key]=c.val();}
     });
   }
-
   var onlineItems=[], offlineItems=[];
-
   allUids.forEach(function(uid){
-    var u=usersMap[uid];
-    if(!u||!u.username)return;
+    var u=usersMap[uid];if(!u||!u.username)return;
     var isOnline=!!onlineUids[uid];
     var rank=u.rank||'normal';
     var rankIcon={owner:'&#128081; ',admin:'&#128737; ',premium:'&#128142; ',normal:''}[rank]||'';
@@ -2000,135 +1803,160 @@ function renderPresence(presSnap,usersMap){
       +' oncontextmenu="event.preventDefault();mentionUser(this.dataset.uname)"'
       +' title="Click to DM • Right-click to mention">'
       +'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>'
-      +'<div style="min-width:0;flex:1">'
-        +'<div class="chat-user-name">'+rankIcon+uname+(isSelf?' <span style="font-size:.6rem;opacity:.5">(you)</span>':'')+'</div>'
-      +'</div>'
+      +'<div style="min-width:0;flex:1"><div class="chat-user-name">'+rankIcon+uname+(isSelf?' <span style="font-size:.6rem;opacity:.5">(you)</span>':'')+'</div></div>'
       +(unread>0?'<span class="dm-badge">'+unread+'</span>':'')
       +'</div>';
     if(isOnline)onlineItems.push({uname:u.username,html:item});
     else offlineItems.push({uname:u.username,html:item});
   });
-
-  onlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
-  offlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname)});
-
+  onlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname);});
+  offlineItems.sort(function(a,b){return a.uname.localeCompare(b.uname);});
   onlineList.innerHTML=onlineItems.length
-    ? onlineItems.map(function(x){return x.html}).join('')
-    : '<div style="padding:8px 10px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
-  offlineList.innerHTML=offlineItems.map(function(x){return x.html}).join('');
+    ?onlineItems.map(function(x){return x.html;}).join('')
+    :'<div style="padding:8px 10px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
+  offlineList.innerHTML=offlineItems.map(function(x){return x.html;}).join('');
 }
 
 function mentionUser(username){
   openGlobalChat();
   var inp=document.getElementById('chat-input');
   if(!inp)return;
-  inp.value='@'+username+' '+inp.value;
+  var cur=inp.value;
+  inp.value='@'+username+' '+(cur?cur:'');
   inp.focus();
+  // Move cursor to end
+  inp.setSelectionRange(inp.value.length,inp.value.length);
 }
 
-var _dmUnread={};
-
+// ── Open a DM channel ──
 function openDM(uid,username){
   if(!db||!currentUser)return;
-  if(uid===currentUser.uid)return; // can't DM self
-  _dmUid=uid;
-  // DM path: sorted uid pair so both sides share same path
-  var pair=[currentUser.uid,uid].sort().join('_');
+  if(uid===currentUser.uid)return;
+
   // Detach previous DM listener
-  if(_dmRef&&_dmListener){_dmRef.off('child_added',_dmListener);_dmRef.off('child_removed');}
+  if(_dmListenerRef&&_dmRef){_dmRef.off('child_added',_dmListenerRef);_dmRef.off('child_removed');_dmListenerRef=null;}
+
+  _dmUid=uid;
+  var pair=[currentUser.uid,uid].sort().join('_');
   _dmRef=db.ref('dms/'+pair);
-  // Clear unread badge for this user
+
+  // Clear unread for this user
   _dmUnread[uid]=0;
-  // Update UI
+  if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+
+  // Update header
   var titleEl=document.getElementById('chat-title');
   if(titleEl)titleEl.innerHTML='&#128172; <span style="color:#c084fc">'+esc(username)+'</span>';
   var backBtn=document.getElementById('chat-back-btn');
-  if(backBtn)backBtn.style.display='inline';
+  if(backBtn)backBtn.style.display='inline-block';
   var inp=document.getElementById('chat-input');
   if(inp)inp.placeholder='Message '+username+'...';
-  // Clear messages
+
+  // Show DM banner
+  var banner=document.getElementById('dm-banner');
+  if(banner){banner.textContent='Direct message with '+username+' — private between you two';banner.style.display='block';}
+
+  // Clear messages and show history
   var msgs=document.getElementById('chat-msgs');
-  if(msgs)msgs.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:.78rem">DM with '+esc(username)+'</div>';
-  // Re-render presence to highlight active DM
-  if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
-  // Subscribe DM messages
-  _dmListener=_dmRef.limitToLast(50).on('child_added',function(snap){
-    var msg=snap.val();if(!msg)return;
-    msg.key=snap.key;
-    appendChatMsg(msg,'dm');
+  if(msgs)msgs.innerHTML='<div class="chat-system-msg">Loading DM history...</div>';
+
+  // Track keys rendered from initial load to prevent child_added duplicates
+  var dmRenderedKeys={};
+
+  _dmRef.limitToLast(50).once('value',function(snap){
+    var msgsEl=document.getElementById('chat-msgs');
+    if(msgsEl)msgsEl.innerHTML='';
+    snap.forEach(function(c){
+      var msg=c.val();if(!msg)return;
+      msg.key=c.key;
+      dmRenderedKeys[c.key]=true;
+      appendChatMsg(msg,'dm');
+    });
+    if(!snap.numChildren()){
+      var msgsEl2=document.getElementById('chat-msgs');
+      if(msgsEl2)msgsEl2.innerHTML='<div class="chat-system-msg">No messages yet. Say hi! &#128075;</div>';
+    }
+    scrollChatToBottom();
+
+    // Listen for new DM messages
+    _dmListenerRef=function(snap){
+      if(dmRenderedKeys[snap.key])return;
+      dmRenderedKeys[snap.key]=true;
+      var msg=snap.val();if(!msg)return;
+      msg.key=snap.key;
+      appendChatMsg(msg,'dm');
+    };
+    _dmRef.on('child_added',_dmListenerRef);
+    _dmRef.on('child_removed',function(snap){
+      var el=document.getElementById('chatmsg-'+snap.key);
+      if(el){el.classList.add('deleted');var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[deleted]';}
+    });
   });
-  _dmRef.on('child_removed',function(snap){
-    var el=document.getElementById('chatmsg-'+snap.key);
-    if(el){el.classList.add('deleted');var t=el.querySelector('.chat-msg-text');if(t)t.textContent='[deleted]';}
-  });
+
   switchPage('chat');
 }
 
+// ── Return to global chat ──
 function openGlobalChat(){
-  if(_dmRef&&_dmListener){_dmRef.off('child_added',_dmListener);_dmRef.off('child_removed');_dmListener=null;}
+  // Detach DM listener
+  if(_dmListenerRef&&_dmRef){_dmRef.off('child_added',_dmListenerRef);_dmRef.off('child_removed');_dmListenerRef=null;}
   _dmUid=null;_dmRef=null;
+
   var titleEl=document.getElementById('chat-title');
   if(titleEl)titleEl.innerHTML='&#128172; Global Chat';
   var backBtn=document.getElementById('chat-back-btn');
   if(backBtn)backBtn.style.display='none';
   var inp=document.getElementById('chat-input');
   if(inp)inp.placeholder='Say something...';
-  var msgs=document.getElementById('chat-msgs');
-  if(msgs)msgs.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>';
-  // Re-subscribe global
-  if(chatRef){
-    chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
-      var msgsEl=document.getElementById('chat-msgs');
-      if(msgsEl)msgsEl.innerHTML='';
-      snap.forEach(function(c){
-        var msg=c.val();if(!msg)return;
-        msg.key=c.key;
-        appendChatMsg(msg,'global');
-      });
-      scrollChatToBottom();
-    });
-  }
+  var banner=document.getElementById('dm-banner');
+  if(banner)banner.style.display='none';
+
   if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
+
+  // Reload global chat (handles re-attaching the listener cleanly)
+  loadGlobalChat();
 }
 
+// ── Send a message ──
 function sendChat(){
   if(!db||!currentUser)return;
   var inp=document.getElementById('chat-input');
   var msg=(inp?inp.value:'').trim();
   if(!msg)return;
   if(msg.length>300){alert('Message too long (max 300 chars)');return}
-  if(currentUserData&&currentUserData.chatMuted&&!isAdmin){
-    alert('You are muted from chat.');return;
-  }
+  if(currentUserData&&currentUserData.chatMuted&&!isAdmin){alert('You are muted from chat.');return}
+
   var payload={uid:currentUser.uid,username:currentUsername,rank:currentUserRank,text:msg,ts:Date.now()};
+
   if(_dmUid){
-    // DM send
     var pair=[currentUser.uid,_dmUid].sort().join('_');
     db.ref('dms/'+pair).push(payload);
-    // Notify recipient via their DM unread count
+    // Notify recipient
     db.ref('dmnotify/'+_dmUid+'/'+currentUser.uid).set({from:currentUsername,ts:Date.now()});
-  } else {
-    if(!chatRef){return;}
-    chatRef.push(payload);
+  }else{
+    db.ref('chat').push(payload);
   }
   inp.value='';
-  scrollChatToBottom();
+  inp.focus();
 }
 
+// ── Append a single chat message bubble ──
 function appendChatMsg(msg,source){
   var container=document.getElementById('chat-msgs');
   if(!container)return;
-  // Skip if already rendered
-  if(document.getElementById('chatmsg-'+msg.key))return;
-  // Remove loading placeholder
-  var placeholder=container.querySelector('div[style]');
-  if(placeholder&&(placeholder.textContent.includes('Loading')||placeholder.textContent.includes('DM with')))placeholder.remove();
+  if(document.getElementById('chatmsg-'+msg.key))return; // already rendered
+
+  // Remove any loading/empty placeholder
+  var placeholder=container.querySelector('.chat-system-msg');
+  if(placeholder)placeholder.remove();
+
   var rank=msg.rank||'normal';
   var rankColors={owner:'#fbbf24',admin:'#fca5a5',premium:'#c084fc',normal:'var(--text-dim)'};
   var rankLabel={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:''}[rank]||'';
   var time=new Date(msg.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
   var isMine=currentUser&&msg.uid===currentUser.uid;
   var canDel=isAdmin||isMine;
+
   var el=document.createElement('div');
   el.className='chat-msg'+(isMine?' chat-msg-mine':'');
   el.id='chatmsg-'+msg.key;
@@ -2140,77 +1968,66 @@ function appendChatMsg(msg,source){
     +'</div>'
     +'<div class="chat-msg-text">'+esc(msg.text)+'</div>';
   container.appendChild(el);
+
+  // Trim old messages
   var msgs=container.querySelectorAll('.chat-msg');
   if(msgs.length>CHAT_MAX)msgs[0].remove();
+
   scrollChatToBottom();
 }
 
+// ── Delete a chat message ──
 function deleteChatMsg(key,source){
   if(!db||!currentUser)return;
   if(!confirm('Delete this message?'))return;
   if(source==='dm'&&_dmUid){
     var pair=[currentUser.uid,_dmUid].sort().join('_');
     db.ref('dms/'+pair+'/'+key).remove();
-  } else {
+  }else{
     db.ref('chat/'+key).remove();
   }
 }
 
 function scrollChatToBottom(){
   var c=document.getElementById('chat-msgs');
-  if(c)setTimeout(function(){c.scrollTop=c.scrollHeight},50);
+  if(c)setTimeout(function(){c.scrollTop=c.scrollHeight;},60);
 }
 
-// ═══════════════════════════════════════════
-// TICK
-// ═══════════════════════════════════════════
-// ── RAF TICKER ──
-var _lastSec=-1, _lastClockMin=-1;
+// ═══════════════════════════════════════════════════════
+// TICK (RAF-driven)
+// ═══════════════════════════════════════════════════════
+var _lastSec=-1;
 function tick(){
   var now=Date.now();
   var nowSec=Math.floor(now/1000);
 
-  // Clock: update only when minute changes
-  var d=new Date(now);
-  var clockMin=d.getMinutes();
-  if(clockMin!==_lastClockMin){
-    _lastClockMin=clockMin;
-    document.getElementById('est-clock').textContent=d.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-  }
+  // Update clock every second
+  document.getElementById('est-clock').textContent=new Date(now).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 
-  // Countdowns: only update DOM when the second changes
+  // Countdown updates only when the second changes
   if(nowSec===_lastSec){requestAnimationFrame(tick);return;}
   _lastSec=nowSec;
 
-  // Update clock text each second regardless
-  document.getElementById('est-clock').textContent=new Date(now).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-
-  // Use cached element map — rebuilt by renderPrivateCards/renderPublicCards
   var allTimerEls=document.querySelectorAll('[id^="tdisplay-"]');
-  // Build a quick lookup from the live DOM
   var elMap={};
   allTimerEls.forEach(function(el){elMap[el.id]=el;});
 
-  var EXPIRE_AFTER=5*60*1000; // 5 minutes after spawn
+  var EXPIRE_AFTER=5*60*1000;
   var needsRerender=false;
 
   function upd(arr,src){
     arr.forEach(function(e){
       var ms=e.spawnAt-now;
-      // Auto-remove entries that spawned more than 5 minutes ago
       if(ms<=-EXPIRE_AFTER){
         if(src==='private'){
-          // Remove from Firebase if it was public
           if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
-          privateEntries=privateEntries.filter(function(x){return x.id!==e.id});
+          privateEntries=privateEntries.filter(function(x){return x.id!==e.id;});
           save();
-        } else {
-          // Public entries: remove from Firebase
+        }else{
           if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
-          publicEntries=publicEntries.filter(function(x){return x.id!==e.id});
+          publicEntries=publicEntries.filter(function(x){return x.id!==e.id;});
         }
-        needsRerender=true;
-        return;
+        needsRerender=true;return;
       }
       var key='tdisplay-'+src+'-'+e.id;
       var el=elMap[key];if(!el)return;
@@ -2218,7 +2035,7 @@ function tick(){
         if(el.textContent!=='SPAWNED'){
           el.textContent='SPAWNED';el.className='time-display done-text';
           var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
-          if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
+          if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e);}
         }
       }else{
         var txt=fmtCountdown(ms);
@@ -2228,114 +2045,16 @@ function tick(){
       }
     });
   }
-  upd(privateEntries.slice(),'private');upd(publicEntries.slice(),'public');
+  upd(privateEntries.slice(),'private');
+  upd(publicEntries.slice(),'public');
   if(needsRerender){renderPrivateCards();renderPublicCards();}
   if(!alarmActive&&alarmQueue.length>0)showAlarm(alarmQueue.shift());
   requestAnimationFrame(tick);
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // ALARM
-// ═══════════════════════════════════════════
-// ═══════════════════════════════════════════
-// ADMIN ALERT
-// ═══════════════════════════════════════════
-var adminAlertCountdownInt=null;
-
-function sendAdminAlert(){
-  if(!modalUid||!db){showFeedback('alert-feedback','Error: not ready.',false);return}
-  var msg=document.getElementById('modal-alert-text').value.trim();
-  if(!msg){showFeedback('alert-feedback','Please enter a message.',false);return}
-  var mins=parseInt(document.getElementById('modal-alert-mins').value)||0;
-  var secs=parseInt(document.getElementById('modal-alert-secs').value)||0;
-  var totalSecs=mins*60+secs;
-  if(totalSecs<1)totalSecs=5; // minimum 5 seconds
-  var u=allUsers[modalUid]||{};
-  db.ref('alerts/'+modalUid).set({
-    msg:msg,
-    from:currentUsername,
-    ts:Date.now(),
-    lockSecs:totalSecs
-  }).then(function(){
-    showFeedback('alert-feedback','Alert sent to '+(u.username||'user')+'!',true);
-    document.getElementById('modal-alert-text').value='';
-  }).catch(function(e){showFeedback('alert-feedback','Error: '+e.message,false)});
-}
-
-function subscribeAlerts(uid){
-  if(!db||!uid)return;
-  db.ref('alerts/'+uid).on('value',function(snap){
-    var data=snap.val();
-    if(!data||!data.msg||!data.ts)return;
-    // Already dismissed — ignore
-    if(data.dismissed)return;
-    var now=Date.now();
-    var elapsed=Math.floor((now-data.ts)/1000);
-    var lockSecs=data.lockSecs||5;
-    // If the full lock time has already passed since the alert was sent, skip it
-    if(elapsed>=lockSecs&&data.dismissed===undefined){
-      // Still show it but immediately dismissable
-      showAdminAlert(data.msg,data.from||'Admin',0,uid);
-      return;
-    }
-    // Calculate remaining lock time accounting for time already elapsed
-    var remaining=Math.max(0,lockSecs-elapsed);
-    showAdminAlert(data.msg,data.from||'Admin',remaining,uid);
-  });
-}
-
-function showAdminAlert(msg,from,lockSecs,uid){
-  var overlay=document.getElementById('admin-alert-overlay');
-  var msgEl=document.getElementById('admin-alert-msg');
-  var fromEl=document.getElementById('admin-alert-from');
-  var btn=document.getElementById('admin-alert-dismiss');
-  var countdown=document.getElementById('admin-alert-countdown');
-  if(!overlay||!msgEl||!btn||!countdown)return;
-  // Store uid so dismissAdminAlert can mark it done in Firebase
-  overlay.dataset.alertUid=uid||'';
-  lockSecs=lockSecs||0;
-  msgEl.textContent=msg;
-  fromEl.textContent='Message from '+from;
-  btn.classList.remove('ready');
-  overlay.classList.add('show');
-  if(adminAlertCountdownInt)clearInterval(adminAlertCountdownInt);
-  function fmtSecs(s){if(s>=60)return Math.floor(s/60)+'m '+pad(s%60)+'s';return s+'s';}
-  if(lockSecs<=0){
-    btn.classList.add('ready');
-    countdown.textContent='Dismiss';
-    return;
-  }
-  var secs=lockSecs;
-  countdown.textContent='Wait '+fmtSecs(secs);
-  adminAlertCountdownInt=setInterval(function(){
-    secs--;
-    if(secs<=0){
-      clearInterval(adminAlertCountdownInt);
-      adminAlertCountdownInt=null;
-      btn.classList.add('ready');
-      countdown.textContent='Dismiss';
-    }else{
-      countdown.textContent='Wait '+fmtSecs(secs);
-    }
-  },1000);
-}
-
-function dismissAdminAlert(){
-  var btn=document.getElementById('admin-alert-dismiss');
-  if(!btn||!btn.classList.contains('ready'))return;
-  if(adminAlertCountdownInt){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;}
-  var overlay=document.getElementById('admin-alert-overlay');
-  overlay.classList.remove('show');
-  // Mark as dismissed in Firebase so it doesn't re-show on refresh
-  var alertUid=overlay.dataset.alertUid;
-  if(alertUid&&db){
-    db.ref('alerts/'+alertUid+'/dismissed').set(true).then(function(){
-      // Clean up fully after marking dismissed
-      setTimeout(function(){db.ref('alerts/'+alertUid).remove();},500);
-    }).catch(function(){});
-  }
-}
-
+// ═══════════════════════════════════════════════════════
 function showAlarm(entry){
   alarmActive=true;
   var bt=BOSS_TYPES[entry.type]||{label:entry.type,icon:'&#9733;'};
@@ -2348,28 +2067,98 @@ function showAlarm(entry){
   document.getElementById('alarm-overlay').classList.add('show');
   startAlarmLoop();
 }
-function dismissAlarm(){alarmActive=false;stopAlarmLoop();document.getElementById('alarm-overlay').classList.remove('show')}
+function dismissAlarm(){alarmActive=false;stopAlarmLoop();document.getElementById('alarm-overlay').classList.remove('show');}
 
-// ═══════════════════════════════════════════
-// KEYBOARD
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// ADMIN ALERT
+// ═══════════════════════════════════════════════════════
+var adminAlertCountdownInt=null;
+
+function sendAdminAlert(){
+  if(!modalUid||!db){showFeedback('alert-feedback','Error: not ready.',false);return}
+  var msg=document.getElementById('modal-alert-text').value.trim();
+  if(!msg){showFeedback('alert-feedback','Please enter a message.',false);return}
+  var mins=parseInt(document.getElementById('modal-alert-mins').value)||0;
+  var secs=parseInt(document.getElementById('modal-alert-secs').value)||0;
+  var totalSecs=mins*60+secs;
+  if(totalSecs<1)totalSecs=5;
+  var u=allUsers[modalUid]||{};
+  db.ref('alerts/'+modalUid).set({msg:msg,from:currentUsername,ts:Date.now(),lockSecs:totalSecs}).then(function(){
+    showFeedback('alert-feedback','Alert sent to '+(u.username||'user')+'!',true);
+    document.getElementById('modal-alert-text').value='';
+  }).catch(function(e){showFeedback('alert-feedback','Error: '+e.message,false);});
+}
+function subscribeAlerts(uid){
+  if(!db||!uid)return;
+  db.ref('alerts/'+uid).on('value',function(snap){
+    var data=snap.val();
+    if(!data||!data.msg||!data.ts)return;
+    if(data.dismissed)return;
+    var now=Date.now();
+    var elapsed=Math.floor((now-data.ts)/1000);
+    var lockSecs=data.lockSecs||5;
+    if(elapsed>=lockSecs&&data.dismissed===undefined){showAdminAlert(data.msg,data.from||'Admin',0,uid);return;}
+    showAdminAlert(data.msg,data.from||'Admin',Math.max(0,lockSecs-elapsed),uid);
+  });
+}
+function showAdminAlert(msg,from,lockSecs,uid){
+  var overlay=document.getElementById('admin-alert-overlay');
+  var msgEl=document.getElementById('admin-alert-msg');
+  var fromEl=document.getElementById('admin-alert-from');
+  var btn=document.getElementById('admin-alert-dismiss');
+  var countdown=document.getElementById('admin-alert-countdown');
+  if(!overlay||!msgEl||!btn||!countdown)return;
+  overlay.dataset.alertUid=uid||'';
+  lockSecs=lockSecs||0;
+  msgEl.textContent=msg;fromEl.textContent='Message from '+from;
+  btn.classList.remove('ready');overlay.classList.add('show');
+  if(adminAlertCountdownInt)clearInterval(adminAlertCountdownInt);
+  function fmtSecs(s){if(s>=60)return Math.floor(s/60)+'m '+pad(s%60)+'s';return s+'s';}
+  if(lockSecs<=0){btn.classList.add('ready');countdown.textContent='Dismiss';return;}
+  var secs=lockSecs;
+  countdown.textContent='Wait '+fmtSecs(secs);
+  adminAlertCountdownInt=setInterval(function(){
+    secs--;
+    if(secs<=0){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;btn.classList.add('ready');countdown.textContent='Dismiss';}
+    else countdown.textContent='Wait '+fmtSecs(secs);
+  },1000);
+}
+function dismissAdminAlert(){
+  var btn=document.getElementById('admin-alert-dismiss');
+  if(!btn||!btn.classList.contains('ready'))return;
+  if(adminAlertCountdownInt){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;}
+  var overlay=document.getElementById('admin-alert-overlay');
+  overlay.classList.remove('show');
+  var alertUid=overlay.dataset.alertUid;
+  if(alertUid&&db){
+    db.ref('alerts/'+alertUid+'/dismissed').set(true).then(function(){
+      setTimeout(function(){db.ref('alerts/'+alertUid).remove();},500);
+    }).catch(function(){});
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&document.activeElement&&document.activeElement.tagName==='INPUT'){
     var id=document.activeElement.id;
     if(id==='li-email'||id==='li-pass')emailSignIn();
     else if(id==='su-username'||id==='su-email'||id==='su-pass')emailSignUp();
     else if(id==='uname-input')saveUsername();
-    else if(id==='chat-input')sendChat();
-    else if(document.getElementById('app').classList.contains('show'))addEntry();
+    // Note: chat-input uses its own onkeydown handler
+    else if(document.getElementById('app').classList.contains('show')&&id!=='chat-input')addEntry();
   }
-  if(e.key==='Escape'&&alarmActive)dismissAlarm();
-  if(e.key==='Escape'&&modalUid)closeUserModal();
+  if(e.key==='Escape'){
+    if(alarmActive)dismissAlarm();
+    if(modalUid)closeUserModal();
+  }
 });
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // BOOT
-// ═══════════════════════════════════════════
-tick(); // RAF-driven — no setInterval needed
+// ═══════════════════════════════════════════════════════
+tick();
 initFirebase();
 </script>
 </body>
