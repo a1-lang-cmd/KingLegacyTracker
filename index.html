@@ -159,7 +159,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .flat-cards{display:grid;gap:9px;margin-bottom:8px}
 .section-header-inline{font-family:'Cinzel Decorative',serif;font-size:.6rem;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;padding:10px 2px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
 .no-results{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:.9rem}
-.card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
 .card.hydra::before{background:linear-gradient(180deg,var(--hydra-glow),#7c3aed)}
@@ -194,6 +194,23 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .delete-btn{background:none;border:1px solid var(--surface2);border-radius:6px;color:var(--text-dim);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.82rem;transition:all .15s;flex-shrink:0}
 .delete-btn:hover{background:rgba(239,68,68,.12);border-color:var(--danger);color:var(--danger)}
 .delete-btn.hidden{visibility:hidden;pointer-events:none}
+.edit-btn{background:none;border:1px solid var(--surface2);border-radius:6px;color:var(--text-dim);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.82rem;transition:all .15s;flex-shrink:0}
+.edit-btn:hover{background:rgba(14,165,233,.1);border-color:var(--sea);color:var(--sea-glow)}
+.edit-btn.hidden{visibility:hidden;pointer-events:none}
+.card-actions{display:flex;flex-direction:column;gap:4px;align-items:center}
+/* ── INLINE EDIT PANEL ── */
+.card-edit-panel{display:none;grid-column:1/-1;border-top:1px solid var(--border);margin-top:8px;padding-top:12px}
+.card-edit-panel.open{display:block}
+.edit-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.edit-row .edit-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:80px}
+.edit-row .edit-field label{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.edit-row .edit-field input{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;width:100%}
+.edit-row .edit-field input:focus{border-color:var(--sea)}
+.edit-save-btn{padding:7px 14px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);border-radius:7px;color:var(--sea-glow);font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+.edit-save-btn:hover{background:rgba(14,165,233,.22)}
+.edit-feedback{font-size:.7rem;margin-top:6px;color:var(--green);display:none}
+.edit-feedback.err{color:#fca5a5}
+.edit-feedback.show{display:block}
 .empty{text-align:center;padding:24px;color:var(--text-dim);font-size:.85rem;border:1px dashed var(--border);border-radius:10px}
 
 /* ── PUBLIC HEADER ── */
@@ -1103,6 +1120,54 @@ function deleteUserTimers(uid,username){
 
 function save(){try{localStorage.setItem('kl-private',JSON.stringify(privateEntries))}catch(e){}}
 
+function toggleEditPanel(eid){
+  var panel=document.getElementById(eid);
+  if(!panel)return;
+  var isOpen=panel.classList.contains('open');
+  // Close all other open panels first
+  document.querySelectorAll('.card-edit-panel.open').forEach(function(p){p.classList.remove('open')});
+  if(!isOpen)panel.classList.add('open');
+}
+
+function saveCardEdit(source,entryId,delId){
+  var server=document.getElementById('ei-server-'+source+'-'+entryId);
+  var minsEl=document.getElementById('ei-mins-'+source+'-'+entryId);
+  var secsEl=document.getElementById('ei-secs-'+source+'-'+entryId);
+  var fb=document.getElementById('ef-'+source+'-'+entryId);
+  if(!server||!minsEl||!secsEl)return;
+  var srv=server.value.trim();
+  var mins=parseInt(minsEl.value)||0;
+  var secs=parseInt(secsEl.value)||0;
+  function showEditFb(msg,ok){
+    if(!fb)return;
+    fb.textContent=msg;fb.className='edit-feedback show'+(ok?'':' err');
+    setTimeout(function(){fb.className='edit-feedback'},2500);
+  }
+  if(!/^[0-9]{4}$/.test(srv)){showEditFb('Server code must be 4 digits.',false);return}
+  if(mins===0&&secs===0){showEditFb('Time must be greater than 0.',false);return}
+  var newSpawnAt=Date.now()+(mins*60+secs)*1000;
+
+  if(source==='private'){
+    var entry=privateEntries.find(function(e){return String(e.id)===String(entryId)});
+    if(!entry){showEditFb('Timer not found.',false);return}
+    entry.server=srv;
+    entry.spawnAt=newSpawnAt;
+    entry.alerted=false;
+    // If it was also synced publicly, update Firebase too
+    if(entry.firebaseKey&&db){
+      db.ref('timers/'+entry.firebaseKey).update({server:srv,spawnAt:newSpawnAt});
+    }
+    save();
+    renderPrivateCards();
+    showEditFb('Saved!',true);
+  } else if(source==='public'&&isAdmin){
+    if(!db){showEditFb('Firebase not ready.',false);return}
+    db.ref('timers/'+delId).update({server:srv,spawnAt:newSpawnAt}).then(function(){
+      showEditFb('Saved!',true);
+    }).catch(function(e){showEditFb('Error: '+e.message,false)});
+  }
+}
+
 // ═══════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════
@@ -1140,8 +1205,15 @@ function buildCard(e,source){
   var bi=BOSS_TYPES[e.type]||{label:e.type,icon:'&#9733;'};
   var delId=source==='private'?e.id:e.firebaseKey;
   var showDel=source==='private'||isAdmin;
+  // Show edit: private owners can edit their own, admins can edit any public
+  var showEdit=source==='private'||(source==='public'&&isAdmin);
   var uname=e.username?('<span class="posted-by">&#128100; '+esc(e.username)+'</span>'):'';
-  return '<div class="card '+e.type+(done?' done':'')+'\" id="card-'+source+'-'+e.id+'">'
+  var eid='edit-'+source+'-'+e.id;
+  // Current time remaining for edit fields
+  var remMs=Math.max(0,e.spawnAt-Date.now());
+  var remMins=Math.floor(remMs/60000);
+  var remSecs=Math.floor((remMs%60000)/1000);
+  return '<div class="card '+e.type+(done?' done':'')+'" id="card-'+source+'-'+e.id+'">'
     +'<div class="card-icon">'+bi.icon+'</div>'
     +'<div class="card-info">'
       +'<div class="card-top">'
@@ -1149,7 +1221,7 @@ function buildCard(e,source){
         +'<span class="vis-badge '+(e.visibility||'private')+'">'+(e.visibility==='public'?'&#127758; Public':'&#128274; Private')+'</span>'
         +uname
       +'</div>'
-      +'<div class="server-code"><span>Server:</span> '+esc(e.server)+'</div>'
+      +'<div class="server-code" id="sc-'+source+'-'+e.id+'"><span>Server:</span> '+esc(e.server)+'</div>'
       +'<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>'
       +'<div class="meta-line created-line" title="'+fmtCreatedFull(e.createdAt||e.id)+'">&#128337; Added '+fmtCreated(e.createdAt||e.id)+'</div>'
     +'</div>'
@@ -1157,7 +1229,18 @@ function buildCard(e,source){
       +'<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+source+'-'+e.id+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>'
       +'<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>'
     +'</div>'
+    +'<button class="edit-btn'+(showEdit?'':' hidden')+'" onclick="toggleEditPanel(''+eid+'')" title="Edit">&#9998;</button>'
     +'<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+String(delId)+'" data-source="'+source+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>'
+    // Inline edit panel spans full width
+    +'<div class="card-edit-panel" id="'+eid+'">'
+      +'<div class="edit-row">'
+        +'<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+source+'-'+e.id+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>'
+        +'<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+source+'-'+e.id+'" value="'+remMins+'" min="0" max="240" /></div>'
+        +'<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+source+'-'+e.id+'" value="'+remSecs+'" min="0" max="59" /></div>'
+        +'<button class="edit-save-btn" onclick="saveCardEdit(''+source+'',''+e.id+'',''+String(delId)+'')">&#10003; Save</button>'
+      +'</div>'
+      +'<div class="edit-feedback" id="ef-'+source+'-'+e.id+'"></div>'
+    +'</div>'
   +'</div>';
 }
 
