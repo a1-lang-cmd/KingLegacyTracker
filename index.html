@@ -1783,11 +1783,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
      FLOATING DOCK (mobile)
 ══════════════════════════════════════ -->
 <div class="floating-dock" id="floating-dock">
-  <button class="dock-btn profile-dock" onclick="openProfileSheet()" id="dock-profile">
-    <span class="dock-icon">&#128100;</span>
-    <span class="dock-label">Profile</span>
+  <button class="dock-btn timers-dock active-tab" onclick="dockGoTimers()" id="dock-timers">
+    <span class="dock-icon">&#9200;</span>
+    <span class="dock-label">Timers</span>
   </button>
   <button class="dock-fab" id="dock-fab" onclick="toggleAddSheet()">&#43;</button>
+  <button class="dock-btn friends-dock" onclick="openFriendsModal()" id="dock-friends">
+    <span class="dock-badge" id="dock-badge-friends"></span>
+    <span class="dock-icon">&#128101;</span>
+    <span class="dock-label">Friends</span>
+  </button>
   <button class="dock-btn chat-dock" onclick="dockGoChat()" id="dock-chat">
     <span class="dock-badge" id="dock-badge-chat"></span>
     <span class="dock-icon">&#128172;</span>
@@ -2120,6 +2125,78 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 // ═══════════════════════════════════════════
 // CONFIG & STATE
 // ═══════════════════════════════════════════
+/*
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  FIREBASE REALTIME DATABASE RULES                                    │
+  │  Paste these into Firebase Console → Realtime Database → Rules       │
+  │  (replaces the default rules entirely)                               │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  {
+    "rules": {
+      "timers": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "users": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('rank').val() === 'admin' || root.child('users').child(auth.uid).child('rank').val() === 'owner')"
+        }
+      },
+      "usernames": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "presence": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      },
+      "chat": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "dms": {
+        "$pair": {
+          ".read": "auth != null && ($pair.contains(auth.uid))",
+          ".write": "auth != null && ($pair.contains(auth.uid))"
+        }
+      },
+      "dmnotify": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null"
+        }
+      },
+      "alerts": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null"
+        }
+      },
+      "friends": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      },
+      "friendRequests": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null"
+        }
+      },
+      "sentRequests": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    }
+  }
+*/
 var BOSS_TYPES={
   sea:      {label:'Sea Beast',     icon:'&#127754;',maxMins:60, color:'var(--sea)'},
   hydra:    {label:'Hydra',         icon:'&#128009;',maxMins:60, color:'var(--hydra)'},
@@ -2507,17 +2584,17 @@ function switchPage(p){
     if(pv)pv.classList.toggle('active',p===x);
     if(tb)tb.classList.toggle('active',p===x);
   });
+  // Mobile dock active states
+  var dockTimers=document.getElementById('dock-timers');
+  var dockChat=document.getElementById('dock-chat');
+  if(dockTimers)dockTimers.classList.toggle('active-tab',p==='my'||p==='public');
+  if(dockChat)dockChat.classList.toggle('active-tab',p==='chat');
   if(p==='chat'){
     scrollChatToBottom();
     var bc=document.getElementById('badge-chat');
     if(bc)bc.textContent='';
     var dbc=document.getElementById('dock-badge-chat');
     if(dbc)dbc.textContent='';
-    var dc=document.getElementById('dock-chat');
-    if(dc)dc.classList.add('active-tab');
-  } else {
-    var dc=document.getElementById('dock-chat');
-    if(dc)dc.classList.remove('active-tab');
   }
 }
 
@@ -2594,6 +2671,11 @@ function closeProfileSheet(){
 function dockGoChat(){
   closeAddSheet(); closeProfileSheet();
   switchPage('chat');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function dockGoTimers(){
+  closeAddSheet(); closeProfileSheet();
+  switchPage('my');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function syncSheetTimers(){
@@ -3288,8 +3370,10 @@ function initFriends(user){
     var count=Object.keys(friendRequests).length;
     var badge=document.getElementById('ftab-req-badge');
     var navBadge=document.getElementById('badge-friends');
+    var dockBadge=document.getElementById('dock-badge-friends');
     if(badge){badge.textContent=count;badge.style.display=count>0?'inline':'none';}
     if(navBadge)navBadge.textContent=count>0?String(count):'';
+    if(dockBadge)dockBadge.textContent=count>0?String(count):'';
     renderFriendsModal();
   });
   // Listen to sent requests (my outgoing)
@@ -3504,49 +3588,99 @@ function canDMUser(targetUid){
 // ═══════════════════════════════════════════
 // PRESENCE & CHAT
 // ═══════════════════════════════════════════
+// Production Presence System
+// ─────────────────────────────────────────
+// How it works:
+//   1. On connect, we write to /presence/{uid} with onDisconnect().remove()
+//      so Firebase *automatically* deletes the record if the socket drops.
+//   2. A heartbeat ping fires every 25 s, updating the `lastSeen` timestamp.
+//      This lets us detect stale records (browser froze, no disconnect event).
+//   3. We watch .info/connected — Firebase's built-in WebSocket state — to
+//      detect reconnects and re-register the onDisconnect hook every time.
+//   4. On visibilitychange (tab hidden/shown) we go offline/online explicitly
+//      so mobile users who switch apps show as offline quickly.
+//   5. A subscriber on /presence listens for real-time child_added/changed/
+//      removed events so all clients update immediately without polling.
+//   6. A stale-check runs every 60 s client-side: any presence record whose
+//      lastSeen is > 90 s old is treated as offline in the UI (covers cases
+//      where onDisconnect fired but the record wasn't removed yet).
+//
+// Scaling notes:
+//   • Firebase RTDB fan-out handles thousands of simultaneous listeners.
+//   • Presence data is tiny (~100 bytes/user); 10 000 users = ~1 MB.
+//   • For >50 000 users, shard /presence into /presence/{shard}/{uid}
+//     keyed by uid.charCodeAt(0)%N and only subscribe to relevant shards.
+// ─────────────────────────────────────────
 var presenceRef=null, chatRef=null, chatLoaded=false, _unreadChat=0;
 var CHAT_MAX=100;
 var _presenceSnap=null, _usersSnap={};
 var _dmUid=null, _dmRef=null, _dmListener=null;
+var _heartbeatTimer=null;
+var _staleCheckTimer=null;
+var HEARTBEAT_MS=25000;   // ping every 25 s
+var STALE_THRESHOLD=90000; // treat as offline after 90 s without heartbeat
 
 function initPresenceAndChat(user){
   if(!db||!user)return;
 
-  // Presence
   presenceRef=db.ref('presence/'+user.uid);
-  var _isOnline=false;
 
+  // ── Presence payload ──────────────────────────────────────────────────
+  function presencePayload(){
+    return {
+      username: currentUsername,
+      rank:     currentUserRank,
+      uid:      user.uid,
+      online:   true,
+      lastSeen: firebase.database.ServerValue.TIMESTAMP
+    };
+  }
+
+  // ── Go online: set record + register server-side onDisconnect cleanup ─
   function goOnline(){
     if(!presenceRef||!currentUsername)return;
+    // Re-register onDisconnect every time we go online (required after
+    // each reconnect — onDisconnect hooks don't persist across reconnects).
     presenceRef.onDisconnect().remove();
-    presenceRef.set({
-      username:currentUsername,
-      rank:currentUserRank,
-      uid:user.uid,
-      ts:firebase.database.ServerValue.TIMESTAMP
-    }).then(function(){
-      _isOnline=true;
-    }).catch(function(e){
-      console.error('Presence write failed:',e.code, e.message);
+    presenceRef.set(presencePayload()).catch(function(e){
+      console.warn('[Presence] write failed:',e.code,e.message);
     });
+    startHeartbeat();
   }
 
+  // ── Go offline: cancel hooks, remove record, stop heartbeat ──────────
   function goOffline(){
-    if(!presenceRef)return;
-    _isOnline=false;
-    presenceRef.remove().catch(function(){});
+    if(_heartbeatTimer){clearInterval(_heartbeatTimer);_heartbeatTimer=null;}
+    if(presenceRef){
+      presenceRef.onDisconnect().cancel();
+      presenceRef.remove().catch(function(){});
+    }
   }
 
+  // ── Heartbeat: update lastSeen every HEARTBEAT_MS ────────────────────
+  // This confirms the client is alive even if the WebSocket stays open
+  // (some proxies keep sockets alive silently after a browser freeze).
+  function startHeartbeat(){
+    if(_heartbeatTimer)clearInterval(_heartbeatTimer);
+    _heartbeatTimer=setInterval(function(){
+      if(!presenceRef)return;
+      presenceRef.update({lastSeen:firebase.database.ServerValue.TIMESTAMP})
+        .catch(function(e){console.warn('[Heartbeat] failed:',e.message);});
+    },HEARTBEAT_MS);
+  }
+
+  // ── .info/connected — Firebase's WebSocket state ──────────────────────
+  // Fires true on connect, false on disconnect. We re-register our
+  // onDisconnect hook here because it must be re-set after every reconnect.
   db.ref('.info/connected').on('value',function(snap){
-    if(!snap.val()){
-      _isOnline=false;
-      return;
-    }
-    presenceRef.onDisconnect().remove().then(function(){
+    if(snap.val()){
       goOnline();
-    });
+    } else {
+      if(_heartbeatTimer){clearInterval(_heartbeatTimer);_heartbeatTimer=null;}
+    }
   });
 
+  // ── Visibility API: immediate offline when tab is hidden ──────────────
   function handleVisibility(){
     if(document.visibilityState==='visible'){
       goOnline();
@@ -3557,7 +3691,55 @@ function initPresenceAndChat(user){
   document.removeEventListener('visibilitychange',handleVisibility);
   document.addEventListener('visibilitychange',handleVisibility);
 
-  // Load all users
+  // ── beforeunload: best-effort sync removal on page close ─────────────
+  window.addEventListener('beforeunload',function(){
+    // navigator.sendBeacon could be used here for reliable delivery,
+    // but Firebase's onDisconnect is already the reliable path.
+    goOffline();
+  });
+
+  // ── Real-time presence listener (child events = efficient fan-out) ───
+  // child_added/changed/removed is more efficient than a full .on('value')
+  // for large user counts — only deltas are sent over the wire.
+  var _localPresence={};
+  db.ref('presence').on('child_added',function(snap){
+    if(snap.val())_localPresence[snap.key]=snap.val();
+    _presenceSnap={forEach:function(cb){Object.keys(_localPresence).forEach(function(k){cb({key:k,val:function(){return _localPresence[k];}});})},child:function(k){return{val:function(){return _localPresence[k]||null;}}}};
+    renderPresence(_presenceSnap,_usersSnap);
+  });
+  db.ref('presence').on('child_changed',function(snap){
+    if(snap.val())_localPresence[snap.key]=snap.val();
+    _presenceSnap={forEach:function(cb){Object.keys(_localPresence).forEach(function(k){cb({key:k,val:function(){return _localPresence[k];}});})},child:function(k){return{val:function(){return _localPresence[k]||null;}}}};
+    renderPresence(_presenceSnap,_usersSnap);
+  });
+  db.ref('presence').on('child_removed',function(snap){
+    delete _localPresence[snap.key];
+    _presenceSnap={forEach:function(cb){Object.keys(_localPresence).forEach(function(k){cb({key:k,val:function(){return _localPresence[k];}});})},child:function(k){return{val:function(){return _localPresence[k]||null;}}}};
+    renderPresence(_presenceSnap,_usersSnap);
+  });
+
+  // ── Stale-record sweeper (client-side UI fallback) ────────────────────
+  // If a client's onDisconnect somehow didn't fire (extremely rare with
+  // Firebase but possible with some NAT/proxy setups), we hide them from
+  // the online list after STALE_THRESHOLD ms with no heartbeat update.
+  if(_staleCheckTimer)clearInterval(_staleCheckTimer);
+  _staleCheckTimer=setInterval(function(){
+    var now=Date.now();
+    var changed=false;
+    Object.keys(_localPresence).forEach(function(uid){
+      var rec=_localPresence[uid];
+      if(rec&&rec.lastSeen&&(now-rec.lastSeen)>STALE_THRESHOLD){
+        delete _localPresence[uid];
+        changed=true;
+      }
+    });
+    if(changed){
+      _presenceSnap={forEach:function(cb){Object.keys(_localPresence).forEach(function(k){cb({key:k,val:function(){return _localPresence[k];}});})},child:function(k){return{val:function(){return _localPresence[k]||null;}}}};
+      renderPresence(_presenceSnap,_usersSnap);
+    }
+  },60000);
+
+  // ── All users (for the chat sidebar list) ────────────────────────────
   db.ref('users').on('value',function(snap){
     _usersSnap={};
     snap.forEach(function(c){
@@ -3567,17 +3749,11 @@ function initPresenceAndChat(user){
     renderPresence(_presenceSnap,_usersSnap);
   });
 
-  // Live presence
-  db.ref('presence').on('value',function(snap){
-    _presenceSnap=snap;
-    renderPresence(_presenceSnap,_usersSnap);
-  });
-
-  // Global chat
+  // ── Global chat ───────────────────────────────────────────────────────
   chatRef=db.ref('chat');
   subscribeGlobalChat();
 
-  // DM notifications
+  // ── DM notifications ──────────────────────────────────────────────────
   db.ref('dmnotify/'+user.uid).on('child_added',function(snap){
     var fromUid=snap.key;
     var data=snap.val();
