@@ -110,6 +110,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .page-tab.active.my-tab .tab-badge{background:rgba(34,197,94,.18);color:var(--priv-glow)}
 .page-tab.active.public-tab .tab-badge{background:rgba(245,158,11,.18);color:var(--pub-glow)}
 .page-tab.active.admin-tab .tab-badge{background:rgba(239,68,68,.18);color:#fca5a5}
+.page-tab.active.chat-tab{background:rgba(168,85,247,.07);color:#c084fc}
+.page-tab.active.chat-tab .tab-badge{background:rgba(168,85,247,.18);color:#c084fc}
 .page-view{display:none}
 .page-view.active{display:block}
 
@@ -161,6 +163,43 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
 .flat-cards{display:grid;gap:9px;margin-bottom:8px}
 .section-header-inline{font-family:'Cinzel Decorative',serif;font-size:.6rem;letter-spacing:.15em;color:var(--text-dim);text-transform:uppercase;padding:10px 2px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
 .no-results{text-align:center;padding:32px 16px;color:var(--text-dim);font-size:.9rem}
+/* ── CHAT PAGE ── */
+.chat-layout{display:grid;grid-template-columns:1fr 200px;gap:14px;height:calc(100vh - 220px);min-height:400px}
+@media(max-width:600px){.chat-layout{grid-template-columns:1fr;grid-template-rows:1fr auto}}
+.chat-main{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.chat-header h3{font-family:'Cinzel Decorative',serif;font-size:.7rem;color:#c084fc;letter-spacing:.1em}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.chat-msg{display:flex;flex-direction:column;gap:2px}
+.chat-msg-header{display:flex;align-items:center;gap:7px}
+.chat-msg-user{font-size:.75rem;font-weight:700;color:var(--text)}
+.chat-msg-time{font-size:.62rem;color:var(--text-dim)}
+.chat-msg-rank{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:1px 5px;border-radius:10px}
+.chat-msg-rank.owner{background:rgba(245,158,11,.15);color:#fbbf24}
+.chat-msg-rank.admin{background:rgba(239,68,68,.12);color:#fca5a5}
+.chat-msg-rank.premium{background:rgba(168,85,247,.12);color:#c084fc}
+.chat-msg-text{font-size:.88rem;color:var(--text);line-height:1.45;padding-left:2px;word-break:break-word}
+.chat-msg.deleted .chat-msg-text{color:var(--text-dim);font-style:italic;opacity:.5}
+.chat-msg-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;padding:1px 4px;border-radius:4px;opacity:0;transition:.15s;margin-left:auto}
+.chat-msg:hover .chat-msg-del{opacity:.6}
+.chat-msg-del:hover{opacity:1!important;color:var(--danger)}
+.chat-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none}
+.chat-input:focus{border-color:#c084fc}
+.chat-send-btn{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);border-radius:8px;color:#c084fc;font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;padding:8px 14px;cursor:pointer;transition:.15s;white-space:nowrap}
+.chat-send-btn:hover{background:rgba(168,85,247,.22)}
+/* Users sidebar */
+.chat-sidebar{display:flex;flex-direction:column;gap:10px}
+.chat-users-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;flex:1}
+.chat-users-header{padding:10px 13px;border-bottom:1px solid var(--border);font-family:'Cinzel Decorative',serif;font-size:.62rem;color:var(--text-dim);letter-spacing:.12em;display:flex;align-items:center;gap:6px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px #22c55e}
+.offline-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
+.chat-users-list{padding:8px;display:flex;flex-direction:column;gap:3px;max-height:300px;overflow-y:auto}
+.chat-user-item{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:7px;cursor:pointer;transition:.12s}
+.chat-user-item:hover{background:var(--surface2)}
+.chat-user-name{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-user-status{font-size:.65rem;color:var(--text-dim)}
+.chat-dm-hint{font-size:.65rem;color:var(--text-dim);padding:4px 8px 6px;text-align:center}
 .card{background:var(--surface);border-radius:11px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr auto auto auto;align-items:center;gap:12px;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0369a1)}
@@ -442,6 +481,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
     <button class="page-tab my-tab active" onclick="switchPage('my')" id="tab-my">&#128274; My Timers <span class="tab-badge" id="badge-my">0</span></button>
     <button class="page-tab public-tab" onclick="switchPage('public')" id="tab-public">&#127758; Public <span class="tab-badge" id="badge-public">0</span></button>
     <button class="page-tab admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none">&#128737; Admin <span class="tab-badge" id="badge-users">0</span></button>
+    <button class="page-tab chat-tab" onclick="switchPage('chat')" id="tab-chat">&#128172; Chat <span class="tab-badge" id="badge-chat">0</span></button>
   </div>
 
   <!-- MY TIMERS -->
@@ -508,6 +548,36 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       </div>
     </div>
     <div class="flat-cards" id="pub-flat-cards"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="page-view" id="page-chat">
+    <div class="chat-layout">
+      <!-- Main chat -->
+      <div class="chat-main">
+        <div class="chat-header">
+          <h3>&#128172; Global Chat</h3>
+          <span style="font-size:.7rem;color:var(--text-dim)" id="chat-status">Live</span>
+        </div>
+        <div class="chat-msgs" id="chat-msgs">
+          <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Say something..." maxlength="300" onkeydown="if(event.key==='Enter')sendChat()" />
+          <button class="chat-send-btn" onclick="sendChat()">&#9658; Send</button>
+        </div>
+      </div>
+      <!-- Sidebar -->
+      <div class="chat-sidebar">
+        <div class="chat-users-box">
+          <div class="chat-users-header"><span class="online-dot"></span>Online</div>
+          <div class="chat-users-list" id="online-users-list"><div class="chat-user-status" style="padding:8px;font-size:.75rem;color:var(--text-dim)">Loading...</div></div>
+          <div class="chat-users-header" style="margin-top:2px"><span class="offline-dot"></span>Offline</div>
+          <div class="chat-users-list" id="offline-users-list"></div>
+          <div class="chat-dm-hint">Click a user to mention them</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ADMIN -->
@@ -614,6 +684,12 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
             <div style="font-size:.7rem;color:var(--text-dim);margin-top:2px">Expires: <span id="restrict-expires-text">Never</span></div>
           </div>
           <button class="modal-btn success" onclick="unrestrict()" style="flex-shrink:0">&#9989; Lift</button>
+        </div>
+
+        <!-- Chat mute toggle -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128172; Chat Mute</div>
+          <button class="modal-btn warn" id="modal-chatmute-btn" onclick="toggleChatMute()">&#128172; Mute from Chat</button>
         </div>
 
         <!-- Mute duration picker -->
@@ -854,6 +930,7 @@ function finishLogin(user,userData){
     subscribePublic();
     if(isAdmin)loadAllUsers();
     subscribeAlerts(user.uid);
+    initPresenceAndChat(user);
     // Live-subscribe to own user record for mute/restrict/rank changes
     db.ref('users/'+user.uid).on('value',function(snap){
       currentUserData=snap.val()||{};
@@ -965,6 +1042,7 @@ function signOutUser(){
   if(auth)auth.signOut();
   privateEntries=[];
   currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';currentUserData=null;_loginDone=false;
+  if(presenceRef)presenceRef.remove();
   hideVerifyWall();
   document.getElementById('app').classList.remove('show');
 }
@@ -1092,13 +1170,17 @@ function stopAlarmLoop(){clearInterval(alarmInt);alarmInt=null}
 // UI CONTROLS
 // ═══════════════════════════════════════════
 function switchPage(p){
-  var pages=['my','public','admin'];
+  var pages=['my','public','admin','chat'];
   pages.forEach(function(x){
     var pv=document.getElementById('page-'+x);
     var tb=document.getElementById('tab-'+x);
     if(pv)pv.classList.toggle('active',p===x);
     if(tb)tb.classList.toggle('active',p===x);
   });
+  if(p==='chat'){
+    scrollChatToBottom();
+    document.getElementById('badge-chat').textContent='';
+  }
 }
 function selectType(t){
   selectedType=t;
@@ -1485,6 +1567,12 @@ function openUserModal(uid){
   if(pwSection)pwSection.style.display=isOwner?'block':'none';
   // Update mute/restrict buttons
   updateModalRestrictionBtns(u);
+  // Update chat mute btn
+  var chatMuteBtn=document.getElementById('modal-chatmute-btn');
+  if(chatMuteBtn){
+    chatMuteBtn.innerHTML=u.chatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat';
+    chatMuteBtn.className=u.chatMuted?'modal-btn success':'modal-btn warn';
+  }
   // Clear password fields
   var pwInput=document.getElementById('modal-new-password');
   var pwConfirm=document.getElementById('modal-confirm-password');
@@ -1650,6 +1738,17 @@ function unmute(){
   }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
 }
 
+function toggleChatMute(){
+  if(!modalUid||!db)return;
+  var u=allUsers[modalUid]||{};
+  var isChatMuted=!!u.chatMuted;
+  db.ref('users/'+modalUid+'/chatMuted').set(!isChatMuted).then(function(){
+    showFeedback('restrict-feedback',isChatMuted?'User can chat again.':'User muted from chat.',true);
+    var btn=document.getElementById('modal-chatmute-btn');
+    if(btn){btn.innerHTML=(!isChatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat');btn.className=!isChatMuted?'modal-btn success':'modal-btn warn';}
+  }).catch(function(e){showFeedback('restrict-feedback','Error: '+e.message,false)});
+}
+
 function applyRestrict(durationMs){
   if(!modalUid||!db||!isOwner){showFeedback('restrict-feedback','Only owners can restrict all timers.',false);return}
   var expiresAt=durationMs===-1?-1:Date.now()+durationMs;
@@ -1721,6 +1820,157 @@ function updateModalRestrictionBtns(u){
 function updateBadges(){
   document.getElementById('badge-my').textContent=privateEntries.length;
   document.getElementById('badge-public').textContent=publicEntries.length;
+}
+
+// ═══════════════════════════════════════════
+// PRESENCE & CHAT
+// ═══════════════════════════════════════════
+var presenceRef=null, chatRef=null, chatLoaded=false, _unreadChat=0;
+var CHAT_MAX=100; // keep last 100 messages
+
+function initPresenceAndChat(user){
+  if(!db||!user)return;
+  // ── Presence ──
+  presenceRef=db.ref('presence/'+user.uid);
+  var connRef=db.ref('.info/connected');
+  connRef.on('value',function(snap){
+    if(!snap.val())return;
+    presenceRef.onDisconnect().remove();
+    presenceRef.set({username:currentUsername,rank:currentUserRank,ts:Date.now()});
+  });
+  // Listen to all presence
+  db.ref('presence').on('value',function(snap){
+    var online={},offline={};
+    var now=Date.now();
+    // all users from allUsers, mark online/offline
+    Object.keys(allUsers||{}).forEach(function(uid){
+      var u=allUsers[uid];
+      if(!u||!u.username)return;
+      if(snap.child(uid).exists()){
+        online[uid]=Object.assign({},u,snap.child(uid).val());
+      } else {
+        offline[uid]=u;
+      }
+    });
+    // Also include users seen in presence but not in allUsers yet
+    snap.forEach(function(c){
+      if(!online[c.key])online[c.key]=c.val();
+    });
+    renderPresence(online,offline);
+  });
+  // ── Chat ──
+  chatRef=db.ref('chat');
+  chatRef.limitToLast(CHAT_MAX).on('child_added',function(snap){
+    var msg=snap.val();
+    if(!msg)return;
+    msg.key=snap.key;
+    appendChatMsg(msg);
+    // Badge if not on chat tab
+    var chatPage=document.getElementById('page-chat');
+    if(!chatPage||!chatPage.classList.contains('active')){
+      _unreadChat++;
+      document.getElementById('badge-chat').textContent=_unreadChat>99?'99+':String(_unreadChat);
+    }
+  });
+  chatRef.on('child_removed',function(snap){
+    var el=document.getElementById('chatmsg-'+snap.key);
+    if(el){
+      el.classList.add('deleted');
+      var textEl=el.querySelector('.chat-msg-text');
+      if(textEl)textEl.textContent='[message deleted]';
+      var delBtn=el.querySelector('.chat-msg-del');
+      if(delBtn)delBtn.remove();
+    }
+  });
+  chatLoaded=true;
+}
+
+function renderPresence(online,offline){
+  var onlineList=document.getElementById('online-users-list');
+  var offlineList=document.getElementById('offline-users-list');
+  if(!onlineList||!offlineList)return;
+  function userItem(uid,u,isOnline){
+    var rank=u.rank||'normal';
+    var rankLabel={owner:'&#128081;',admin:'&#128737;',premium:'&#128142;',normal:''}[rank]||'';
+    var uname=esc(u.username||u.email||'Unknown');
+    var h='<div class="chat-user-item" data-uname="'+uname+'" onclick="mentionUser(this.dataset.uname)" title="Click to mention">';
+    h+='<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>';
+    h+='<div style="min-width:0"><div class="chat-user-name">'+rankLabel+' '+uname+'</div></div>';
+    h+='</div>';
+    return h;
+  }
+  var onlineHtml=Object.keys(online).map(function(uid){return userItem(uid,online[uid],true)}).join('');
+  var offlineHtml=Object.keys(offline).map(function(uid){return userItem(uid,offline[uid],false)}).join('');
+  onlineList.innerHTML=onlineHtml||'<div style="padding:8px;font-size:.75rem;color:var(--text-dim)">No one online</div>';
+  offlineList.innerHTML=offlineHtml||'';
+}
+
+function mentionUser(username){
+  var inp=document.getElementById('chat-input');
+  if(!inp)return;
+  inp.value='@'+username+' '+inp.value;
+  inp.focus();
+  switchPage('chat');
+}
+
+function sendChat(){
+  if(!db||!currentUser||!chatRef)return;
+  var inp=document.getElementById('chat-input');
+  var msg=inp.value.trim();
+  if(!msg)return;
+  if(msg.length>300){alert('Message too long (max 300 chars)');return}
+  // Check if muted
+  if(currentUserData&&currentUserData.chatMuted&&!isAdmin){
+    alert('You are muted from chat.');return;
+  }
+  chatRef.push({
+    uid:currentUser.uid,
+    username:currentUsername,
+    rank:currentUserRank,
+    text:msg,
+    ts:Date.now()
+  });
+  inp.value='';
+  scrollChatToBottom();
+}
+
+function appendChatMsg(msg){
+  var container=document.getElementById('chat-msgs');
+  if(!container)return;
+  // Remove loading placeholder
+  var placeholder=container.querySelector('div[style]');
+  if(placeholder&&placeholder.textContent.includes('Loading'))placeholder.remove();
+
+  var rank=msg.rank||'normal';
+  var rankLabel={owner:'Owner',admin:'Admin',premium:'Premium',normal:''}[rank]||'';
+  var time=new Date(msg.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  var canDel=isAdmin||(currentUser&&msg.uid===currentUser.uid);
+  var el=document.createElement('div');
+  el.className='chat-msg';
+  el.id='chatmsg-'+msg.key;
+  el.innerHTML='<div class="chat-msg-header">'
+    +'<span class="chat-msg-user">'+esc(msg.username||'Unknown')+'</span>'
+    +(rankLabel?'<span class="chat-msg-rank '+rank+'">'+rankLabel+'</span>':'')
+    +'<span class="chat-msg-time">'+time+'</span>'
+    +(canDel?'<button class="chat-msg-del" data-key="'+msg.key+'" onclick="deleteChatMsg(this.dataset.key)" title="Delete">&#10005;</button>':'')
+    +'</div>'
+    +'<div class="chat-msg-text">'+esc(msg.text)+'</div>';
+  container.appendChild(el);
+  // Trim to max 100 displayed
+  var msgs=container.querySelectorAll('.chat-msg');
+  if(msgs.length>CHAT_MAX)msgs[0].remove();
+  scrollChatToBottom();
+}
+
+function deleteChatMsg(key){
+  if(!db||!isAdmin&&!(currentUser))return;
+  if(!confirm('Delete this message?'))return;
+  db.ref('chat/'+key).remove();
+}
+
+function scrollChatToBottom(){
+  var c=document.getElementById('chat-msgs');
+  if(c)setTimeout(function(){c.scrollTop=c.scrollHeight},50);
 }
 
 // ═══════════════════════════════════════════
