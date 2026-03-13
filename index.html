@@ -1205,44 +1205,46 @@ function buildCard(e,source){
   var bi=BOSS_TYPES[e.type]||{label:e.type,icon:'&#9733;'};
   var delId=source==='private'?e.id:e.firebaseKey;
   var showDel=source==='private'||isAdmin;
-  // Show edit: private owners can edit their own, admins can edit any public
   var showEdit=source==='private'||(source==='public'&&isAdmin);
   var uname=e.username?('<span class="posted-by">&#128100; '+esc(e.username)+'</span>'):'';
   var eid='edit-'+source+'-'+e.id;
-  // Current time remaining for edit fields
   var remMs=Math.max(0,e.spawnAt-Date.now());
   var remMins=Math.floor(remMs/60000);
   var remSecs=Math.floor((remMs%60000)/1000);
-  return '<div class="card '+e.type+(done?' done':'')+'" id="card-'+source+'-'+e.id+'">'
-    +'<div class="card-icon">'+bi.icon+'</div>'
-    +'<div class="card-info">'
-      +'<div class="card-top">'
-        +'<div class="boss-type">'+bi.label+'</div>'
-        +'<span class="vis-badge '+(e.visibility||'private')+'">'+(e.visibility==='public'?'&#127758; Public':'&#128274; Private')+'</span>'
-        +uname
-      +'</div>'
-      +'<div class="server-code" id="sc-'+source+'-'+e.id+'"><span>Server:</span> '+esc(e.server)+'</div>'
-      +'<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>'
-      +'<div class="meta-line created-line" title="'+fmtCreatedFull(e.createdAt||e.id)+'">&#128337; Added '+fmtCreated(e.createdAt||e.id)+'</div>'
-    +'</div>'
-    +'<div class="card-timer">'
-      +'<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+source+'-'+e.id+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>'
-      +'<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>'
-    +'</div>'
-    +'<button class="edit-btn'+(showEdit?'':' hidden')+'" onclick="toggleEditPanel(''+eid+'')" title="Edit">&#9998;</button>'
-    +'<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+String(delId)+'" data-source="'+source+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>'
-    // Inline edit panel spans full width
-    +'<div class="card-edit-panel" id="'+eid+'">'
-      +'<div class="edit-row">'
-        +'<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+source+'-'+e.id+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>'
-        +'<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+source+'-'+e.id+'" value="'+remMins+'" min="0" max="240" /></div>'
-        +'<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+source+'-'+e.id+'" value="'+remSecs+'" min="0" max="59" /></div>'
-        +'<button class="edit-save-btn" onclick="saveCardEdit(''+source+'',''+e.id+'',''+String(delId)+'')">&#10003; Save</button>'
-      +'</div>'
-      +'<div class="edit-feedback" id="ef-'+source+'-'+e.id+'"></div>'
-    +'</div>'
-  +'</div>';
+  var sid=String(source);
+  var eid2=String(e.id);
+  var sdid=String(delId);
+  var h='<div class="card '+e.type+(done?' done':'')+'" id="card-'+sid+'-'+eid2+'">';
+  h+='<div class="card-icon">'+bi.icon+'</div>';
+  h+='<div class="card-info">';
+  h+='<div class="card-top">';
+  h+='<div class="boss-type">'+bi.label+'</div>';
+  h+='<span class="vis-badge '+(e.visibility||'private')+'">'+(e.visibility==='public'?'&#127758; Public':'&#128274; Private')+'</span>';
+  h+=uname;
+  h+='</div>';
+  h+='<div class="server-code" id="sc-'+sid+'-'+eid2+'"><span>Server:</span> '+esc(e.server)+'</div>';
+  h+='<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>';
+  h+='<div class="meta-line created-line" title="'+fmtCreatedFull(e.createdAt||e.id)+'">&#128337; Added '+fmtCreated(e.createdAt||e.id)+'</div>';
+  h+='</div>';
+  h+='<div class="card-timer">';
+  h+='<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+sid+'-'+eid2+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>';
+  h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
+  h+='</div>';
+  h+='<button class="edit-btn'+(showEdit?'':' hidden')+'" data-eid="'+eid+'" onclick="toggleEditPanel(this.dataset.eid)" title="Edit">&#9998;</button>';
+  h+='<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+sdid+'" data-source="'+sid+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>';
+  h+='<div class="card-edit-panel" id="'+eid+'">';
+  h+='<div class="edit-row">';
+  h+='<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+sid+'-'+eid2+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>';
+  h+='<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+sid+'-'+eid2+'" value="'+remMins+'" min="0" max="240"/></div>';
+  h+='<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+sid+'-'+eid2+'" value="'+remSecs+'" min="0" max="59"/></div>';
+  h+='<button class="edit-save-btn" data-src="'+sid+'" data-eid="'+eid2+'" data-did="'+sdid+'" onclick="saveCardEdit(this.dataset.src,this.dataset.eid,this.dataset.did)">&#10003; Save</button>';
+  h+='</div>';
+  h+='<div class="edit-feedback" id="ef-'+sid+'-'+eid2+'"></div>';
+  h+='</div>';
+  h+='</div>';
+  return h;
 }
+
 
 // ═══════════════════════════════════════════
 // RENDER
