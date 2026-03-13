@@ -224,7 +224,7 @@ body::after {
    APP SHELL
 ════════════════════════════════════ */
 #app{display:none}
-#app.show{display:block}
+#app.show{display:flex;flex-direction:column}
 .container{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 16px 110px}
 
 /* ════════════════════════════════════
@@ -1037,8 +1037,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   #page-chat .chat-layout { flex:1; min-height:0; }
 }
 
-/* Keep old .container for things that reference it but it's no longer used for main layout */
-.container { display: none; }
+/* .container no longer used in layout */
 
 /* ═══════════════════════════════════════
    FLOATING DOCK
@@ -1994,10 +1993,11 @@ function finishLogin(user,userData){
   isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1;
   currentUserRank=userData.rank||'normal';
   isOwner=currentUserRank==='owner';
-  document.getElementById('user-name-display').textContent=currentUsername;
-  if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL}
-  document.getElementById('admin-badge').style.display=isAdmin?'inline-block':'none';
-  document.getElementById('tab-admin').style.display=isAdmin?'flex':'none';
+  var und=document.getElementById('user-name-display');if(und)und.textContent=currentUsername;
+  var uav=document.getElementById('user-avatar');if(uav&&user.photoURL)uav.src=user.photoURL;
+  var ab=document.getElementById('admin-badge');if(ab)ab.style.display=isAdmin?'inline-block':'none';
+  var ta=document.getElementById('tab-admin');if(ta)ta.style.display=isAdmin?'flex':'none';
+  updateSidebarProfile();
   currentUserData=userData;
   updateRestrictionUI();
   showApp();
@@ -3638,5 +3638,9 @@ document.addEventListener('keydown',function(e){
 tick(); // RAF-driven — no setInterval needed
 initFirebase();
 </script>
+
+<!-- ghost elements for JS refs -->
+<span id="user-name-display" style="display:none"></span>
+<img id="user-avatar" style="display:none" src="" alt="" />
 </body>
 </html>
