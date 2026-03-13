@@ -1678,7 +1678,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="dot" style="width:7px;height:7px"></div>
         <span style="font-family:'Cinzel Decorative',serif;font-size:.75rem;color:var(--sea-glow);letter-spacing:.1em">King Legacy</span>
       </div>
-      <div class="fb-status disconnected" id="fb-status-mobile" style="font-size:.6rem;padding:3px 8px"><div class="fb-dot"></div><span id="fb-status-text-mobile"></span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="fb-status disconnected" id="fb-status-mobile" style="font-size:.6rem;padding:3px 8px"><div class="fb-dot"></div><span id="fb-status-text-mobile"></span></div>
+        <button id="mobile-profile-btn" onclick="openProfileSheet()" style="background:var(--glass2);border:1px solid var(--border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;color:var(--text-dim);flex-shrink:0;transition:all .2s" title="Profile">&#128100;</button>
+      </div>
     </div>
 
     <!-- ── Timer pages (padded) ── -->
@@ -2613,6 +2616,15 @@ function updateSidebarProfile(){
   if(rk)rk.innerHTML=rankLabels[currentUserRank||'normal']||'Normal';
   var rankColors={owner:'var(--gold)',admin:'var(--rose)',premium:'var(--hydra-glow)',normal:'var(--text-dim)'};
   if(rk)rk.style.color=rankColors[currentUserRank||'normal'];
+  // Mobile topbar avatar
+  var mBtn=document.getElementById('mobile-profile-btn');
+  if(mBtn){
+    var initial=(currentUsername||'?')[0].toUpperCase();
+    var rankBtnColors={owner:'var(--gold)',admin:'var(--rose)',premium:'var(--hydra-glow)',normal:'var(--sea-glow)'};
+    mBtn.textContent=initial;
+    mBtn.style.color=rankBtnColors[currentUserRank||'normal'];
+    mBtn.style.borderColor=rankBtnColors[currentUserRank||'normal'];
+  }
 }
 
 // ═══════════════════════════════════════════
