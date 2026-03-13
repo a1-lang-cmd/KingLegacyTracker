@@ -23,6 +23,9 @@
   const BAD_WORDS = ["fuck","shit","ass","bitch","cock","dick","pussy","nigger","nigga","cunt","fag","slut","whore","retard","rape","kill","kys","nazi"];
 </script>
 <style>
+/* ════════════════════════════════════
+   CSS CUSTOM PROPERTIES / DESIGN TOKENS
+════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cinzel+Decorative:wght@700;900&display=swap');
 
 :root {
@@ -72,6 +75,9 @@
   --radius-xs: 7px;
 }
 
+/* ════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════ */
 *{box-sizing:border-box;margin:0;padding:0}
 
 body {
@@ -108,14 +114,16 @@ body::after {
   opacity: .6;
 }
 
-/* Waves */
+/* ════════════════════════════════════
+   WAVES BACKGROUND
+════════════════════════════════════ */
 .waves{position:fixed;bottom:0;left:0;width:100%;height:90px;pointer-events:none;z-index:0;opacity:.07}
 .wave{position:absolute;bottom:0;width:200%;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100'%3E%3Cpath fill='%2322d3ee' d='M0,50 C240,90 480,10 720,50 C960,90 1200,10 1440,50 L1440,100 L0,100 Z'/%3E%3C/svg%3E") repeat-x;background-size:720px 100%;animation:wave-move 9s linear infinite}
 .wave:nth-child(2){animation-duration:14s;animation-direction:reverse;opacity:.5;bottom:6px}
 @keyframes wave-move{from{transform:translateX(0)}to{transform:translateX(-720px)}}
 
 /* ════════════════════════════════════
-   AUTH
+   AUTH WALL
 ════════════════════════════════════ */
 #auth-wall{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
 #auth-wall.hidden{display:none}
@@ -213,7 +221,7 @@ body::after {
 .auth-error.show{display:block}
 
 /* ════════════════════════════════════
-   WALLS
+   USERNAME / VERIFY WALLS
 ════════════════════════════════════ */
 #username-wall{position:fixed;inset:0;z-index:190;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
 #username-wall.hidden{display:none}
@@ -228,7 +236,7 @@ body::after {
 .container{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 16px 110px}
 
 /* ════════════════════════════════════
-   HEADER
+   HEADER (legacy — kept for reference)
 ════════════════════════════════════ */
 header{text-align:center;padding:22px 0 14px}
 header h1 {
@@ -247,6 +255,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 
 .header-meta{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 
+/* ════════════════════════════════════
+   STATUS COMPONENTS
+════════════════════════════════════ */
 .est-clock {
   display: flex;
   align-items: center;
@@ -266,6 +277,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .fb-status.disconnected{background:rgba(251,191,36,.08);color:var(--gold);border:1px solid rgba(251,191,36,.2)}
 .fb-status .fb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
 
+/* ════════════════════════════════════
+   USER BAR (legacy header pills)
+════════════════════════════════════ */
 .user-bar{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .user-pill {
   display: flex;
@@ -284,7 +298,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .sign-out-btn:hover{border-color:var(--danger);color:var(--danger)}
 
 /* ════════════════════════════════════
-   PAGE TABS
+   PAGE TABS (desktop only)
 ════════════════════════════════════ */
 .page-tabs {
   display: flex;
@@ -344,7 +358,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .page-view.active{display:block}
 
 /* ════════════════════════════════════
-   ADD FORM
+   ADD FORM (desktop page — hidden on mobile via sheet)
 ════════════════════════════════════ */
 .add-section {
   background: var(--surface);
@@ -378,12 +392,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 }
 @media(max-width:480px){.type-btn,.vis-btn{font-size:.72rem;padding:8px 4px;min-width:calc(50% - 4px)}}
 .type-btn:hover:not(.active),.vis-btn:hover:not(.active){border-color:rgba(255,255,255,.15);color:var(--text);background:var(--glass2)}
+
+/* Boss type button active states */
 .type-btn.sea.active{border-color:var(--sea-boss);color:var(--sea-glow);background:rgba(34,211,238,.1);box-shadow:0 0 14px rgba(34,211,238,.1)}
 .type-btn.hydra.active{border-color:var(--hydra-boss);color:var(--hydra-glow);background:rgba(167,139,250,.1);box-shadow:0 0 14px rgba(167,139,250,.1)}
 .type-btn.crab.active{border-color:var(--crab-boss);color:var(--orange);background:rgba(251,146,60,.1)}
 .type-btn.abyssal.active{border-color:var(--abyssal-boss);color:var(--green);background:rgba(52,211,153,.1)}
 .type-btn.kraken.active{border-color:var(--kraken-boss);color:var(--blue);background:rgba(96,165,250,.1)}
 .type-btn.drakenfyr.active{border-color:var(--drake-boss);color:var(--rose);background:rgba(248,113,113,.1)}
+
+/* Visibility button active states */
 .vis-btn.private.active{border-color:var(--green);color:var(--green);background:rgba(52,211,153,.08)}
 .vis-btn.public.active{border-color:var(--gold);color:var(--gold);background:rgba(251,191,36,.08)}
 
@@ -433,7 +451,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .submit-btn.hydra-mode:hover{box-shadow:0 6px 20px rgba(167,139,250,.35)}
 
 /* ════════════════════════════════════
-   CARDS
+   TIMER CARDS
 ════════════════════════════════════ */
 .section-label{display:flex;align-items:center;gap:8px;margin-bottom:9px;margin-top:4px}
 .section-label h3{font-family:'Cinzel Decorative',serif;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
@@ -470,6 +488,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   backdrop-filter: blur(12px);
 }
 @media(max-width:480px){.card{grid-template-columns:auto 1fr auto;gap:9px;padding:11px 12px}}
+
+/* Left accent bar per boss type */
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
 .card.sea::before{background:linear-gradient(180deg,var(--sea-glow),#0e7490)}
 .card.hydra::before{background:linear-gradient(180deg,var(--hydra-glow),#6d28d9)}
@@ -477,16 +497,22 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .card.abyssal::before{background:linear-gradient(180deg,var(--green),#065f46)}
 .card.kraken::before{background:linear-gradient(180deg,var(--blue),#1e3a8a)}
 .card.drakenfyr::before{background:linear-gradient(180deg,var(--rose),#9f1239)}
+
 .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);border-color:var(--border2)}
 .card.done{opacity:.38}
+
 .card-icon{font-size:1.5rem;line-height:1}
 @media(max-width:480px){.card-icon{font-size:1.3rem}}
+
 .card-info{min-width:0}
 .card-top{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+
+/* Boss type text color per type */
 .boss-type{font-size:.6rem;text-transform:uppercase;letter-spacing:.16em;font-weight:700}
 .card.sea .boss-type{color:var(--sea)}.card.hydra .boss-type{color:var(--hydra)}
 .card.crab .boss-type{color:var(--orange)}.card.abyssal .boss-type{color:var(--green)}
 .card.kraken .boss-type{color:var(--blue)}.card.drakenfyr .boss-type{color:var(--rose)}
+
 .vis-badge{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:100px}
 .vis-badge.public{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25)}
 .vis-badge.private{background:rgba(52,211,153,.08);color:var(--green);border:1px solid rgba(52,211,153,.2)}
@@ -495,6 +521,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .server-code span{font-size:.76rem;color:var(--text-dim);font-weight:400}
 .meta-line{font-size:.7rem;color:var(--text-dim);margin-top:2px}
 .created-line{opacity:.6;font-size:.65rem}
+
+/* Timer display */
 .card-timer{text-align:right}
 .time-display{font-size:1.25rem;font-weight:800;letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums}
 @media(max-width:480px){.time-display{font-size:1.08rem}}
@@ -505,6 +533,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 .spawns-at-label{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
 
+/* Card action buttons */
 .delete-btn,.edit-btn {
   background: none;
   border: 1px solid rgba(255,255,255,.07);
@@ -526,7 +555,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .card-actions{display:flex;flex-direction:column;gap:4px;align-items:center}
 @media(max-width:480px){.card-actions{flex-direction:row}}
 
-/* ── INLINE EDIT ── */
+/* Inline edit panel */
 .card-edit-panel{display:none;grid-column:1/-1;border-top:1px solid var(--border);margin-top:8px;padding-top:12px}
 .card-edit-panel.open{display:block}
 .edit-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
@@ -541,7 +570,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .edit-feedback.show{display:block}
 .empty{text-align:center;padding:24px;color:var(--text-dim);font-size:.84rem;border:1px dashed rgba(255,255,255,.07);border-radius:var(--radius)}
 
-/* ── PUBLIC HEADER ── */
+/* Public board page header */
 .public-page-header{background:var(--surface);border:1px solid rgba(251,191,36,.15);border-radius:var(--radius);padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px)}
 .ph-icon{font-size:1.6rem}
 .public-page-header h3{font-family:'Cinzel Decorative',serif;font-size:.72rem;color:var(--gold);letter-spacing:.12em;margin-bottom:2px}
@@ -549,13 +578,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .refresh-btn{margin-left:auto;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:100px;color:var(--gold);font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;padding:5px 13px;cursor:pointer;text-transform:uppercase;transition:all .2s;flex-shrink:0}
 .refresh-btn:hover{background:rgba(251,191,36,.15)}
 
-/* ── ADMIN PANEL ── */
+/* ════════════════════════════════════
+   ADMIN PANEL
+════════════════════════════════════ */
 .admin-header{background:var(--surface);border:1px solid rgba(251,113,133,.15);border-radius:var(--radius);padding:13px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px)}
 .admin-header h3{font-family:'Cinzel Decorative',serif;font-size:.72rem;color:var(--rose);letter-spacing:.12em;margin-bottom:2px}
 .admin-header p{font-size:.73rem;color:var(--text-dim)}
 .admin-search{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius-xs);padding:9px 13px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;width:100%;margin-bottom:13px;outline:none;transition:all .2s}
 .admin-search:focus{border-color:var(--sea);box-shadow:0 0 0 3px rgba(34,211,238,.1)}
 .users-grid{display:grid;gap:8px;margin-bottom:20px}
+
+/* User cards in admin panel */
 .user-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .18s;position:relative;backdrop-filter:blur(8px)}
 .user-card:hover{border-color:var(--sea);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .user-card.banned{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04)}
@@ -577,7 +610,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .user-card-arrow{color:var(--text-dim);font-size:.88rem;flex-shrink:0}
 .user-card-notes-preview{font-size:.68rem;color:var(--gold);margin-top:6px;padding:4px 9px;background:rgba(251,191,36,.06);border-radius:6px;border-left:2px solid rgba(251,191,36,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── USER DETAIL MODAL ── */
+/* ════════════════════════════════════
+   USER DETAIL MODAL
+════════════════════════════════════ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(2,8,20,.88);z-index:250;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
 .modal-box{background:linear-gradient(160deg,rgba(14,26,56,.98),rgba(8,16,38,.98));border:1px solid var(--border2);border-radius:22px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;animation:pop-in .22s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 80px rgba(0,0,0,.7),0 0 40px rgba(34,211,238,.05)}
@@ -623,7 +658,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .modal-feedback.ok{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2);display:block}
 .modal-feedback.err{background:rgba(248,113,113,.1);color:var(--rose);border:1px solid rgba(248,113,113,.2);display:block}
 
-/* ── BADGES / RESTRICTIONS ── */
+/* ════════════════════════════════════
+   BADGES & RESTRICTIONS
+════════════════════════════════════ */
 .muted-badge{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:100px;background:rgba(34,211,238,.1);color:var(--sea-glow);border:1px solid rgba(34,211,238,.25)}
 .restricted-badge{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:100px;background:rgba(248,113,113,.1);color:var(--rose);border:1px solid rgba(248,113,133,.25)}
 .restrict-notice{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,133,.2);border-radius:var(--radius-sm);padding:12px 14px;text-align:center;margin-bottom:13px;display:none}
@@ -631,7 +668,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .restrict-notice p{font-size:.84rem;color:var(--rose);font-weight:600}
 .restrict-notice span{font-size:.74rem;color:var(--text-dim)}
 
-/* ── DURATION BUTTONS ── */
+/* Duration picker buttons */
 .dur-btn{padding:6px 11px;border-radius:100px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.07);color:var(--sea-glow);font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s}
 .dur-btn:hover{background:rgba(34,211,238,.16);border-color:var(--sea)}
 .dur-btn.dur-danger{border-color:rgba(248,113,113,.25);background:rgba(248,113,133,.07);color:var(--rose)}
@@ -674,7 +711,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .chat-send-btn{background:linear-gradient(135deg,#6d28d9,var(--hydra));border:none;border-radius:100px;color:#fff;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;padding:8px 18px;cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0;box-shadow:0 3px 12px rgba(167,139,250,.25)}
 .chat-send-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(167,139,250,.4)}
 
-/* Users sidebar */
+/* Chat users sidebar */
 .chat-sidebar{display:flex;flex-direction:column}
 .chat-users-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%;backdrop-filter:blur(12px)}
 .chat-users-header{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-shrink:0}
@@ -688,6 +725,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .chat-users-scroll::-webkit-scrollbar{width:3px}
 .chat-users-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
 
+/* Rank section headers in users list */
 .rank-section-header{font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;padding:8px 7px 3px;display:flex;align-items:center;gap:5px}
 .rank-section-header::after{content:'';flex:1;height:1px;background:var(--border)}
 .rank-section-header.owner-section{color:var(--gold)}
@@ -705,7 +743,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .dm-badge{background:rgba(167,139,250,.2);color:var(--hydra-glow);border-radius:100px;padding:1px 7px;font-size:.57rem;font-weight:700;flex-shrink:0}
 
 /* ════════════════════════════════════
-   OVERLAYS — ALARM & ADMIN ALERT
+   ALARM OVERLAY
 ════════════════════════════════════ */
 .alarm-overlay{display:none;position:fixed;inset:0;background:rgba(2,8,20,.9);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .alarm-overlay.show{display:flex}
@@ -722,6 +760,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .alarm-dismiss.hydra-mode{background:linear-gradient(135deg,#6d28d9,var(--hydra));box-shadow:0 4px 16px rgba(167,139,250,.3)}
 .alarm-dismiss:hover{transform:scale(1.05)}
 
+/* ════════════════════════════════════
+   ADMIN ALERT OVERLAY
+════════════════════════════════════ */
 .admin-alert-overlay{display:none;position:fixed;inset:0;background:rgba(2,8,20,.92);z-index:400;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .admin-alert-overlay.show{display:flex}
 .admin-alert-box{background:linear-gradient(160deg,rgba(40,10,10,.98),rgba(20,5,5,.98));border-radius:22px;padding:34px 30px;text-align:center;border:1px solid rgba(248,113,133,.35);box-shadow:0 0 60px rgba(248,113,133,.15),0 0 0 1px rgba(248,113,133,.06);max-width:360px;width:90%;animation:pop-in .3s cubic-bezier(.34,1.56,.64,1)}
@@ -739,10 +780,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   .card-icon{font-size:1.2rem}
 }
 
-
-/* ═══════════════════════════════════════
+/* ════════════════════════════════════
    APP LAYOUT — SIDEBAR + MAIN
-═══════════════════════════════════════ */
+════════════════════════════════════ */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -750,7 +790,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   z-index: 1;
 }
 
-/* ── SIDEBAR ── */
+/* ════════════════════════════════════
+   LEFT SIDEBAR
+════════════════════════════════════ */
 .sidebar {
   width: 240px;
   flex-shrink: 0;
@@ -770,7 +812,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .sidebar::-webkit-scrollbar { width: 3px; }
 .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* Logo */
+/* Sidebar logo */
 .sidebar-logo {
   display: flex;
   align-items: center;
@@ -803,7 +845,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   font-weight: 500;
 }
 
-/* Status */
+/* Sidebar status row */
 .sidebar-status {
   display: flex;
   flex-direction: column;
@@ -820,7 +862,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   padding: 4px 10px;
 }
 
-/* Profile card */
+/* Sidebar profile card */
 .sidebar-profile {
   display: flex;
   align-items: center;
@@ -880,7 +922,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 }
 .sidebar-signout:hover { background: rgba(248,113,113,.1); color: var(--rose); border-color: rgba(248,113,113,.3); }
 
-/* Nav */
+/* Sidebar nav */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -969,7 +1011,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   justify-content: center;
 }
 
-/* ── MAIN CONTENT ── */
+/* ════════════════════════════════════
+   MAIN CONTENT AREA
+════════════════════════════════════ */
 .main-content {
   flex: 1;
   min-width: 0;
@@ -978,6 +1022,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   min-height: 100vh;
   position: relative;
 }
+
+/* Mobile top bar (hidden on desktop) */
 .mobile-topbar {
   display: none;
 }
@@ -989,19 +1035,19 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   width: 100%;
 }
 
-/* Chat & Admin — fill the remaining viewport height, no extra padding wrapper */
+/* Chat & Admin — fill the remaining viewport height */
 .full-page-view {
   flex: 1;
   display: none;
   flex-direction: column;
   min-height: 0;
-  /* stretch to fill: sidebar is 100vh sticky, main should match */
   height: calc(100vh - 0px);
 }
 .full-page-view.active {
   display: flex;
 }
-/* hide the padded wrap when a full-page-view is active */
+
+/* Hide the padded wrap when a full-page-view is active */
 .main-content:has(#page-chat.active) .page-views-wrap,
 .main-content:has(#page-admin.active) .page-views-wrap {
   display: none;
@@ -1014,7 +1060,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   height: 100%;
 }
 
-/* Admin inner — padded content area inside the full bleed container */
+/* Admin inner — padded content area */
 .admin-inner {
   padding: 24px 28px 40px;
   max-width: 820px;
@@ -1046,7 +1092,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   font-weight: 400;
 }
 
-/* ── MOBILE overrides ── */
+/* ════════════════════════════════════
+   MOBILE OVERRIDES
+════════════════════════════════════ */
 @media(max-width:768px) {
   .sidebar { display: none; }
   .mobile-topbar {
@@ -1082,9 +1130,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 
 /* .container no longer used in layout */
 
-/* ═══════════════════════════════════════
-   FLOATING DOCK
-═══════════════════════════════════════ */
+/* ════════════════════════════════════
+   FLOATING DOCK (mobile nav)
+════════════════════════════════════ */
 .floating-dock {
   position: fixed;
   bottom: 28px;
@@ -1167,9 +1215,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .dock-fab:active { transform: scale(0.92); }
 .dock-fab.open { transform: rotate(45deg) scale(1.05); background: linear-gradient(145deg,#7c3aed,var(--hydra)); box-shadow: 0 0 0 6px rgba(167,139,250,0.15), 0 6px 24px rgba(167,139,250,0.4); }
 
-/* ═══════════════════════════════════════
+/* ════════════════════════════════════
    BOTTOM SHEETS
-═══════════════════════════════════════ */
+════════════════════════════════════ */
 .sheet-backdrop {
   display: none;
   position: fixed;
@@ -1248,8 +1296,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .sheet-body::-webkit-scrollbar { width: 3px; }
 .sheet-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
-/* Add sheet specifics */
-#add-sheet .sheet-title { color: var(--sea-glow); }
+/* Sheet section labels */
 .sheet-section-label {
   font-size: .62rem;
   font-weight: 700;
@@ -1263,8 +1310,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 }
 .sheet-section-label::after { content:''; flex:1; height:1px; background: linear-gradient(90deg,var(--border),transparent); }
 .sheet-divider { height: 1px; background: var(--border); margin: 18px 0; }
-
-/* Timer list inside sheet */
 .sheet-timer-count {
   font-size: .72rem;
   color: var(--text-dim);
@@ -1273,7 +1318,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 }
 .sheet-timer-count strong { color: var(--sea-glow); font-weight: 700; }
 
-/* Profile sheet */
+/* Profile sheet components */
 .profile-avatar-lg {
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -1340,12 +1385,11 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 }
 .profile-signout-btn:hover { background: rgba(248,113,113,0.16); }
 
-/* My Timers page — remove the old add-section from the page,
-   just show the timer list directly */
+/* My Timers page — hide the old add-section */
 #page-my .add-section { display: none !important; }
 #page-my { padding-bottom: 10px; }
 
-/* Container gets more bottom padding for the dock */
+/* Container bottom padding for dock */
 .container { padding-bottom: 130px; }
 
 /* Nav tabs hidden on mobile — dock replaces them */
@@ -1357,12 +1401,126 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 @media(min-width:601px) {
   .floating-dock { display: none; }
 }
+
+/* ════════════════════════════════════
+   FRIENDS SYSTEM
+════════════════════════════════════ */
+.friends-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:2000;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+  align-items:center; justify-content:center;
+}
+.friends-modal-overlay.show { display:flex; }
+.friends-modal {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:var(--radius); padding:0; width:min(480px,96vw);
+  max-height:80vh; display:flex; flex-direction:column;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+}
+.friends-modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 20px 14px; border-bottom:1px solid var(--border);
+}
+.friends-modal-header h3 { font-size:1rem; color:var(--sea-glow); margin:0; }
+.friends-close-btn {
+  background:none; border:none; color:var(--text-dim);
+  font-size:1.1rem; cursor:pointer; padding:4px 8px;
+  border-radius:6px; transition:background .15s;
+}
+.friends-close-btn:hover { background:var(--glass2); }
+.friends-tabs {
+  display:flex; gap:0; border-bottom:1px solid var(--border);
+  padding:0 16px;
+}
+.friends-tab {
+  background:none; border:none; color:var(--text-dim);
+  font-family:'Outfit',sans-serif; font-size:.78rem; font-weight:600;
+  letter-spacing:.07em; text-transform:uppercase; cursor:pointer;
+  padding:10px 12px; border-bottom:2px solid transparent;
+  transition:all .2s; position:relative;
+}
+.friends-tab.active { color:var(--sea-glow); border-bottom-color:var(--sea); }
+.friends-tab .ftab-badge {
+  background:var(--rose); color:#fff; font-size:.6rem;
+  border-radius:99px; padding:1px 5px; margin-left:4px;
+  vertical-align:middle;
+}
+.friends-body { overflow-y:auto; flex:1; padding:14px 16px; }
+.friends-search-row {
+  display:flex; gap:8px; margin-bottom:14px;
+}
+.friends-search-row input {
+  flex:1; background:var(--glass2); border:1px solid var(--border);
+  border-radius:8px; color:var(--text); font-family:'Outfit',sans-serif;
+  font-size:.85rem; padding:8px 12px; outline:none;
+}
+.friends-search-row input:focus { border-color:var(--sea); }
+.friends-search-row button {
+  background:var(--sea-dim); border:1px solid var(--sea);
+  border-radius:8px; color:var(--sea-glow); cursor:pointer;
+  font-family:'Outfit',sans-serif; font-size:.78rem; font-weight:700;
+  padding:8px 14px; transition:all .2s; white-space:nowrap;
+}
+.friends-search-row button:hover { background:rgba(34,211,238,.25); }
+.friend-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 0; border-bottom:1px solid var(--border);
+}
+.friend-item:last-child { border-bottom:none; }
+.friend-avatar {
+  width:34px; height:34px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:.85rem;
+  font-weight:700; flex-shrink:0;
+}
+.friend-info { flex:1; min-width:0; }
+.friend-name { font-size:.88rem; font-weight:600; color:var(--text); }
+.friend-sub { font-size:.7rem; color:var(--text-dim); margin-top:2px; }
+.friend-actions { display:flex; gap:6px; }
+.friend-btn {
+  background:none; border:1px solid; border-radius:7px;
+  cursor:pointer; font-family:'Outfit',sans-serif; font-size:.72rem;
+  font-weight:700; padding:5px 10px; transition:all .2s; white-space:nowrap;
+}
+.friend-btn.accept { color:#34d399; border-color:#34d399; }
+.friend-btn.accept:hover { background:rgba(52,211,153,.15); }
+.friend-btn.decline { color:var(--rose); border-color:var(--rose); }
+.friend-btn.decline:hover { background:rgba(251,113,133,.15); }
+.friend-btn.remove { color:var(--text-dim); border-color:var(--border); }
+.friend-btn.remove:hover { color:var(--rose); border-color:var(--rose); }
+.friend-btn.dm { color:var(--sea-glow); border-color:var(--sea); }
+.friend-btn.dm:hover { background:var(--sea-dim); }
+.friend-btn.add { color:var(--sea-glow); border-color:var(--sea); }
+.friend-btn.add:hover { background:var(--sea-dim); }
+.friend-btn.pending { color:var(--text-dim); border-color:var(--border); cursor:default; }
+.friends-empty { text-align:center; padding:28px 0; color:var(--text-dim); font-size:.82rem; }
+.friends-feedback {
+  font-size:.78rem; min-height:20px; text-align:center;
+  margin:6px 0; transition:color .2s;
+}
+.friends-feedback.ok { color:#34d399; }
+.friends-feedback.err { color:var(--rose); }
+/* Friends nav button in sidebar */
+.snav-btn.friends-tab-btn { }
+/* DM locked indicator */
+.dm-locked-hint {
+  font-size:.68rem; color:var(--text-dim); text-align:center;
+  padding:4px 8px; margin:4px 0;
+}
+/* User item context menu / friend badge */
+.chat-user-item .friend-indicator {
+  font-size:.6rem; color:#34d399; margin-left:3px;
+}
+.chat-user-item .locked-indicator {
+  font-size:.65rem; color:var(--text-dim);
+}
 </style>
 </head>
 <body>
 <div class="waves"><div class="wave"></div><div class="wave"></div></div>
 
-<!-- ══════════════ LOGIN WALL ══════════════ -->
+<!-- ══════════════════════════════════════
+     AUTH WALL
+══════════════════════════════════════ -->
 <div id="auth-wall">
   <div class="auth-card">
     <h1>&#128081; King Legacy</h1>
@@ -1410,7 +1568,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ══════════════ USERNAME SETUP ══════════════ -->
+<!-- ══════════════════════════════════════
+     USERNAME SETUP WALL
+══════════════════════════════════════ -->
 <div id="username-wall" class="hidden">
   <div class="auth-card">
     <h1>&#128081; One more step</h1>
@@ -1425,8 +1585,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ══════════════ EMAIL VERIFICATION PENDING ══════════════ -->
-<!-- FIX: removed inline display:flex — visibility now controlled entirely by .show class -->
+<!-- ══════════════════════════════════════
+     EMAIL VERIFICATION WALL
+══════════════════════════════════════ -->
 <div id="verify-wall">
   <div class="auth-card">
     <div style="font-size:3rem;margin-bottom:12px">&#128231;</div>
@@ -1439,15 +1600,14 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ══════════════ MAIN APP ══════════════ -->
+<!-- ══════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════ -->
 <div id="app">
-
-<!-- ═══ DESKTOP SIDEBAR LAYOUT ═══ -->
 <div class="app-layout">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- ════════════ LEFT SIDEBAR ════════════ -->
   <aside class="sidebar" id="sidebar">
-
     <!-- Logo -->
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon">&#128081;</div>
@@ -1456,14 +1616,12 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="sidebar-logo-sub">Spawn Tracker</div>
       </div>
     </div>
-
-    <!-- Status bar -->
+    <!-- Status -->
     <div class="sidebar-status">
       <div class="est-clock"><div class="dot"></div><span id="est-clock">--:--:-- --</span></div>
       <div class="fb-status disconnected" id="fb-status"><div class="fb-dot"></div><span id="fb-status-text">Offline</span></div>
     </div>
-
-    <!-- Profile card -->
+    <!-- Profile -->
     <div class="sidebar-profile">
       <div class="sidebar-avatar" id="sidebar-avatar">&#128100;</div>
       <div class="sidebar-profile-info">
@@ -1472,7 +1630,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       </div>
       <button class="sidebar-signout" onclick="signOutUser()" title="Sign out">&#128682;</button>
     </div>
-
     <!-- Nav -->
     <nav class="sidebar-nav">
       <button class="snav-btn my-tab active" onclick="switchPage('my')" id="tab-my">
@@ -1490,30 +1647,32 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <span class="snav-label">Chat</span>
         <span class="snav-badge" id="badge-chat"></span>
       </button>
+      <button class="snav-btn friends-tab-btn" onclick="openFriendsModal()" id="tab-friends">
+        <span class="snav-icon">&#128101;</span>
+        <span class="snav-label">Friends</span>
+        <span class="snav-badge" id="badge-friends"></span>
+      </button>
       <button class="snav-btn admin-tab" onclick="switchPage('admin')" id="tab-admin" style="display:none">
         <span class="snav-icon">&#128737;</span>
         <span class="snav-label">Admin</span>
         <span class="snav-badge" id="badge-users"></span>
       </button>
     </nav>
-
-    <!-- Add timer button in sidebar -->
+    <!-- Add button -->
     <button class="sidebar-add-btn" onclick="toggleAddSheet()">
       <span style="font-size:1.3rem;line-height:1">&#43;</span>
       Add Spawn Timer
     </button>
-
-    <!-- Sidebar footer -->
+    <!-- Footer -->
     <div class="sidebar-footer">
       <span id="admin-badge" style="display:none" class="admin-badge">&#9733; Admin</span>
     </div>
-
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- ════════════ MAIN CONTENT ════════════ -->
   <main class="main-content">
 
-    <!-- Mobile top bar (hidden on desktop) -->
+    <!-- Mobile top bar -->
     <div class="mobile-topbar">
       <div style="display:flex;align-items:center;gap:10px">
         <div class="dot" style="width:7px;height:7px"></div>
@@ -1522,10 +1681,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <div class="fb-status disconnected" id="fb-status-mobile" style="font-size:.6rem;padding:3px 8px"><div class="fb-dot"></div><span id="fb-status-text-mobile"></span></div>
     </div>
 
-    <!-- Timer pages — padded, max-width content -->
+    <!-- ── Timer pages (padded) ── -->
     <div class="page-views-wrap">
 
-      <!-- MY TIMERS -->
+      <!-- MY TIMERS PAGE -->
       <div class="page-view active" id="page-my">
         <div class="page-header-bar">
           <div>
@@ -1544,7 +1703,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="flat-cards" id="my-flat-cards"></div>
       </div>
 
-      <!-- PUBLIC -->
+      <!-- PUBLIC BOARD PAGE -->
       <div class="page-view" id="page-public">
         <div class="page-header-bar">
           <div>
@@ -1567,7 +1726,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 
     </div><!-- end .page-views-wrap -->
 
-    <!-- CHAT — full bleed, no padding wrapper -->
+    <!-- ── CHAT PAGE (full bleed) ── -->
     <div class="page-view full-page-view" id="page-chat">
       <div class="chat-layout">
         <div class="chat-main">
@@ -1602,7 +1761,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       </div>
     </div>
 
-    <!-- ADMIN — full bleed with its own padding -->
+    <!-- ── ADMIN PAGE (full bleed with inner padding) ── -->
     <div class="page-view full-page-view" id="page-admin">
       <div class="admin-inner">
         <div class="page-header-bar">
@@ -1620,7 +1779,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 </div><!-- end .app-layout -->
 </div><!-- end #app -->
 
-<!-- ══════════════ FLOATING DOCK ══════════════ -->
+<!-- ══════════════════════════════════════
+     FLOATING DOCK (mobile)
+══════════════════════════════════════ -->
 <div class="floating-dock" id="floating-dock">
   <button class="dock-btn profile-dock" onclick="openProfileSheet()" id="dock-profile">
     <span class="dock-icon">&#128100;</span>
@@ -1634,7 +1795,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </button>
 </div>
 
-<!-- ══════════════ ADD SHEET ══════════════ -->
+<!-- ══════════════════════════════════════
+     ADD TIMER BOTTOM SHEET
+══════════════════════════════════════ -->
 <div class="sheet-backdrop" id="add-backdrop" onclick="closeAddSheet()"></div>
 <div class="bottom-sheet" id="add-sheet">
   <div class="sheet-handle"></div>
@@ -1681,7 +1844,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ══════════════ PROFILE SHEET ══════════════ -->
+<!-- ══════════════════════════════════════
+     PROFILE BOTTOM SHEET
+══════════════════════════════════════ -->
 <div class="sheet-backdrop" id="profile-backdrop" onclick="closeProfileSheet()"></div>
 <div class="bottom-sheet" id="profile-sheet">
   <div class="sheet-handle"></div>
@@ -1714,7 +1879,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- USER DETAIL MODAL -->
+<!-- ══════════════════════════════════════
+     USER DETAIL MODAL (Admin)
+══════════════════════════════════════ -->
 <div class="modal-overlay" id="user-modal">
   <div class="modal-box">
     <div class="modal-header">
@@ -1727,7 +1894,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
     </div>
     <div class="modal-body">
 
-      <!-- RANK -->
+      <!-- RANK SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#9733; Rank</div>
         <div class="modal-row">
@@ -1742,7 +1909,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="rank-feedback"></div>
       </div>
 
-      <!-- USERNAME -->
+      <!-- USERNAME SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#9999;&#65039; Change Username</div>
         <div class="modal-row">
@@ -1752,7 +1919,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="username-feedback"></div>
       </div>
 
-      <!-- WARNS -->
+      <!-- WARNS SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#9888;&#65039; Warns &amp; Notes</div>
         <div class="warn-list" id="modal-warns"></div>
@@ -1763,7 +1930,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="warn-feedback"></div>
       </div>
 
-      <!-- ADMIN NOTES -->
+      <!-- ADMIN NOTES SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#128203; Admin Notes</div>
         <textarea class="notes-area" id="modal-notes" placeholder="Private notes about this player (only admins can see this)..."></textarea>
@@ -1786,10 +1953,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="password-feedback"></div>
       </div>
 
-      <!-- RESTRICTIONS (admin+) -->
+      <!-- RESTRICTIONS SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#128263; Restrictions</div>
-
         <!-- Active mute display -->
         <div id="mute-active-display" style="display:none;background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
           <div>
@@ -1798,7 +1964,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
           </div>
           <button class="modal-btn success" onclick="unmute()" style="flex-shrink:0">&#9989; Unmute</button>
         </div>
-
         <!-- Active restrict display -->
         <div id="restrict-active-display" style="display:none;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:8px">
           <div>
@@ -1807,13 +1972,11 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
           </div>
           <button class="modal-btn success" onclick="unrestrict()" style="flex-shrink:0">&#9989; Lift</button>
         </div>
-
         <!-- Chat mute toggle -->
         <div style="margin-bottom:10px">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128172; Chat Mute</div>
           <button class="modal-btn warn" id="modal-chatmute-btn" onclick="toggleChatMute()">&#128172; Mute from Chat</button>
         </div>
-
         <!-- Mute duration picker -->
         <div id="mute-picker">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128263; Mute from public timers</div>
@@ -1828,7 +1991,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
             <button class="dur-btn dur-perm" onclick="applyMute(-1)">Perm</button>
           </div>
         </div>
-
         <!-- Restrict duration picker (owner only) -->
         <div id="restrict-picker" style="display:none;margin-top:10px">
           <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">&#128683; Restrict all timers (owner only)</div>
@@ -1843,12 +2005,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
             <button class="dur-btn dur-perm dur-danger" onclick="applyRestrict(-1)">Perm</button>
           </div>
         </div>
-
         <div class="modal-feedback" id="restrict-feedback" style="margin-top:8px"></div>
       </div>
 
-      <!-- ACTIONS -->
-      <!-- SEND ALERT -->
+      <!-- SEND ALERT SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#128226; Send Alert</div>
         <textarea id="modal-alert-text" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;resize:vertical;min-height:70px;outline:none;box-sizing:border-box;margin-bottom:8px" placeholder="Type your alert message..."></textarea>
@@ -1866,6 +2026,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="alert-feedback"></div>
       </div>
 
+      <!-- ACTIONS SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
         <div class="modal-btn-row">
@@ -1880,7 +2041,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ALARM -->
+<!-- ══════════════════════════════════════
+     SPAWN ALARM OVERLAY
+══════════════════════════════════════ -->
 <div class="alarm-overlay" id="alarm-overlay">
   <div class="alarm-box sea" id="alarm-box">
     <div class="alarm-icon-big" id="alarm-icon">&#127754;</div>
@@ -1891,7 +2054,53 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
-<!-- ADMIN ALERT -->
+<!-- ══════════════════════════════════════
+     FRIENDS MODAL
+══════════════════════════════════════ -->
+<div class="friends-modal-overlay" id="friends-modal-overlay" onclick="if(event.target===this)closeFriendsModal()">
+  <div class="friends-modal">
+    <div class="friends-modal-header">
+      <h3>&#128101; Friends</h3>
+      <button class="friends-close-btn" onclick="closeFriendsModal()">&#10005;</button>
+    </div>
+    <div class="friends-tabs">
+      <button class="friends-tab active" id="ftab-friends" onclick="switchFriendsTab('friends')">Friends</button>
+      <button class="friends-tab" id="ftab-requests" onclick="switchFriendsTab('requests')">Requests <span class="ftab-badge" id="ftab-req-badge" style="display:none">0</span></button>
+      <button class="friends-tab" id="ftab-add" onclick="switchFriendsTab('add')">Add Friend</button>
+    </div>
+    <div class="friends-body">
+
+      <!-- Friends list -->
+      <div id="ftab-content-friends">
+        <div id="friends-list-container"><div class="friends-empty">Loading...</div></div>
+      </div>
+
+      <!-- Requests -->
+      <div id="ftab-content-requests" style="display:none">
+        <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Incoming Requests</div>
+        <div id="friend-requests-container"><div class="friends-empty">No pending requests.</div></div>
+        <div style="font-size:.72rem;color:var(--text-dim);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Sent Requests</div>
+        <div id="sent-requests-container"><div class="friends-empty">No sent requests.</div></div>
+      </div>
+
+      <!-- Add Friend -->
+      <div id="ftab-content-add" style="display:none">
+        <div style="font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Search by username to send a friend request.</div>
+        <div class="friends-search-row">
+          <input type="text" id="friend-search-input" placeholder="Enter username..." maxlength="10" onkeydown="if(event.key==='Enter')searchFriendUser()" />
+          <button onclick="searchFriendUser()">&#128269; Search</button>
+        </div>
+        <div class="friends-feedback" id="friend-search-feedback"></div>
+        <div id="friend-search-results"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADMIN ALERT OVERLAY
+══════════════════════════════════════ -->
 <div class="admin-alert-overlay" id="admin-alert-overlay">
   <div class="admin-alert-box">
     <div class="admin-alert-icon">&#128226;</div>
@@ -1904,6 +2113,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
 <script>
 // ═══════════════════════════════════════════
 // CONFIG & STATE
@@ -1923,6 +2135,9 @@ var alarmActive=false,alarmInt=null;
 var db=null,auth=null,fbReady=false;
 var currentUser=null,currentUsername='',isAdmin=false,isOwner=false,currentUserRank='normal',currentUserData=null;
 var allUsers={};
+var myFriends={};        // uid -> true (accepted friends)
+var friendRequests={};   // uid -> {from,username,ts} (incoming requests)
+var sentRequests={};     // uid -> true (requests I sent, pending)
 
 try{privateEntries=JSON.parse(localStorage.getItem('kl-private')||'[]')}catch(e){privateEntries=[]}
 
@@ -1937,8 +2152,6 @@ function showVerifyWall(email){
   document.getElementById('verify-wall').classList.add('show');
   document.getElementById('app').classList.remove('show');
   document.getElementById('verify-email-shown').textContent=email||'';
-  // Auto-poll every 3 seconds — when the user clicks the link in their email,
-  // Firebase updates their account. We reload the user and detect it automatically.
   stopVerifyPoll();
   verifyPollInterval=setInterval(function(){
     if(!currentUser)return;
@@ -2029,7 +2242,6 @@ function finishLogin(user,userData){
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
   hideVerifyWall();
-  // Block banned users
   if(userData&&userData.banned&&ADMIN_EMAILS.indexOf(user.email)===-1){
     auth.signOut();
     document.getElementById('auth-wall').classList.remove('hidden');
@@ -2047,14 +2259,13 @@ function finishLogin(user,userData){
   currentUserData=userData;
   updateRestrictionUI();
   showApp();
-  // Only set up Firebase subscriptions once — prevent duplicate listeners on token refresh
   if(!_loginDone){
     _loginDone=true;
     subscribePublic();
     if(isAdmin)loadAllUsers();
     subscribeAlerts(user.uid);
     initPresenceAndChat(user);
-    // Live-subscribe to own user record for mute/restrict/rank changes
+    initFriends(user);
     db.ref('users/'+user.uid).on('value',function(snap){
       currentUserData=snap.val()||{};
       updateRestrictionUI();
@@ -2072,18 +2283,15 @@ function updateRestrictionUI(){
   if(!currentUserData)return;
   var isMuted=!!currentUserData.muted;
   var isRestricted=!!currentUserData.restricted;
-  // Show notices on My Timers page
   var muteNotice=document.getElementById('mute-notice');
   var restrictNotice=document.getElementById('restrict-notice');
   if(muteNotice)muteNotice.classList.toggle('show',isMuted&&!isRestricted&&!isAdmin&&!isOwner);
   if(restrictNotice)restrictNotice.classList.toggle('show',isRestricted&&!isAdmin&&!isOwner);
-  // Hide public vis button if muted
   var pubVisBtn=document.querySelector('.vis-btn.public');
   if(pubVisBtn){
     pubVisBtn.style.opacity=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'0.35':'';
     pubVisBtn.style.pointerEvents=(isMuted||isRestricted)&&!isAdmin&&!isOwner?'none':'';
   }
-  // Dim entire add section if restricted
   var addSection=document.querySelector('.add-section');
   if(addSection)addSection.style.opacity=isRestricted&&!isAdmin&&!isOwner?'0.55':'';
 }
@@ -2138,7 +2346,6 @@ function emailSignUp(){
   db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
     if(snap.exists()){showAuthError('That username is already taken.');return}
     auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
-      // FIX: show verify wall immediately after account creation, THEN send email + save record
       showVerifyWall(cred.user.email);
       return cred.user.sendEmailVerification().then(function(){
         return saveUserRecord(cred.user,username);
@@ -2314,7 +2521,6 @@ function switchPage(p){
   }
 }
 
-// Update sidebar profile on login
 function updateSidebarProfile(){
   var el=document.getElementById('sidebar-username');
   if(el)el.textContent=currentUsername||'Player';
@@ -2328,14 +2534,13 @@ function updateSidebarProfile(){
   var rk=document.getElementById('sidebar-rank');
   var rankLabels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
   if(rk)rk.innerHTML=rankLabels[currentUserRank||'normal']||'Normal';
-  // color rank
   var rankColors={owner:'var(--gold)',admin:'var(--rose)',premium:'var(--hydra-glow)',normal:'var(--text-dim)'};
   if(rk)rk.style.color=rankColors[currentUserRank||'normal'];
 }
 
-// ═══════════════════════════════════════
-// FLOATING DOCK
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════
+// FLOATING DOCK & SHEETS
+// ═══════════════════════════════════════════
 var _addSheetOpen=false, _profileSheetOpen=false;
 
 function toggleAddSheet(){
@@ -2347,7 +2552,6 @@ function openAddSheet(){
   document.getElementById('add-backdrop').classList.add('open');
   document.getElementById('dock-fab').classList.add('open');
   document.body.style.overflow='hidden';
-  // Sync sheet timer list with current private entries
   syncSheetTimers();
 }
 function closeAddSheet(){
@@ -2359,7 +2563,6 @@ function closeAddSheet(){
 }
 function openProfileSheet(){
   _profileSheetOpen=true;
-  // Populate profile data
   var uname=currentUsername||'—';
   document.getElementById('profile-username-lg').textContent=uname;
   document.getElementById('profile-email-display').textContent=(currentUser&&currentUser.email)||'—';
@@ -2368,11 +2571,9 @@ function openProfileSheet(){
   var rankLabels={owner:'&#128081; Owner',admin:'&#128737; Admin',premium:'&#128142; Premium',normal:'&#128100; Normal'};
   pill.className='profile-rank-pill '+rank;
   pill.innerHTML=rankLabels[rank]||'Normal';
-  // Stats
   document.getElementById('profile-timer-count').textContent=privateEntries?privateEntries.length:'0';
   var pubMine=(publicEntries||[]).filter(function(e){return e.uid&&currentUser&&e.uid===currentUser.uid});
   document.getElementById('profile-pub-count').textContent=pubMine.length;
-  // Avatar initial
   var av=document.getElementById('profile-avatar-lg');
   var img=document.getElementById('user-avatar');
   if(img&&img.src&&!img.style.display){
@@ -2393,7 +2594,6 @@ function closeProfileSheet(){
 function dockGoChat(){
   closeAddSheet(); closeProfileSheet();
   switchPage('chat');
-  // On mobile, scroll to top of page
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function syncSheetTimers(){
@@ -2408,7 +2608,6 @@ function syncSheetTimers(){
   renderFlat(container,sorted,'private','No timers yet.',mySort||'soonest');
 }
 function addEntryFromSheet(){
-  // Reuse main addEntry logic then refresh sheet list + show feedback
   var server=document.getElementById('inp-server').value.trim();
   var mins=parseInt(document.getElementById('inp-minutes').value)||0;
   var secs=parseInt(document.getElementById('inp-seconds').value)||0;
@@ -2442,6 +2641,7 @@ function showSheetFeedback(el,msg,isErr){
   clearTimeout(el._t);
   el._t=setTimeout(function(){el.innerHTML='';},3500);
 }
+
 // Patch renderPrivateCards to also sync sheet when open
 var _origRPC=null;
 document.addEventListener('DOMContentLoaded',function(){
@@ -2450,7 +2650,6 @@ document.addEventListener('DOMContentLoaded',function(){
     _origRPC();
     if(_addSheetOpen)syncSheetTimers();
   };
-  // Mirror chat unread badge to dock
   var _origUpdateBadges=updateBadges;
   updateBadges=function(){
     _origUpdateBadges();
@@ -2459,6 +2658,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(chatBadge&&dockBadge)dockBadge.textContent=chatBadge.textContent;
   };
 });
+
 function selectType(t){
   selectedType=t;
   document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active')});
@@ -2476,7 +2676,7 @@ function selectVis(v){
 }
 
 // ═══════════════════════════════════════════
-// ADD ENTRY
+// ADD ENTRY (desktop form — legacy, kept for keyboard shortcut)
 // ═══════════════════════════════════════════
 function addEntry(){
   var server=document.getElementById('inp-server').value.trim();
@@ -2487,7 +2687,6 @@ function addEntry(){
   if(mins===0&&secs===0){alert('Please enter a time until spawn!');return}
   var maxMins=BOSS_TYPES[selectedType].maxMins;
   if(mins>maxMins||(mins===maxMins&&secs>0)){alert('Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' minutes!');return}
-  // Check restrictions (admins/owners are immune)
   if(!isAdmin&&!isOwner){
     if(currentUserData&&currentUserData.restricted){alert('You are restricted from adding any timers.');return}
     if(currentUserData&&currentUserData.muted&&selectedVis==='public'){alert('You are muted from posting public timers.');return}
@@ -2498,8 +2697,6 @@ function addEntry(){
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
-    // Public entries use firebaseKey as id so RAF tick can find their DOM elements
-    // (Firebase subscription will overwrite publicEntries on next snap anyway)
   }
   privateEntries.push(entry);save();
   document.getElementById('inp-server').value='';
@@ -2544,7 +2741,6 @@ function toggleEditPanel(eid){
   var panel=document.getElementById(eid);
   if(!panel)return;
   var isOpen=panel.classList.contains('open');
-  // Close all other open panels first
   document.querySelectorAll('.card-edit-panel.open').forEach(function(p){p.classList.remove('open')});
   if(!isOpen)panel.classList.add('open');
 }
@@ -2566,14 +2762,12 @@ function saveCardEdit(source,entryId,delId){
   if(!/^[0-9]{4}$/.test(srv)){showEditFb('Server code must be 4 digits.',false);return}
   if(mins===0&&secs===0){showEditFb('Time must be greater than 0.',false);return}
   var newSpawnAt=Date.now()+(mins*60+secs)*1000;
-
   if(source==='private'){
     var entry=privateEntries.find(function(e){return String(e.id)===String(entryId)});
     if(!entry){showEditFb('Timer not found.',false);return}
     entry.server=srv;
     entry.spawnAt=newSpawnAt;
     entry.alerted=false;
-    // If it was also synced publicly, update Firebase too
     if(entry.firebaseKey&&db){
       db.ref('timers/'+entry.firebaseKey).update({server:srv,spawnAt:newSpawnAt});
     }
@@ -2618,7 +2812,7 @@ function timerClass(ms){if(ms<=0)return 'done-text';if(ms<=30000)return 'urgent'
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 // ═══════════════════════════════════════════
-// CARD HTML
+// CARD HTML BUILDER
 // ═══════════════════════════════════════════
 function buildCard(e,source){
   var ms=e.spawnAt-Date.now(),done=ms<=0;
@@ -2665,11 +2859,9 @@ function buildCard(e,source){
   return h;
 }
 
-
 // ═══════════════════════════════════════════
-// RENDER
+// RENDER — FILTER & SORT STATE
 // ═══════════════════════════════════════════
-// ── FILTER/SORT STATE ──
 var mySort='soonest', pubSort='soonest';
 
 function setMySort(s){
@@ -2715,21 +2907,16 @@ function sortEntries(arr, mode){
 
 function renderFlat(container, arr, source, emptyMsg, sortMode){
   if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
-  // If sorting by type or grouping makes sense, show type headers
-  // Always group by type, but sort within each group by the chosen sort mode
   var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr'];
   var groups={};
   TYPE_ORDER.forEach(function(t){groups[t]=[]});
   arr.forEach(function(e){if(groups[e.type])groups[e.type].push(e);else{if(!groups['__other'])groups['__other']=[];groups['__other'].push(e);}});
-
-  // Sort within each group
   TYPE_ORDER.forEach(function(t){
     if(!groups[t].length)return;
     if(sortMode==='latest')groups[t].sort(function(a,b){return b.spawnAt-a.spawnAt});
     else if(sortMode==='user')groups[t].sort(function(a,b){return String(a.username||'').localeCompare(String(b.username||''))});
-    else groups[t].sort(function(a,b){return a.spawnAt-b.spawnAt}); // soonest default
+    else groups[t].sort(function(a,b){return a.spawnAt-b.spawnAt});
   });
-
   var html='';
   TYPE_ORDER.forEach(function(t){
     var grp=groups[t];
@@ -2748,7 +2935,6 @@ function renderPrivateCards(){
   var container=document.getElementById('my-flat-cards');
   if(!container)return;
   renderFlat(container,sorted,'private',q?'No timers match your search.':'No timers yet.',mySort);
-  // update badge
   document.getElementById('badge-my').textContent=privateEntries.length;
 }
 
@@ -2766,6 +2952,7 @@ function renderPublicEmpty(msg){
   var el=document.getElementById('pub-flat-cards');
   if(el)el.innerHTML='<div class="no-results">'+esc(msg)+'</div>';
 }
+
 // ═══════════════════════════════════════════
 // ADMIN USER PANEL
 // ═══════════════════════════════════════════
@@ -2839,18 +3026,14 @@ function openUserModal(uid){
   ['rank-feedback','username-feedback','warn-feedback','notes-feedback','actions-feedback','password-feedback','restrict-feedback','alert-feedback'].forEach(function(id){
     var el=document.getElementById(id);if(el){el.className='modal-feedback';el.textContent='';}
   });
-  // Show password section only for owners
   var pwSection=document.getElementById('modal-password-section');
   if(pwSection)pwSection.style.display=isOwner?'block':'none';
-  // Update mute/restrict buttons
   updateModalRestrictionBtns(u);
-  // Update chat mute btn
   var chatMuteBtn=document.getElementById('modal-chatmute-btn');
   if(chatMuteBtn){
     chatMuteBtn.innerHTML=u.chatMuted?'&#9989; Unmute Chat':'&#128172; Mute from Chat';
     chatMuteBtn.className=u.chatMuted?'modal-btn success':'modal-btn warn';
   }
-  // Clear password fields
   var pwInput=document.getElementById('modal-new-password');
   var pwConfirm=document.getElementById('modal-confirm-password');
   if(pwInput)pwInput.value='';
@@ -2954,17 +3137,10 @@ function clearTimers_modal(){
 
 function changePassword_modal(){
   if(!modalUid||!db||!isOwner){showFeedback('password-feedback','Only owners can change passwords.',false);return}
-  var u=allUsers[modalUid]||{};
-  // Can't change password for Google-only accounts
-  var isGoogle=u.email&&!u.email.includes('@')===false&&(!u.uid);
   var newPass=document.getElementById('modal-new-password').value;
   var confirmPass=document.getElementById('modal-confirm-password').value;
   if(!newPass||newPass.length<6){showFeedback('password-feedback','Password must be at least 6 characters.',false);return}
   if(newPass!==confirmPass){showFeedback('password-feedback','Passwords do not match.',false);return}
-  // Use Firebase Admin-style: we update via a special DB flag that a Cloud Function would read.
-  // Since we have no backend, we store a pending password reset token in DB that the user
-  // sees as a forced reset prompt on next login.
-  // Best we can do client-side: store a forcePasswordReset flag + new temp password hash note
   db.ref('users/'+modalUid+'/forcePasswordReset').set({
     newPassword:newPass,
     setBy:currentUsername,
@@ -3061,16 +3237,12 @@ function fmtExpiry(muteObj){
 function updateModalRestrictionBtns(u){
   var muteObj=u.muted&&u.muted.active?u.muted:null;
   var restrictObj=u.restricted&&u.restricted.active?u.restricted:null;
-  // Handle legacy boolean format
   if(u.muted===true)muteObj={active:true,expiresAt:-1};
   if(u.restricted===true)restrictObj={active:true,expiresAt:-1};
-
   var muteActive=document.getElementById('mute-active-display');
   var restrictActive=document.getElementById('restrict-active-display');
   var mutePicker=document.getElementById('mute-picker');
   var restrictPicker=document.getElementById('restrict-picker');
-
-  // Mute active state
   if(muteActive){
     var showMute=!!muteObj;
     muteActive.style.display=showMute?'flex':'none';
@@ -3080,8 +3252,6 @@ function updateModalRestrictionBtns(u){
     }
   }
   if(mutePicker)mutePicker.style.display=muteObj?'none':'block';
-
-  // Restrict active state
   if(restrictActive){
     var showRestrict=!!restrictObj&&isOwner;
     restrictActive.style.display=showRestrict?'flex':'none';
@@ -3093,26 +3263,256 @@ function updateModalRestrictionBtns(u){
   if(restrictPicker)restrictPicker.style.display=isOwner&&!restrictObj?'block':'none';
 }
 
-
 function updateBadges(){
   document.getElementById('badge-my').textContent=privateEntries.length;
   document.getElementById('badge-public').textContent=publicEntries.length;
 }
 
 // ═══════════════════════════════════════════
+// FRIENDS SYSTEM
+// ═══════════════════════════════════════════
+var _friendsTabActive='friends';
+
+function initFriends(user){
+  if(!db||!user)return;
+  // Listen to my accepted friends
+  db.ref('friends/'+user.uid).on('value',function(snap){
+    myFriends={};
+    if(snap.val())snap.forEach(function(c){if(c.val()===true)myFriends[c.key]=true;});
+    renderFriendsModal();
+  });
+  // Listen to incoming friend requests
+  db.ref('friendRequests/'+user.uid).on('value',function(snap){
+    friendRequests={};
+    if(snap.val())snap.forEach(function(c){if(c.val())friendRequests[c.key]=c.val();});
+    var count=Object.keys(friendRequests).length;
+    var badge=document.getElementById('ftab-req-badge');
+    var navBadge=document.getElementById('badge-friends');
+    if(badge){badge.textContent=count;badge.style.display=count>0?'inline':'none';}
+    if(navBadge)navBadge.textContent=count>0?String(count):'';
+    renderFriendsModal();
+  });
+  // Listen to sent requests (my outgoing)
+  db.ref('sentRequests/'+user.uid).on('value',function(snap){
+    sentRequests={};
+    if(snap.val())snap.forEach(function(c){if(c.val()===true)sentRequests[c.key]=true;});
+    renderFriendsModal();
+  });
+}
+
+function openFriendsModal(){
+  document.getElementById('friends-modal-overlay').classList.add('show');
+  renderFriendsModal();
+}
+function closeFriendsModal(){
+  document.getElementById('friends-modal-overlay').classList.remove('show');
+}
+
+function switchFriendsTab(tab){
+  _friendsTabActive=tab;
+  ['friends','requests','add'].forEach(function(t){
+    document.getElementById('ftab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('ftab-content-'+t).style.display=t===tab?'block':'none';
+  });
+  if(tab==='friends'||tab==='requests')renderFriendsModal();
+}
+
+function renderFriendsModal(){
+  renderFriendsList();
+  renderFriendRequests();
+  renderSentRequests();
+}
+
+function renderFriendsList(){
+  var container=document.getElementById('friends-list-container');
+  if(!container)return;
+  var friendUids=Object.keys(myFriends);
+  if(!friendUids.length){container.innerHTML='<div class="friends-empty">You have no friends yet.<br>Use "Add Friend" to get started.</div>';return;}
+  container.innerHTML=friendUids.map(function(uid){
+    var u=_usersSnap[uid]||allUsers[uid]||{};
+    var uname=u.username||'Unknown';
+    var rank=u.rank||'normal';
+    var initials=uname.charAt(0).toUpperCase();
+    var colorMap={owner:'#fbbf24',admin:'#fca5a5',premium:'#c084fc',normal:'var(--sea-dim)'};
+    var onlineDot=(_presenceSnap&&_presenceSnap.child&&_presenceSnap.child(uid).val())?'<span style="color:#22c55e;font-size:.65rem">● </span>':'<span style="color:var(--text-dim);font-size:.65rem">● </span>';
+    return '<div class="friend-item">'+
+      '<div class="friend-avatar" style="background:'+colorMap[rank]+';color:var(--text)">'+initials+'</div>'+
+      '<div class="friend-info">'+
+        '<div class="friend-name">'+onlineDot+esc(uname)+' '+rankBadgeHtml(rank)+'</div>'+
+        '<div class="friend-sub">Friend</div>'+
+      '</div>'+
+      '<div class="friend-actions">'+
+        '<button class="friend-btn dm" onclick="closeFriendsModal();openDM(\''+uid+'\',\''+esc(uname)+'\')">&#128172; DM</button>'+
+        '<button class="friend-btn remove" onclick="removeFriend(\''+uid+'\')">Remove</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderFriendRequests(){
+  var container=document.getElementById('friend-requests-container');
+  if(!container)return;
+  var keys=Object.keys(friendRequests);
+  if(!keys.length){container.innerHTML='<div class="friends-empty">No pending requests.</div>';return;}
+  container.innerHTML=keys.map(function(uid){
+    var r=friendRequests[uid];
+    var uname=r.username||'Unknown';
+    var initials=uname.charAt(0).toUpperCase();
+    return '<div class="friend-item">'+
+      '<div class="friend-avatar" style="background:var(--sea-dim);color:var(--sea-glow)">'+initials+'</div>'+
+      '<div class="friend-info">'+
+        '<div class="friend-name">'+esc(uname)+'</div>'+
+        '<div class="friend-sub">Wants to be your friend</div>'+
+      '</div>'+
+      '<div class="friend-actions">'+
+        '<button class="friend-btn accept" onclick="acceptFriendRequest(\''+uid+'\',\''+esc(uname)+'\')">&#10003; Accept</button>'+
+        '<button class="friend-btn decline" onclick="declineFriendRequest(\''+uid+'\')">&#10005;</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderSentRequests(){
+  var container=document.getElementById('sent-requests-container');
+  if(!container)return;
+  var keys=Object.keys(sentRequests);
+  if(!keys.length){container.innerHTML='<div class="friends-empty">No sent requests.</div>';return;}
+  container.innerHTML=keys.map(function(uid){
+    var u=_usersSnap[uid]||allUsers[uid]||{};
+    var uname=u.username||'Unknown';
+    var initials=uname.charAt(0).toUpperCase();
+    return '<div class="friend-item">'+
+      '<div class="friend-avatar" style="background:var(--glass2);color:var(--text-dim)">'+initials+'</div>'+
+      '<div class="friend-info">'+
+        '<div class="friend-name">'+esc(uname)+'</div>'+
+        '<div class="friend-sub">Request pending...</div>'+
+      '</div>'+
+      '<div class="friend-actions">'+
+        '<button class="friend-btn remove" onclick="cancelFriendRequest(\''+uid+'\')">Cancel</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function searchFriendUser(){
+  if(!db||!currentUser)return;
+  var inp=document.getElementById('friend-search-input');
+  var q=(inp?inp.value.trim():'').toLowerCase();
+  var fb=document.getElementById('friend-search-feedback');
+  var res=document.getElementById('friend-search-results');
+  function setFb(msg,ok){if(fb){fb.textContent=msg;fb.className='friends-feedback '+(ok?'ok':'err');}}
+  if(!q){setFb('Please enter a username.',false);return;}
+  if(q===currentUsername.toLowerCase()){setFb("That's you!",false);return;}
+  setFb('Searching...','');
+  db.ref('usernames/'+q).once('value',function(snap){
+    if(!snap.exists()||!snap.val()){setFb('User not found.',false);if(res)res.innerHTML='';return;}
+    var uid=snap.val();
+    setFb('','');
+    db.ref('users/'+uid).once('value',function(usnap){
+      var u=usnap.val()||{};
+      var uname=u.username||q;
+      var rank=u.rank||'normal';
+      var initials=uname.charAt(0).toUpperCase();
+      var colorMap={owner:'#fbbf24',admin:'#fca5a5',premium:'#c084fc',normal:'var(--sea-dim)'};
+      var isFriend=!!myFriends[uid];
+      var isPending=!!sentRequests[uid];
+      var hasRequest=!!friendRequests[uid];
+      var btnHtml;
+      if(isFriend){
+        btnHtml='<button class="friend-btn pending">&#10003; Already friends</button>';
+      } else if(hasRequest){
+        btnHtml='<button class="friend-btn accept" onclick="acceptFriendRequest(\''+uid+'\',\''+esc(uname)+'\')">Accept Request</button>';
+      } else if(isPending){
+        btnHtml='<button class="friend-btn pending">Request Sent</button>';
+      } else {
+        btnHtml='<button class="friend-btn add" onclick="sendFriendRequest(\''+uid+'\',\''+esc(uname)+'\')">&#43; Add Friend</button>';
+      }
+      if(res)res.innerHTML='<div class="friend-item">'+
+        '<div class="friend-avatar" style="background:'+colorMap[rank]+';color:var(--text)">'+initials+'</div>'+
+        '<div class="friend-info">'+
+          '<div class="friend-name">'+esc(uname)+' '+rankBadgeHtml(rank)+'</div>'+
+          '<div class="friend-sub">'+rank.charAt(0).toUpperCase()+rank.slice(1)+'</div>'+
+        '</div>'+
+        '<div class="friend-actions">'+btnHtml+'</div>'+
+      '</div>';
+    });
+  });
+}
+
+function sendFriendRequest(toUid,toUsername){
+  if(!db||!currentUser)return;
+  var updates={};
+  updates['friendRequests/'+toUid+'/'+currentUser.uid]={username:currentUsername,ts:Date.now()};
+  updates['sentRequests/'+currentUser.uid+'/'+toUid]=true;
+  db.ref().update(updates).then(function(){
+    var fb=document.getElementById('friend-search-feedback');
+    if(fb){fb.textContent='Friend request sent to '+toUsername+'!';fb.className='friends-feedback ok';}
+    searchFriendUser();
+  }).catch(function(e){
+    var fb=document.getElementById('friend-search-feedback');
+    if(fb){fb.textContent='Error: '+e.message;fb.className='friends-feedback err';}
+  });
+}
+
+function acceptFriendRequest(fromUid,fromUsername){
+  if(!db||!currentUser)return;
+  var updates={};
+  updates['friends/'+currentUser.uid+'/'+fromUid]=true;
+  updates['friends/'+fromUid+'/'+currentUser.uid]=true;
+  updates['friendRequests/'+currentUser.uid+'/'+fromUid]=null;
+  updates['sentRequests/'+fromUid+'/'+currentUser.uid]=null;
+  db.ref().update(updates);
+}
+
+function declineFriendRequest(fromUid){
+  if(!db||!currentUser)return;
+  var updates={};
+  updates['friendRequests/'+currentUser.uid+'/'+fromUid]=null;
+  updates['sentRequests/'+fromUid+'/'+currentUser.uid]=null;
+  db.ref().update(updates);
+}
+
+function cancelFriendRequest(toUid){
+  if(!db||!currentUser)return;
+  var updates={};
+  updates['sentRequests/'+currentUser.uid+'/'+toUid]=null;
+  updates['friendRequests/'+toUid+'/'+currentUser.uid]=null;
+  db.ref().update(updates);
+}
+
+function removeFriend(uid){
+  if(!db||!currentUser)return;
+  if(!confirm('Remove this friend?'))return;
+  var updates={};
+  updates['friends/'+currentUser.uid+'/'+uid]=null;
+  updates['friends/'+uid+'/'+currentUser.uid]=null;
+  db.ref().update(updates);
+}
+
+function canDMUser(targetUid){
+  // Admins/owners can DM anyone
+  if(isAdmin||isOwner)return true;
+  var u=_usersSnap[targetUid]||allUsers[targetUid]||{};
+  var targetRank=u.rank||'normal';
+  // If target is owner, must be friends
+  if(targetRank==='owner'){
+    return !!myFriends[targetUid];
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════
 // PRESENCE & CHAT
 // ═══════════════════════════════════════════
 var presenceRef=null, chatRef=null, chatLoaded=false, _unreadChat=0;
-var CHAT_MAX=100; // keep last 100 messages
-
-// ── shared state for presence + DM ──
+var CHAT_MAX=100;
 var _presenceSnap=null, _usersSnap={};
 var _dmUid=null, _dmRef=null, _dmListener=null;
 
 function initPresenceAndChat(user){
   if(!db||!user)return;
 
-  // ── Presence ──
+  // Presence
   presenceRef=db.ref('presence/'+user.uid);
   var _isOnline=false;
 
@@ -3137,20 +3537,16 @@ function initPresenceAndChat(user){
     presenceRef.remove().catch(function(){});
   }
 
-  // Use .info/connected as the authoritative trigger —
-  // it fires true as soon as the websocket is established
   db.ref('.info/connected').on('value',function(snap){
     if(!snap.val()){
       _isOnline=false;
       return;
     }
-    // Always re-register onDisconnect then write presence
     presenceRef.onDisconnect().remove().then(function(){
       goOnline();
     });
   });
 
-  // Tab visibility
   function handleVisibility(){
     if(document.visibilityState==='visible'){
       goOnline();
@@ -3161,38 +3557,36 @@ function initPresenceAndChat(user){
   document.removeEventListener('visibilitychange',handleVisibility);
   document.addEventListener('visibilitychange',handleVisibility);
 
-  // ── Load users FIRST, then start presence listener ──
+  // Load all users
   db.ref('users').on('value',function(snap){
     _usersSnap={};
     snap.forEach(function(c){
       var v=c.val();
       if(v&&v.username)_usersSnap[c.key]=v;
     });
-    // Always re-render when users update
     renderPresence(_presenceSnap,_usersSnap);
   });
 
-  // ── Presence: listen live ──
+  // Live presence
   db.ref('presence').on('value',function(snap){
     _presenceSnap=snap;
     renderPresence(_presenceSnap,_usersSnap);
   });
 
-  // ── Global chat ──
+  // Global chat
   chatRef=db.ref('chat');
   subscribeGlobalChat();
-  // Subscribe to incoming DM notifications
+
+  // DM notifications
   db.ref('dmnotify/'+user.uid).on('child_added',function(snap){
     var fromUid=snap.key;
     var data=snap.val();
     if(!data)return;
-    // Bump unread if not currently in that DM
     if(_dmUid!==fromUid){
       _dmUnread[fromUid]=(_dmUnread[fromUid]||0)+1;
       if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
       bumpChatBadge();
     }
-    // Clear the notification node
     snap.ref.remove();
   });
 
@@ -3202,7 +3596,6 @@ function initPresenceAndChat(user){
 function subscribeGlobalChat(){
   if(!chatRef)return;
   var globalInitDone=false;
-  // Load existing messages first via once()
   chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
     var msgsEl=document.getElementById('chat-msgs');
     if(msgsEl)msgsEl.innerHTML='';
@@ -3213,14 +3606,12 @@ function subscribeGlobalChat(){
     });
     scrollChatToBottom();
     globalInitDone=true;
-    // Now listen for NEW messages only
     chatRef.limitToLast(1).on('child_added',function(snap){
       if(!globalInitDone)return;
       if(_dmUid)return;
       var msg=snap.val();if(!msg)return;
       msg.key=snap.key;
       appendChatMsg(msg,'global');
-      // Only badge if not from self
       if(!currentUser||msg.uid!==currentUser.uid)bumpChatBadge();
     });
   });
@@ -3253,22 +3644,17 @@ function renderPresence(presSnap,usersMap){
   var list=document.getElementById('all-users-list');
   var countEl=document.getElementById('users-online-count');
   if(!list)return;
-
   var myUid=currentUser?currentUser.uid:null;
   var onlineUids={};
   if(presSnap)presSnap.forEach(function(c){if(c.val())onlineUids[c.key]=true;});
   if(presSnap)presSnap.forEach(function(c){
     if(c.val()&&c.val().username&&!usersMap[c.key])usersMap[c.key]=c.val();
   });
-
   var onlineCount=Object.keys(onlineUids).length;
   if(countEl)countEl.textContent=onlineCount?' '+onlineCount+' online':'';
-
   var users=Object.keys(usersMap||{}).map(function(uid){
     return {uid:uid,u:usersMap[uid],online:!!onlineUids[uid]};
   }).filter(function(x){return x.u&&x.u.username;});
-
-  // Sort within each rank: online first, then alpha
   users.sort(function(a,b){
     var ro=(RANK_ORDER[a.u.rank||'normal']||3)-(RANK_ORDER[b.u.rank||'normal']||3);
     if(ro!==0)return ro;
@@ -3276,7 +3662,6 @@ function renderPresence(presSnap,usersMap){
     if(oo!==0)return oo;
     return (a.u.username||'').localeCompare(b.u.username||'');
   });
-
   _allUserItems=users.map(function(x){
     var uid=x.uid,u=x.u,isOnline=x.online;
     var rank=u.rank||'normal';
@@ -3284,6 +3669,11 @@ function renderPresence(presSnap,usersMap){
     var isSelf=uid===myUid;
     var unread=_dmUnread[uid]||0;
     var isDmActive=uid===_dmUid;
+    var isFriend=!!myFriends[uid];
+    var isOwnerTarget=rank==='owner';
+    var locked=isOwnerTarget&&!isFriend&&!isAdmin&&!isOwner&&!isSelf;
+    var friendBadge=isFriend&&!isSelf?'<span class="friend-indicator" title="Friend">&#10084;</span>':'';
+    var lockBadge=locked?'<span class="locked-indicator" title="Friends only DM">&#128274;</span>':'';
     return {
       rank:rank,
       uname:u.username.toLowerCase(),
@@ -3294,14 +3684,13 @@ function renderPresence(presSnap,usersMap){
         +'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span>'
         +'<div style="min-width:0;flex:1">'
           +'<div class="chat-user-name" style="color:'+RANK_COLORS[rank]+'">'+RANK_ICONS[rank]+uname
-            +(isSelf?' <span style="font-size:.58rem;opacity:.45">(you)</span>':'')+'</div>'
+            +(isSelf?' <span style="font-size:.58rem;opacity:.45">(you)</span>':'')+friendBadge+lockBadge+'</div>'
           +(!isOnline?'<div class="chat-user-offline-label">Offline</div>':'')
         +'</div>'
         +(unread>0?'<span class="dm-badge">'+unread+'</span>':'')
         +'</div>'
     };
   });
-
   var q=document.getElementById('users-search');
   filterUsersList(q?q.value:'');
 }
@@ -3311,16 +3700,12 @@ function filterUsersList(q){
   if(!list)return;
   q=(q||'').toLowerCase().trim();
   var filtered=q?_allUserItems.filter(function(x){return x.uname.indexOf(q)!==-1}):_allUserItems;
-
   if(!filtered.length){
     list.innerHTML='<div style="padding:12px;font-size:.75rem;color:var(--text-dim);text-align:center">No users found</div>';
     return;
   }
-
-  // Group by rank
   var groups={owner:[],admin:[],premium:[],normal:[]};
   filtered.forEach(function(x){groups[x.rank||'normal'].push(x.html);});
-
   var html='';
   ['owner','admin','premium','normal'].forEach(function(rank){
     if(!groups[rank].length)return;
@@ -3342,28 +3727,26 @@ var _dmUnread={};
 
 function openDM(uid,username){
   if(!db||!currentUser)return;
-  if(uid===currentUser.uid)return; // can't DM self
+  if(uid===currentUser.uid)return;
+  // Check if target is owner and we're not friends / not admin/owner ourselves
+  if(!canDMUser(uid)){
+    alert('You can only DM ' + username + ' if you are friends with them.');
+    return;
+  }
   _dmUid=uid;
-  // DM path: sorted uid pair so both sides share same path
   var pair=[currentUser.uid,uid].sort().join('_');
-  // Detach previous DM listener
   if(_dmRef&&_dmListener){_dmRef.off('child_added',_dmListener);_dmRef.off('child_removed');}
   _dmRef=db.ref('dms/'+pair);
-  // Clear unread badge for this user
   _dmUnread[uid]=0;
-  // Update UI
   var titleEl=document.getElementById('chat-title');
   if(titleEl)titleEl.innerHTML='&#128172; <span style="color:#c084fc">'+esc(username)+'</span>';
   var backBtn=document.getElementById('chat-back-btn');
   if(backBtn)backBtn.style.display='inline';
   var inp=document.getElementById('chat-input');
   if(inp)inp.placeholder='Message '+username+'...';
-  // Clear messages
   var msgs=document.getElementById('chat-msgs');
   if(msgs)msgs.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-dim);font-size:.78rem">DM with '+esc(username)+'</div>';
-  // Re-render presence to highlight active DM
   if(_presenceSnap)renderPresence(_presenceSnap,_usersSnap);
-  // Subscribe DM messages
   _dmListener=_dmRef.limitToLast(50).on('child_added',function(snap){
     var msg=snap.val();if(!msg)return;
     msg.key=snap.key;
@@ -3387,7 +3770,6 @@ function openGlobalChat(){
   if(inp)inp.placeholder='Say something...';
   var msgs=document.getElementById('chat-msgs');
   if(msgs)msgs.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">Loading messages...</div>';
-  // Re-subscribe global
   if(chatRef){
     chatRef.limitToLast(CHAT_MAX).once('value',function(snap){
       var msgsEl=document.getElementById('chat-msgs');
@@ -3414,10 +3796,8 @@ function sendChat(){
   }
   var payload={uid:currentUser.uid,username:currentUsername,rank:currentUserRank,text:msg,ts:Date.now()};
   if(_dmUid){
-    // DM send
     var pair=[currentUser.uid,_dmUid].sort().join('_');
     db.ref('dms/'+pair).push(payload);
-    // Notify recipient via their DM unread count
     db.ref('dmnotify/'+_dmUid+'/'+currentUser.uid).set({from:currentUsername,ts:Date.now()});
   } else {
     if(!chatRef){return;}
@@ -3430,9 +3810,7 @@ function sendChat(){
 function appendChatMsg(msg,source){
   var container=document.getElementById('chat-msgs');
   if(!container)return;
-  // Skip if already rendered
   if(document.getElementById('chatmsg-'+msg.key))return;
-  // Remove loading placeholder
   var placeholder=container.querySelector('div[style]');
   if(placeholder&&(placeholder.textContent.includes('Loading')||placeholder.textContent.includes('DM with')))placeholder.remove();
   var rank=msg.rank||'normal';
@@ -3474,50 +3852,41 @@ function scrollChatToBottom(){
 }
 
 // ═══════════════════════════════════════════
-// TICK
+// RAF TICKER
 // ═══════════════════════════════════════════
-// ── RAF TICKER ──
 var _lastSec=-1, _lastClockMin=-1;
 function tick(){
   var now=Date.now();
   var nowSec=Math.floor(now/1000);
 
-  // Clock: update only when minute changes
   var d=new Date(now);
   var clockMin=d.getMinutes();
   if(clockMin!==_lastClockMin){
     _lastClockMin=clockMin;
-    document.getElementById('est-clock').textContent=d.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
   }
 
-  // Countdowns: only update DOM when the second changes
   if(nowSec===_lastSec){requestAnimationFrame(tick);return;}
   _lastSec=nowSec;
 
-  // Update clock text each second regardless
+  // Update clock
   document.getElementById('est-clock').textContent=new Date(now).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 
-  // Use cached element map — rebuilt by renderPrivateCards/renderPublicCards
   var allTimerEls=document.querySelectorAll('[id^="tdisplay-"]');
-  // Build a quick lookup from the live DOM
   var elMap={};
   allTimerEls.forEach(function(el){elMap[el.id]=el;});
 
-  var EXPIRE_AFTER=5*60*1000; // 5 minutes after spawn
+  var EXPIRE_AFTER=5*60*1000;
   var needsRerender=false;
 
   function upd(arr,src){
     arr.forEach(function(e){
       var ms=e.spawnAt-now;
-      // Auto-remove entries that spawned more than 5 minutes ago
       if(ms<=-EXPIRE_AFTER){
         if(src==='private'){
-          // Remove from Firebase if it was public
           if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
           privateEntries=privateEntries.filter(function(x){return x.id!==e.id});
           save();
         } else {
-          // Public entries: remove from Firebase
           if(e.firebaseKey&&db)db.ref('timers/'+e.firebaseKey).remove().catch(function(){});
           publicEntries=publicEntries.filter(function(x){return x.id!==e.id});
         }
@@ -3540,7 +3909,8 @@ function tick(){
       }
     });
   }
-  upd(privateEntries.slice(),'private');upd(publicEntries.slice(),'public');
+  upd(privateEntries.slice(),'private');
+  upd(publicEntries.slice(),'public');
   if(needsRerender){renderPrivateCards();renderPublicCards();}
   if(!alarmActive&&alarmQueue.length>0)showAlarm(alarmQueue.shift());
   requestAnimationFrame(tick);
@@ -3549,6 +3919,20 @@ function tick(){
 // ═══════════════════════════════════════════
 // ALARM
 // ═══════════════════════════════════════════
+function showAlarm(entry){
+  alarmActive=true;
+  var bt=BOSS_TYPES[entry.type]||{label:entry.type,icon:'&#9733;'};
+  document.getElementById('alarm-box').className='alarm-box '+(entry.type==='hydra'||entry.type==='kraken'?'hydra':'sea');
+  document.getElementById('alarm-icon').innerHTML=bt.icon;
+  document.getElementById('alarm-title').textContent=bt.label.toUpperCase()+' SPAWN!';
+  document.getElementById('alarm-sub').textContent=bt.label+' is spawning!';
+  document.getElementById('alarm-server').textContent='Server: '+entry.server;
+  document.getElementById('alarm-dismiss-btn').className=(entry.type==='hydra'||entry.type==='kraken')?'alarm-dismiss hydra-mode':'alarm-dismiss';
+  document.getElementById('alarm-overlay').classList.add('show');
+  startAlarmLoop();
+}
+function dismissAlarm(){alarmActive=false;stopAlarmLoop();document.getElementById('alarm-overlay').classList.remove('show')}
+
 // ═══════════════════════════════════════════
 // ADMIN ALERT
 // ═══════════════════════════════════════════
@@ -3561,7 +3945,7 @@ function sendAdminAlert(){
   var mins=parseInt(document.getElementById('modal-alert-mins').value)||0;
   var secs=parseInt(document.getElementById('modal-alert-secs').value)||0;
   var totalSecs=mins*60+secs;
-  if(totalSecs<1)totalSecs=5; // minimum 5 seconds
+  if(totalSecs<1)totalSecs=5;
   var u=allUsers[modalUid]||{};
   db.ref('alerts/'+modalUid).set({
     msg:msg,
@@ -3579,18 +3963,14 @@ function subscribeAlerts(uid){
   db.ref('alerts/'+uid).on('value',function(snap){
     var data=snap.val();
     if(!data||!data.msg||!data.ts)return;
-    // Already dismissed — ignore
     if(data.dismissed)return;
     var now=Date.now();
     var elapsed=Math.floor((now-data.ts)/1000);
     var lockSecs=data.lockSecs||5;
-    // If the full lock time has already passed since the alert was sent, skip it
     if(elapsed>=lockSecs&&data.dismissed===undefined){
-      // Still show it but immediately dismissable
       showAdminAlert(data.msg,data.from||'Admin',0,uid);
       return;
     }
-    // Calculate remaining lock time accounting for time already elapsed
     var remaining=Math.max(0,lockSecs-elapsed);
     showAdminAlert(data.msg,data.from||'Admin',remaining,uid);
   });
@@ -3603,7 +3983,6 @@ function showAdminAlert(msg,from,lockSecs,uid){
   var btn=document.getElementById('admin-alert-dismiss');
   var countdown=document.getElementById('admin-alert-countdown');
   if(!overlay||!msgEl||!btn||!countdown)return;
-  // Store uid so dismissAdminAlert can mark it done in Firebase
   overlay.dataset.alertUid=uid||'';
   lockSecs=lockSecs||0;
   msgEl.textContent=msg;
@@ -3638,32 +4017,16 @@ function dismissAdminAlert(){
   if(adminAlertCountdownInt){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;}
   var overlay=document.getElementById('admin-alert-overlay');
   overlay.classList.remove('show');
-  // Mark as dismissed in Firebase so it doesn't re-show on refresh
   var alertUid=overlay.dataset.alertUid;
   if(alertUid&&db){
     db.ref('alerts/'+alertUid+'/dismissed').set(true).then(function(){
-      // Clean up fully after marking dismissed
       setTimeout(function(){db.ref('alerts/'+alertUid).remove();},500);
     }).catch(function(){});
   }
 }
 
-function showAlarm(entry){
-  alarmActive=true;
-  var bt=BOSS_TYPES[entry.type]||{label:entry.type,icon:'&#9733;'};
-  document.getElementById('alarm-box').className='alarm-box '+(entry.type==='hydra'||entry.type==='kraken'?'hydra':'sea');
-  document.getElementById('alarm-icon').innerHTML=bt.icon;
-  document.getElementById('alarm-title').textContent=bt.label.toUpperCase()+' SPAWN!';
-  document.getElementById('alarm-sub').textContent=bt.label+' is spawning!';
-  document.getElementById('alarm-server').textContent='Server: '+entry.server;
-  document.getElementById('alarm-dismiss-btn').className=(entry.type==='hydra'||entry.type==='kraken')?'alarm-dismiss hydra-mode':'alarm-dismiss';
-  document.getElementById('alarm-overlay').classList.add('show');
-  startAlarmLoop();
-}
-function dismissAlarm(){alarmActive=false;stopAlarmLoop();document.getElementById('alarm-overlay').classList.remove('show')}
-
 // ═══════════════════════════════════════════
-// KEYBOARD
+// KEYBOARD SHORTCUTS
 // ═══════════════════════════════════════════
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&document.activeElement&&document.activeElement.tagName==='INPUT'){
@@ -3681,11 +4044,11 @@ document.addEventListener('keydown',function(e){
 // ═══════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════
-tick(); // RAF-driven — no setInterval needed
+tick();
 initFirebase();
 </script>
 
-<!-- ghost elements for JS refs -->
+<!-- Ghost elements for JS references -->
 <span id="user-name-display" style="display:none"></span>
 <img id="user-avatar" style="display:none" src="" alt="" />
 </body>
