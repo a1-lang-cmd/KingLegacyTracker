@@ -1838,25 +1838,20 @@ function initPresenceAndChat(user){
     presenceRef.onDisconnect().remove();
     presenceRef.set({username:currentUsername,rank:currentUserRank,ts:Date.now()});
   });
-  // Listen to all presence
+  // Subscribe to all users once for presence display (works for non-admins too)
+  db.ref('users').on('value',function(userSnap){
+    var usersCache={};
+    userSnap.forEach(function(c){usersCache[c.key]=c.val();});
+    // Merge into allUsers without overwriting (admin already has it)
+    Object.keys(usersCache).forEach(function(k){if(!allUsers[k])allUsers[k]=usersCache[k];});
+    // Re-render presence with latest users
+    db.ref('presence').once('value',function(presSnap){
+      buildPresence(presSnap,usersCache);
+    });
+  });
+  // Listen to presence changes live
   db.ref('presence').on('value',function(snap){
-    var online={},offline={};
-    var now=Date.now();
-    // all users from allUsers, mark online/offline
-    Object.keys(allUsers||{}).forEach(function(uid){
-      var u=allUsers[uid];
-      if(!u||!u.username)return;
-      if(snap.child(uid).exists()){
-        online[uid]=Object.assign({},u,snap.child(uid).val());
-      } else {
-        offline[uid]=u;
-      }
-    });
-    // Also include users seen in presence but not in allUsers yet
-    snap.forEach(function(c){
-      if(!online[c.key])online[c.key]=c.val();
-    });
-    renderPresence(online,offline);
+    buildPresence(snap,allUsers);
   });
   // ── Chat ──
   chatRef=db.ref('chat');
@@ -1883,6 +1878,25 @@ function initPresenceAndChat(user){
     }
   });
   chatLoaded=true;
+}
+
+function buildPresence(presSnap,usersMap){
+  var online={},offline={};
+  // Everyone in usersMap
+  Object.keys(usersMap||{}).forEach(function(uid){
+    var u=usersMap[uid];
+    if(!u||!u.username)return;
+    if(presSnap.child(uid).exists()){
+      online[uid]=Object.assign({},u,presSnap.child(uid).val());
+    } else {
+      offline[uid]=u;
+    }
+  });
+  // Anyone online not yet in usersMap (edge case)
+  presSnap.forEach(function(c){
+    if(!online[c.key]&&c.val()&&c.val().username)online[c.key]=c.val();
+  });
+  renderPresence(online,offline);
 }
 
 function renderPresence(online,offline){
@@ -2171,6 +2185,7 @@ document.addEventListener('keydown',function(e){
     if(id==='li-email'||id==='li-pass')emailSignIn();
     else if(id==='su-username'||id==='su-email'||id==='su-pass')emailSignUp();
     else if(id==='uname-input')saveUsername();
+    else if(id==='chat-input')sendChat();
     else if(document.getElementById('app').classList.contains('show'))addEntry();
   }
   if(e.key==='Escape'&&alarmActive)dismissAlarm();
