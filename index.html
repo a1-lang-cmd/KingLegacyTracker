@@ -647,9 +647,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
       <!-- SEND ALERT -->
       <div class="modal-section">
         <div class="modal-section-title">&#128226; Send Alert</div>
-        <textarea id="modal-alert-text" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;resize:vertical;min-height:70px;outline:none;box-sizing:border-box" placeholder="Type your alert message..."></textarea>
-        <div style="display:flex;justify-content:flex-end;margin-top:8px">
-          <button class="modal-btn warn" onclick="sendAdminAlert()">&#128226; Send Alert</button>
+        <textarea id="modal-alert-text" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;resize:vertical;min-height:70px;outline:none;box-sizing:border-box;margin-bottom:8px" placeholder="Type your alert message..."></textarea>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:80px">
+            <label style="font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Lock for (minutes)</label>
+            <input type="number" id="modal-alert-mins" min="0" max="60" value="0" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;width:100%;box-sizing:border-box"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:80px">
+            <label style="font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Lock for (seconds)</label>
+            <input type="number" id="modal-alert-secs" min="0" max="59" value="5" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;width:100%;box-sizing:border-box"/>
+          </div>
+          <button class="modal-btn warn" onclick="sendAdminAlert()" style="flex-shrink:0">&#128226; Send Alert</button>
         </div>
         <div class="modal-feedback" id="alert-feedback"></div>
       </div>
@@ -1782,12 +1790,16 @@ function sendAdminAlert(){
   if(!modalUid||!db){showFeedback('alert-feedback','Error: not ready.',false);return}
   var msg=document.getElementById('modal-alert-text').value.trim();
   if(!msg){showFeedback('alert-feedback','Please enter a message.',false);return}
+  var mins=parseInt(document.getElementById('modal-alert-mins').value)||0;
+  var secs=parseInt(document.getElementById('modal-alert-secs').value)||0;
+  var totalSecs=mins*60+secs;
+  if(totalSecs<1)totalSecs=5; // minimum 5 seconds
   var u=allUsers[modalUid]||{};
-  // Write alert to Firebase — user's listener will pick it up
   db.ref('alerts/'+modalUid).set({
     msg:msg,
     from:currentUsername,
-    ts:Date.now()
+    ts:Date.now(),
+    lockSecs:totalSecs
   }).then(function(){
     showFeedback('alert-feedback','Alert sent to '+(u.username||'user')+'!',true);
     document.getElementById('modal-alert-text').value='';
@@ -1796,28 +1808,34 @@ function sendAdminAlert(){
 
 function subscribeAlerts(uid){
   if(!db||!uid)return;
+  var lastAlertTs=0;
   db.ref('alerts/'+uid).on('value',function(snap){
     var data=snap.val();
-    if(!data||!data.msg)return;
-    // Show the alert overlay then delete it from Firebase
-    showAdminAlert(data.msg,data.from||'Admin');
-    db.ref('alerts/'+uid).remove();
+    if(!data||!data.msg||!data.ts)return;
+    // Ignore old alerts (already seen or stale)
+    if(data.ts<=lastAlertTs)return;
+    lastAlertTs=data.ts;
+    showAdminAlert(data.msg,data.from||'Admin',data.lockSecs||5);
+    // Remove after a short delay to let other tabs/devices also receive it
+    setTimeout(function(){db.ref('alerts/'+uid).remove();},1500);
   });
 }
 
-function showAdminAlert(msg,from){
+function showAdminAlert(msg,from,lockSecs){
   var overlay=document.getElementById('admin-alert-overlay');
   var msgEl=document.getElementById('admin-alert-msg');
   var fromEl=document.getElementById('admin-alert-from');
   var btn=document.getElementById('admin-alert-dismiss');
   var countdown=document.getElementById('admin-alert-countdown');
   if(!overlay||!msgEl||!btn||!countdown)return;
+  lockSecs=lockSecs||5;
   msgEl.textContent=msg;
   fromEl.textContent='Message from '+from;
   btn.classList.remove('ready');
-  countdown.textContent='Wait 5s';
   overlay.classList.add('show');
-  var secs=5;
+  var secs=lockSecs;
+  function fmtSecs(s){if(s>=60)return Math.floor(s/60)+'m '+pad(s%60)+'s';return s+'s';}
+  countdown.textContent='Wait '+fmtSecs(secs);
   if(adminAlertCountdownInt)clearInterval(adminAlertCountdownInt);
   adminAlertCountdownInt=setInterval(function(){
     secs--;
@@ -1827,7 +1845,7 @@ function showAdminAlert(msg,from){
       btn.classList.add('ready');
       countdown.textContent='Dismiss';
     }else{
-      countdown.textContent='Wait '+secs+'s';
+      countdown.textContent='Wait '+fmtSecs(secs);
     }
   },1000);
 }
