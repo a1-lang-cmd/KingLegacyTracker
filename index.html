@@ -819,6 +819,7 @@ function onAuthStateChanged(user){
   });
 }
 
+var _loginDone=false;
 function finishLogin(user,userData){
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
@@ -840,12 +841,14 @@ function finishLogin(user,userData){
   currentUserData=userData;
   updateRestrictionUI();
   showApp();
-  subscribePublic();
-  if(isAdmin)loadAllUsers();
-  subscribeAlerts(user.uid);
-  // Live-subscribe to own user record so mute/restrict takes effect immediately
-  if(currentUser&&db){
-    db.ref('users/'+currentUser.uid).on('value',function(snap){
+  // Only set up Firebase subscriptions once — prevent duplicate listeners on token refresh
+  if(!_loginDone){
+    _loginDone=true;
+    subscribePublic();
+    if(isAdmin)loadAllUsers();
+    subscribeAlerts(user.uid);
+    // Live-subscribe to own user record for mute/restrict/rank changes
+    db.ref('users/'+user.uid).on('value',function(snap){
       currentUserData=snap.val()||{};
       updateRestrictionUI();
     });
@@ -946,7 +949,7 @@ function signInWithGoogle(){
 function signOutUser(){
   if(auth)auth.signOut();
   privateEntries=[];
-  currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';currentUserData=null;
+  currentUsername='';isAdmin=false;isOwner=false;currentUserRank='normal';currentUserData=null;_loginDone=false;
   hideVerifyWall();
   document.getElementById('app').classList.remove('show');
 }
