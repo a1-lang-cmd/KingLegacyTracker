@@ -1826,35 +1826,49 @@ function sendAdminAlert(){
 
 function subscribeAlerts(uid){
   if(!db||!uid)return;
-  var lastAlertTs=0;
   db.ref('alerts/'+uid).on('value',function(snap){
     var data=snap.val();
     if(!data||!data.msg||!data.ts)return;
-    // Ignore old alerts (already seen or stale)
-    if(data.ts<=lastAlertTs)return;
-    lastAlertTs=data.ts;
-    showAdminAlert(data.msg,data.from||'Admin',data.lockSecs||5);
-    // Remove after a short delay to let other tabs/devices also receive it
-    setTimeout(function(){db.ref('alerts/'+uid).remove();},1500);
+    // Already dismissed — ignore
+    if(data.dismissed)return;
+    var now=Date.now();
+    var elapsed=Math.floor((now-data.ts)/1000);
+    var lockSecs=data.lockSecs||5;
+    // If the full lock time has already passed since the alert was sent, skip it
+    if(elapsed>=lockSecs&&data.dismissed===undefined){
+      // Still show it but immediately dismissable
+      showAdminAlert(data.msg,data.from||'Admin',0,uid);
+      return;
+    }
+    // Calculate remaining lock time accounting for time already elapsed
+    var remaining=Math.max(0,lockSecs-elapsed);
+    showAdminAlert(data.msg,data.from||'Admin',remaining,uid);
   });
 }
 
-function showAdminAlert(msg,from,lockSecs){
+function showAdminAlert(msg,from,lockSecs,uid){
   var overlay=document.getElementById('admin-alert-overlay');
   var msgEl=document.getElementById('admin-alert-msg');
   var fromEl=document.getElementById('admin-alert-from');
   var btn=document.getElementById('admin-alert-dismiss');
   var countdown=document.getElementById('admin-alert-countdown');
   if(!overlay||!msgEl||!btn||!countdown)return;
-  lockSecs=lockSecs||5;
+  // Store uid so dismissAdminAlert can mark it done in Firebase
+  overlay.dataset.alertUid=uid||'';
+  lockSecs=lockSecs||0;
   msgEl.textContent=msg;
   fromEl.textContent='Message from '+from;
   btn.classList.remove('ready');
   overlay.classList.add('show');
-  var secs=lockSecs;
-  function fmtSecs(s){if(s>=60)return Math.floor(s/60)+'m '+pad(s%60)+'s';return s+'s';}
-  countdown.textContent='Wait '+fmtSecs(secs);
   if(adminAlertCountdownInt)clearInterval(adminAlertCountdownInt);
+  function fmtSecs(s){if(s>=60)return Math.floor(s/60)+'m '+pad(s%60)+'s';return s+'s';}
+  if(lockSecs<=0){
+    btn.classList.add('ready');
+    countdown.textContent='Dismiss';
+    return;
+  }
+  var secs=lockSecs;
+  countdown.textContent='Wait '+fmtSecs(secs);
   adminAlertCountdownInt=setInterval(function(){
     secs--;
     if(secs<=0){
@@ -1872,7 +1886,16 @@ function dismissAdminAlert(){
   var btn=document.getElementById('admin-alert-dismiss');
   if(!btn||!btn.classList.contains('ready'))return;
   if(adminAlertCountdownInt){clearInterval(adminAlertCountdownInt);adminAlertCountdownInt=null;}
-  document.getElementById('admin-alert-overlay').classList.remove('show');
+  var overlay=document.getElementById('admin-alert-overlay');
+  overlay.classList.remove('show');
+  // Mark as dismissed in Firebase so it doesn't re-show on refresh
+  var alertUid=overlay.dataset.alertUid;
+  if(alertUid&&db){
+    db.ref('alerts/'+alertUid+'/dismissed').set(true).then(function(){
+      // Clean up fully after marking dismissed
+      setTimeout(function(){db.ref('alerts/'+alertUid).remove();},500);
+    }).catch(function(){});
+  }
 }
 
 function showAlarm(entry){
