@@ -410,6 +410,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .type-btn.abyssal.active{border-color:var(--abyssal-boss);color:var(--green);background:rgba(52,211,153,.1)}
 .type-btn.kraken.active{border-color:var(--kraken-boss);color:var(--blue);background:rgba(96,165,250,.1)}
 .type-btn.drakenfyr.active{border-color:var(--drake-boss);color:var(--rose);background:rgba(248,113,113,.1)}
+.type-btn.setsail.active{border-color:#94a3b8;color:#cbd5e1;background:rgba(148,163,184,.1)}
+.card.setsail::before{background:linear-gradient(180deg,#94a3b8,#475569)}
+.card.setsail .boss-type{color:#94a3b8}
+.section-label.setsail h3{color:#94a3b8}
 
 /* Visibility button active states */
 .vis-btn.private.active{border-color:var(--green);color:var(--green);background:rgba(52,211,153,.08)}
@@ -1840,6 +1844,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <button class="type-btn abyssal" onclick="selectType('abyssal')">&#129422; Abyssal</button>
       <button class="type-btn kraken" onclick="selectType('kraken')">&#129065; Kraken</button>
       <button class="type-btn drakenfyr" onclick="selectType('drakenfyr')">&#128293; Drakenfyr</button>
+      <button class="type-btn setsail" onclick="selectType('setsail')">&#9973; Set Sail</button>
     </div>
     <div class="sheet-section-label">Visibility</div>
     <div class="vis-toggle" style="margin-bottom:10px">
@@ -2216,7 +2221,8 @@ var BOSS_TYPES={
   crab:     {label:'Crab',          icon:'&#129408;',maxMins:240,color:'#fb923c'},
   abyssal:  {label:'Abyssal Tyrant',icon:'&#129422;',maxMins:240,color:'#34d399'},
   kraken:   {label:'Kraken',        icon:'&#129065;',maxMins:240,color:'#60a5fa'},
-  drakenfyr:{label:'Drakenfyr',     icon:'&#128293;',maxMins:240,color:'#f87171'}
+  drakenfyr:{label:'Drakenfyr',     icon:'&#128293;',maxMins:240,color:'#f87171'},
+  setsail:  {label:'Set Sail',      icon:'&#9973;',  maxMins:60, color:'#94a3b8'}
 };
 
 var selectedType='sea',selectedVis='private';
@@ -3217,7 +3223,7 @@ function sortEntries(arr, mode){
 
 function renderFlat(container, arr, source, emptyMsg, sortMode){
   if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
-  var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr'];
+  var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr','setsail'];
   var groups={};
   TYPE_ORDER.forEach(function(t){groups[t]=[]});
   arr.forEach(function(e){if(groups[e.type])groups[e.type].push(e);else{if(!groups['__other'])groups['__other']=[];groups['__other'].push(e);}});
