@@ -21,6 +21,16 @@
     "painhubbb109@gmail.com"
   ];
   const BAD_WORDS = ["fuck","shit","ass","bitch","cock","dick","pussy","nigger","nigga","cunt","fag","slut","whore","retard","rape","kill","kys","nazi"];
+
+  // ─── Discord OAuth2 Config ───────────────────────────────────────────────
+  // 1. Go to https://discord.com/developers/applications
+  // 2. Create an app → OAuth2 → add redirect: https://YOUR-SITE-URL (exact page URL)
+  // 3. Copy your Client ID below. The client secret NEVER goes here.
+  // 4. Discord OAuth2 uses the implicit flow for static sites (no backend needed).
+  //    We request the `identify` scope to get the user's id, username, and avatar.
+  const DISCORD_CLIENT_ID = 'YOUR_DISCORD_CLIENT_ID'; // ← paste your Client ID here
+  // This must exactly match one of the redirect URIs in your Discord app settings:
+  const DISCORD_REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
 </script>
 <style>
 /* ════════════════════════════════════
@@ -211,11 +221,11 @@ body::after {
 .auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-dim);font-size:.72rem;font-weight:500}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
-.google-btn,.apple-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;padding:10px;cursor:pointer;transition:all .2s}
+.google-btn,.discord-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;padding:10px;cursor:pointer;transition:all .2s}
 .google-btn{background:var(--glass);border:1px solid var(--border);color:var(--text)}
 .google-btn:hover{border-color:var(--sea);color:var(--sea-glow);background:var(--sea-dim)}
-.apple-btn{background:#fff;border:1px solid rgba(0,0,0,.1);color:#000;margin-top:8px}
-.apple-btn:hover{background:#f0f0f0}
+.discord-btn{background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.4);color:#c3c9ff;margin-top:8px}
+.discord-btn:hover{background:rgba(88,101,242,.28);border-color:rgba(88,101,242,.7);color:#fff}
 
 .auth-error{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius-xs);color:var(--rose);font-size:.82rem;padding:9px 13px;margin-bottom:12px;display:none;text-align:left}
 .auth-error.show{display:block}
@@ -1561,9 +1571,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Continue with Google
     </button>
-    <button class="apple-btn" onclick="signInWithApple()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-      Continue with Apple
+    <button class="discord-btn" onclick="signInWithDiscord()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      Continue with Discord
     </button>
   </div>
 </div>
@@ -2298,8 +2308,9 @@ function onAuthStateChanged(user){
     return;
   }
   var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
-  var isApple=user.providerData&&user.providerData.some(function(p){return p.providerId==='apple.com'});
-  if(!isGoogle&&!isApple&&!user.emailVerified){
+  var isDiscord=user.providerData&&user.providerData.some(function(p){return p.providerId==='oidc.discord'});
+  // Email/password users must verify. OAuth users (Google, Discord) skip verification.
+  if(!isGoogle&&!isDiscord&&!user.emailVerified){
     showVerifyWall(user.email);
     return;
   }
@@ -2318,7 +2329,12 @@ function onAuthStateChanged(user){
 }
 
 var _loginDone=false;
-function finishLogin(user,userData){
+// overrideUid: used by Discord login where anonymous Firebase UID differs from
+// the stored persistent user UID. All DB writes use overrideUid when present.
+function finishLogin(user,userData,overrideUid){
+  var effectiveUid=overrideUid||user.uid;
+  // Patch user object so rest of code uses the right UID
+  if(overrideUid&&!user._discordLinkedUid)user._discordLinkedUid=overrideUid;
   document.getElementById('auth-wall').classList.add('hidden');
   document.getElementById('username-wall').classList.add('hidden');
   hideVerifyWall();
@@ -2328,11 +2344,19 @@ function finishLogin(user,userData){
     showAuthError('Your account has been banned. Contact an admin if you believe this is a mistake.');
     return;
   }
-  isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1;
+  isAdmin=ADMIN_EMAILS.indexOf(user.email)!==-1||ADMIN_EMAILS.indexOf(userData.email||'')!==-1;
   currentUserRank=userData.rank||'normal';
   isOwner=currentUserRank==='owner';
+  // Set Discord avatar if available
+  var avatarUrl=userData.discordAvatar||null;
+  if(avatarUrl){
+    var uav=document.getElementById('user-avatar');
+    if(uav){uav.src=avatarUrl;uav.style.display='block';}
+  } else if(user.photoURL){
+    var uav=document.getElementById('user-avatar');
+    if(uav)uav.src=user.photoURL;
+  }
   var und=document.getElementById('user-name-display');if(und)und.textContent=currentUsername;
-  var uav=document.getElementById('user-avatar');if(uav&&user.photoURL)uav.src=user.photoURL;
   var ab=document.getElementById('admin-badge');if(ab)ab.style.display=isAdmin?'inline-block':'none';
   var ta=document.getElementById('tab-admin');if(ta)ta.style.display=isAdmin?'flex':'none';
   updateSidebarProfile();
@@ -2343,12 +2367,15 @@ function finishLogin(user,userData){
     _loginDone=true;
     subscribePublic();
     if(isAdmin)loadAllUsers();
-    subscribeAlerts(user.uid);
-    initPresenceAndChat(user);
-    initFriends(user);
-    db.ref('users/'+user.uid).on('value',function(snap){
+    subscribeAlerts(effectiveUid);
+    initPresenceAndChat(user,effectiveUid);
+    initFriends(user,effectiveUid);
+    db.ref('users/'+effectiveUid).on('value',function(snap){
       currentUserData=snap.val()||{};
+      currentUserRank=currentUserData.rank||'normal';
+      isOwner=currentUserRank==='owner';
       updateRestrictionUI();
+      updateSidebarProfile();
     });
   }
 }
@@ -2440,13 +2467,176 @@ function signInWithGoogle(){
   auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
 }
 
-function signInWithApple(){
-  if(!fbReady){showAuthError('Firebase not configured.');return}
-  var provider=new firebase.auth.OAuthProvider('apple.com');
-  provider.addScope('email');
-  provider.addScope('name');
-  auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
+// ─── Discord OAuth2 ──────────────────────────────────────────────────────────
+// Flow: implicit grant (no backend needed for static sites)
+//   1. signInWithDiscord()  → redirects user to Discord's authorize page
+//   2. Discord redirects back with #access_token=... in the URL fragment
+//   3. handleDiscordCallback() runs on page load, detects the fragment,
+//      fetches the user's Discord profile, then links it to their Firebase
+//      account (or creates a new anonymous Firebase session linked to Discord)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function signInWithDiscord(){
+  if(DISCORD_CLIENT_ID==='YOUR_DISCORD_CLIENT_ID'){
+    showAuthError('Discord login not configured. Set DISCORD_CLIENT_ID in the config block at the top of this file.');
+    return;
+  }
+  // Build OAuth2 URL using implicit grant (response_type=token)
+  // Scopes: identify = user id + username + avatar. No email needed.
+  var params=new URLSearchParams({
+    client_id:     DISCORD_CLIENT_ID,
+    redirect_uri:  DISCORD_REDIRECT_URI,
+    response_type: 'token',
+    scope:         'identify',
+    // state prevents CSRF — we'll verify it on return
+    state:         _discordState
+  });
+  window.location.href='https://discord.com/api/oauth2/authorize?'+params.toString();
 }
+
+// Random state value for CSRF protection — generated once per session
+var _discordState=(function(){
+  var s=sessionStorage.getItem('_ds');
+  if(!s){s=Math.random().toString(36).slice(2);sessionStorage.setItem('_ds',s);}
+  return s;
+})();
+
+// Called on page load — detects Discord redirect callback in URL fragment
+function handleDiscordCallback(){
+  var hash=window.location.hash;
+  if(!hash||hash.indexOf('access_token')===-1)return;
+  // Parse the fragment as query params
+  var params=new URLSearchParams(hash.slice(1)); // strip leading #
+  var token=params.get('access_token');
+  var state=params.get('state');
+  var tokenType=params.get('token_type');
+  // Clean the URL immediately so the token isn't bookmarked or shared
+  window.history.replaceState(null,'',window.location.pathname+window.location.search);
+  if(!token){return;}
+  // Verify CSRF state
+  if(state&&state!==_discordState){
+    console.error('[Discord] State mismatch — possible CSRF attack, aborting.');
+    return;
+  }
+  // Show a loading indicator while we fetch the Discord profile
+  var authWall=document.getElementById('auth-wall');
+  if(authWall){
+    authWall.classList.remove('hidden');
+    var loadMsg=authWall.querySelector('.sub');
+    if(loadMsg)loadMsg.textContent='Signing you in with Discord…';
+  }
+  // Fetch user profile from Discord API
+  fetch('https://discord.com/api/users/@me',{
+    headers:{'Authorization':tokenType+' '+token}
+  })
+  .then(function(r){
+    if(!r.ok)throw new Error('Discord API error '+r.status);
+    return r.json();
+  })
+  .then(function(discordUser){
+    // discordUser: { id, username, discriminator, global_name, avatar, ... }
+    var discordId   = discordUser.id;
+    var discordName = discordUser.global_name||discordUser.username;
+    var avatarHash  = discordUser.avatar;
+    var avatarUrl   = avatarHash
+      ? 'https://cdn.discordapp.com/avatars/'+discordId+'/'+avatarHash+'.png?size=128'
+      : 'https://cdn.discordapp.com/embed/avatars/'+(parseInt(discordId)%5)+'.png';
+    // Store token briefly so we can use it until Firebase session starts
+    sessionStorage.setItem('_dtoken',token);
+    // Wait for Firebase to be ready, then link/create the account
+    _pendingDiscordUser={id:discordId,name:discordName,avatar:avatarUrl,token:token};
+    if(fbReady&&db&&auth){
+      _processDiscordLogin(_pendingDiscordUser);
+    }
+    // else: initFirebase will call _processDiscordLogin once ready
+  })
+  .catch(function(e){
+    console.error('[Discord] profile fetch failed:',e);
+    if(authWall){
+      var loadMsg=authWall.querySelector('.sub');
+      if(loadMsg)loadMsg.textContent='Spawn Tracker — Sign in to continue';
+    }
+    showAuthError('Discord sign-in failed: '+e.message);
+  });
+}
+
+var _pendingDiscordUser=null;
+
+// Links a Discord identity to a Firebase account.
+// Strategy:
+//   1. Check /discordIndex/{discordId} → existing Firebase UID for this Discord account
+//   2. If found: sign in anonymously then load that user's data (session token approach)
+//      Actually: we use Firebase Anonymous auth + custom data, because Discord is not
+//      a Firebase-native provider. The Firebase UID is the source of truth; Discord is
+//      stored as profile metadata.
+//   3. If not found: sign in anonymously, create a new user record linked to this Discord ID
+//   NOTE: On a static site without Cloud Functions we cannot mint custom tokens.
+//         We use anonymous auth as the Firebase session carrier. The user's identity
+//         is their Discord ID stored in the DB. This is the correct pattern for
+//         static-site Discord OAuth without a backend.
+function _processDiscordLogin(dUser){
+  if(!fbReady||!db||!auth){return;}
+  _pendingDiscordUser=null;
+  // Restore auth wall sub text
+  var authWall=document.getElementById('auth-wall');
+  if(authWall){var s=authWall.querySelector('.sub');if(s)s.textContent='Spawn Tracker — Sign in to continue';}
+
+  // Look up existing account by Discord ID
+  db.ref('discordIndex/'+dUser.id).once('value',function(snap){
+    var existingUid=snap.val();
+    if(existingUid){
+      // Discord account already linked — sign in anonymously then load their data
+      auth.signInAnonymously().then(function(cred){
+        var anonUid=cred.user.uid;
+        // If the anon UID differs from stored UID, migrate: use stored UID's data
+        // by re-pointing the anon session to the existing user record
+        db.ref('users/'+existingUid).once('value',function(usnap){
+          var userData=usnap.val();
+          if(!userData){
+            // Stale index — treat as new
+            _createDiscordUser(cred.user,dUser);
+            return;
+          }
+          currentUsername=userData.username;
+          // Update avatar + discord name in case they changed
+          db.ref('users/'+existingUid).update({
+            discordAvatar: dUser.avatar,
+            discordName:   dUser.name,
+            lastLogin:     Date.now()
+          });
+          // Override currentUser uid to the persistent one
+          cred.user._discordLinkedUid=existingUid;
+          finishLogin(cred.user,userData,existingUid);
+        });
+      }).catch(function(e){showAuthError('Sign-in failed: '+e.message);});
+    } else {
+      // New Discord user — create Firebase anon session + user record
+      auth.signInAnonymously().then(function(cred){
+        _createDiscordUser(cred.user,dUser);
+      }).catch(function(e){showAuthError('Sign-in failed: '+e.message);});
+    }
+  });
+}
+
+function _createDiscordUser(firebaseUser,dUser){
+  // New account — needs username setup
+  // Save Discord profile to a temp node, then show username wall
+  var uid=firebaseUser.uid;
+  sessionStorage.setItem('_dpending',JSON.stringify({uid:uid,discord:dUser}));
+  // Pre-fill suggested username from Discord name (sanitized)
+  var suggested=(dUser.name||'').replace(/[^a-zA-Z0-9]/g,'').slice(0,10);
+  document.getElementById('auth-wall').classList.add('hidden');
+  document.getElementById('username-wall').classList.remove('hidden');
+  var inp=document.getElementById('uname-input');
+  if(inp&&suggested)inp.value=suggested;
+  // Flag that this username save should also write Discord data
+  _pendingDiscordNewUser={uid:uid,discord:dUser,firebaseUser:firebaseUser};
+}
+
+var _pendingDiscordNewUser=null;
+
+// Patch saveUsername to handle Discord new-user flow
+var _origSaveUsername=null; // will be set after function declaration
 
 function signOutUser(){
   if(auth)auth.signOut();
@@ -2497,6 +2687,32 @@ function saveUsername(){
   errEl.classList.remove('show');
   db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
     if(snap.exists()){errEl.textContent='That username is already taken.';errEl.classList.add('show');return}
+    // Discord new-user flow
+    if(_pendingDiscordNewUser){
+      var pdn=_pendingDiscordNewUser;
+      _pendingDiscordNewUser=null;
+      var uid=pdn.uid;
+      var record={
+        username:      username,
+        email:         '',
+        uid:           uid,
+        joinedAt:      Date.now(),
+        discordId:     pdn.discord.id,
+        discordName:   pdn.discord.name,
+        discordAvatar: pdn.discord.avatar,
+        provider:      'discord'
+      };
+      db.ref('users/'+uid).set(record).then(function(){
+        return db.ref('usernames/'+username.toLowerCase()).set(uid);
+      }).then(function(){
+        return db.ref('discordIndex/'+pdn.discord.id).set(uid);
+      }).then(function(){
+        currentUsername=username;
+        finishLogin(pdn.firebaseUser,record,uid);
+      }).catch(function(e){errEl.textContent='Error: '+e.message;errEl.classList.add('show');});
+      return;
+    }
+    // Normal email/Google flow
     saveUserRecord(currentUser,username).then(function(){
       currentUsername=username;
       db.ref('users/'+currentUser.uid).once('value',function(snap){
@@ -3634,10 +3850,10 @@ var STALE_THRESHOLD=90000;
 // Module-level presence map — uid -> {username,rank,uid,online,lastSeen}
 var _localPresence={};
 
-function initPresenceAndChat(user){
+function initPresenceAndChat(user,effectiveUid){
   if(!db||!user)return;
-
-  presenceRef=db.ref('presence/'+user.uid);
+  effectiveUid=effectiveUid||user.uid;
+  presenceRef=db.ref('presence/'+effectiveUid);
 
   // ── Build presence payload ────────────────────────────────────────────
   function presencePayload(){
@@ -3753,7 +3969,7 @@ function initPresenceAndChat(user){
   subscribeGlobalChat();
 
   // ── DM notifications ──────────────────────────────────────────────────
-  db.ref('dmnotify/'+user.uid).on('child_added',function(snap){
+  db.ref('dmnotify/'+effectiveUid).on('child_added',function(snap){
     var fromUid=snap.key;
     if(!snap.val())return;
     if(_dmUid!==fromUid){
