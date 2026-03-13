@@ -52,6 +52,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .auth-field input:focus{border-color:var(--sea);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
 .auth-field input::placeholder{color:var(--text-dim)}
 .auth-hint{font-size:.72rem;color:var(--text-dim);margin-top:3px}
+.privacy-notice{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start}
+.privacy-notice .pn-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.privacy-notice .pn-text{font-size:.72rem;color:var(--text-dim);line-height:1.5}
+.privacy-notice .pn-text b{color:rgba(245,158,11,.9);font-size:.73rem}
 .auth-submit{width:100%;background:linear-gradient(135deg,#0369a1,var(--sea));border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.1em;padding:11px;cursor:pointer;text-transform:uppercase;transition:all .2s;margin-top:4px}
 .auth-submit:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,165,233,.35)}
 .auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-dim);font-size:.75rem}
@@ -325,6 +329,15 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.82rem;letter-spacing:.1
     </div>
     <!-- SIGNUP FORM -->
     <div id="signup-form" style="display:none">
+      <div class="privacy-notice">
+        <div class="pn-icon">&#9888;&#65039;</div>
+        <div class="pn-text">
+          <b>Privacy reminder</b><br>
+          Use a <b>made-up username</b> — do not use your real name.<br>
+          Use a <b>made-up password</b> — do not reuse one from another account.<br>
+          Your <b>email</b> is the only real info needed and is kept private.
+        </div>
+      </div>
       <div class="auth-field">
         <label>Username</label>
         <input type="text" id="su-username" placeholder="CoolPlayer99" maxlength="10" />
