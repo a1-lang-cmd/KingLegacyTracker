@@ -2754,8 +2754,33 @@ function friendlyAuthError(code){
 function subscribePublic(){
   if(!db)return;
   db.ref('timers').on('value',function(snap){
-    publicEntries=[];
-    snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;publicEntries.push(v)});
+    var raw=[];
+    snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;raw.push(v)});
+
+    // Deduplicate: for each server+type combo keep only the entry with the soonest spawnAt.
+    // Stale duplicates are also removed from Firebase automatically.
+    var seen={};
+    var toDelete=[];
+    raw.forEach(function(e){
+      var key=(e.server||'')+'|'+(e.type||'');
+      if(!seen[key]){
+        seen[key]=e;
+      } else {
+        // Keep whichever spawns sooner; queue the other for deletion
+        if(e.spawnAt < seen[key].spawnAt){
+          toDelete.push(seen[key].firebaseKey);
+          seen[key]=e;
+        } else {
+          toDelete.push(e.firebaseKey);
+        }
+      }
+    });
+    // Remove duplicates from Firebase
+    toDelete.forEach(function(fk){
+      if(fk)db.ref('timers/'+fk).remove().catch(function(){});
+    });
+
+    publicEntries=Object.values(seen);
     renderPublicCards();updateBadges();
   });
 }
@@ -2940,6 +2965,11 @@ function addEntryFromSheet(){
   var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername,createdAt:Date.now()};
   if(selectedVis==='public'){
     if(!fbReady){if(fb)showSheetFeedback(fb,'Firebase not connected. Use Private.',true);return}
+    // Duplicate check: block if a live entry for this server+type already exists
+    var isDup=publicEntries.some(function(e){
+      return (e.server||'')=== server && (e.type||'')=== selectedType && e.spawnAt > Date.now();
+    });
+    if(isDup){if(fb)showSheetFeedback(fb,'Already tracked: server '+server+' ('+BOSS_TYPES[selectedType].label+')!',true);return}
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
@@ -3010,6 +3040,12 @@ function addEntry(){
   var entry={id:Date.now(),type:selectedType,visibility:selectedVis,server:server,spawnAt:Date.now()+(mins*60+secs)*1000,alerted:false,username:currentUsername,createdAt:Date.now()};
   if(selectedVis==='public'){
     if(!fbReady){alert('Firebase not configured. Choose Private instead.');return}
+    // Duplicate check: block if a live entry for this server+type already exists
+    var dupKey=server+'|'+selectedType;
+    var isDup=publicEntries.some(function(e){
+      return (e.server||'')=== server && (e.type||'')=== selectedType && e.spawnAt > Date.now();
+    });
+    if(isDup){alert('A public timer for server '+server+' ('+BOSS_TYPES[selectedType].label+') already exists!');return}
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
