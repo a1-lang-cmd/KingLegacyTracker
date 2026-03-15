@@ -1421,6 +1421,15 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 @media(max-width:600px) {
   .page-tabs { display: none !important; }
   .floating-dock { bottom: 18px; }
+  .floating-dock {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .dock-btn {
+    padding: 7px 10px;
+    min-width: 52px;
+  }
+  .dock-btn .dock-label { font-size: .52rem; }
 }
 /* On desktop show tabs, hide dock */
 @media(min-width:601px) {
@@ -1812,8 +1821,13 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 ══════════════════════════════════════ -->
 <div class="floating-dock" id="floating-dock">
   <button class="dock-btn timers-dock active-tab" onclick="dockGoTimers()" id="dock-timers">
-    <span class="dock-icon">&#9200;</span>
-    <span class="dock-label">Timers</span>
+    <span class="dock-icon">&#128274;</span>
+    <span class="dock-label">Mine</span>
+  </button>
+  <button class="dock-btn public-dock" onclick="dockGoPublic()" id="dock-public">
+    <span class="dock-badge" id="dock-badge-public"></span>
+    <span class="dock-icon">&#127758;</span>
+    <span class="dock-label">Public</span>
   </button>
   <button class="dock-fab" id="dock-fab" onclick="toggleAddSheet()">&#43;</button>
   <button class="dock-btn friends-dock" onclick="openFriendsModal()" id="dock-friends">
@@ -2851,7 +2865,9 @@ function switchPage(p){
   // Mobile dock active states
   var dockTimers=document.getElementById('dock-timers');
   var dockChat=document.getElementById('dock-chat');
-  if(dockTimers)dockTimers.classList.toggle('active-tab',p==='my'||p==='public');
+  if(dockTimers)dockTimers.classList.toggle('active-tab',p==='my');
+  var dockPublic=document.getElementById('dock-public');
+  if(dockPublic)dockPublic.classList.toggle('active-tab',p==='public');
   if(dockChat)dockChat.classList.toggle('active-tab',p==='chat');
   if(p==='chat'){
     scrollChatToBottom();
@@ -2951,6 +2967,11 @@ function dockGoTimers(){
   switchPage('my');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+function dockGoPublic(){
+  closeAddSheet(); closeProfileSheet();
+  switchPage('public');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function syncSheetTimers(){
   var container=document.getElementById('sheet-my-cards');
   if(!container)return;
@@ -3016,6 +3037,9 @@ document.addEventListener('DOMContentLoaded',function(){
     var chatBadge=document.getElementById('badge-chat');
     var dockBadge=document.getElementById('dock-badge-chat');
     if(chatBadge&&dockBadge)dockBadge.textContent=chatBadge.textContent;
+    var pubBadge=document.getElementById('badge-public');
+    var dockPubBadge=document.getElementById('dock-badge-public');
+    if(pubBadge&&dockPubBadge)dockPubBadge.textContent=pubBadge.textContent;
   };
 });
 
@@ -4359,7 +4383,7 @@ function tick(){
         if(el.textContent!=='SPAWNED'){
           el.textContent='SPAWNED';el.className='time-display done-text';
           var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
-          if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
+          if(!e.alerted){e.alerted=true;if(src==='private')save();alarmQueue.push(e)}
         }
       }else{
         var txt=fmtCountdown(ms);
