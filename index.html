@@ -79,6 +79,9 @@
   --abyssal-boss:#34d399;
   --kraken-boss: #60a5fa;
   --drake-boss:  #f87171;
+  --crusher-boss:#facc15;
+  --serpent-boss:#4ade80;
+  --ptero-boss:  #e879f9;
 
   --radius:    16px;
   --radius-sm: 10px;
@@ -410,6 +413,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .type-btn.abyssal.active{border-color:var(--abyssal-boss);color:var(--green);background:rgba(52,211,153,.1)}
 .type-btn.kraken.active{border-color:var(--kraken-boss);color:var(--blue);background:rgba(96,165,250,.1)}
 .type-btn.drakenfyr.active{border-color:var(--drake-boss);color:var(--rose);background:rgba(248,113,113,.1)}
+.type-btn.crusher.active{border-color:var(--crusher-boss);color:#fde047;background:rgba(250,204,21,.1)}
+.type-btn.serpent.active{border-color:var(--serpent-boss);color:#86efac;background:rgba(74,222,128,.1)}
+.type-btn.ptero.active{border-color:var(--ptero-boss);color:#f0abfc;background:rgba(232,121,249,.1)}
 .type-btn.setsail.active{border-color:#94a3b8;color:#cbd5e1;background:rgba(148,163,184,.1)}
 .card.setsail::before{background:linear-gradient(180deg,#94a3b8,#475569)}
 .card.setsail .boss-type{color:#94a3b8}
@@ -472,6 +478,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .section-label.sea h3{color:var(--sea-glow)}.section-label.hydra h3{color:var(--hydra-glow)}
 .section-label.crab h3{color:var(--orange)}.section-label.abyssal h3{color:var(--green)}
 .section-label.kraken h3{color:var(--blue)}.section-label.drakenfyr h3{color:var(--rose)}
+.section-label.crusher h3{color:#facc15}.section-label.serpent h3{color:#4ade80}.section-label.ptero h3{color:#e879f9}
 .count{background:rgba(255,255,255,.07);border-radius:100px;padding:1px 8px;font-size:.68rem;font-weight:700;color:var(--text-dim)}
 
 .cards-grid{display:grid;gap:9px;margin-bottom:22px}
@@ -511,6 +518,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .card.abyssal::before{background:linear-gradient(180deg,var(--green),#065f46)}
 .card.kraken::before{background:linear-gradient(180deg,var(--blue),#1e3a8a)}
 .card.drakenfyr::before{background:linear-gradient(180deg,var(--rose),#9f1239)}
+.card.crusher::before{background:linear-gradient(180deg,#facc15,#854d0e)}
+.card.serpent::before{background:linear-gradient(180deg,#4ade80,#14532d)}
+.card.ptero::before{background:linear-gradient(180deg,#e879f9,#6b21a8)}
 
 .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);border-color:var(--border2)}
 .card.done{opacity:.38}
@@ -526,6 +536,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .card.sea .boss-type{color:var(--sea)}.card.hydra .boss-type{color:var(--hydra)}
 .card.crab .boss-type{color:var(--orange)}.card.abyssal .boss-type{color:var(--green)}
 .card.kraken .boss-type{color:var(--blue)}.card.drakenfyr .boss-type{color:var(--rose)}
+.card.crusher .boss-type{color:#facc15}.card.serpent .boss-type{color:#4ade80}.card.ptero .boss-type{color:#e879f9}
 
 .vis-badge{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:100px}
 .vis-badge.public{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25)}
@@ -2222,6 +2233,9 @@ var BOSS_TYPES={
   abyssal:  {label:'Abyssal Tyrant',icon:'&#129422;',maxMins:240,color:'#34d399'},
   kraken:   {label:'Kraken',        icon:'&#129065;',maxMins:240,color:'#60a5fa'},
   drakenfyr:{label:'Drakenfyr',     icon:'&#128293;',maxMins:240,color:'#f87171'},
+  crusher:  {label:'Deepsea Crusher',icon:'&#128165;',maxMins:240,color:'#facc15',noTimer:true},
+  serpent:  {label:'Serpent',       icon:'&#128027;',maxMins:30, color:'#4ade80',noTimer:true},
+  ptero:    {label:'Pteranodon',    icon:'&#129419;',maxMins:30, color:'#e879f9',noTimer:true},
   setsail:  {label:'Set Sail',      icon:'&#9973;',  maxMins:60, color:'#94a3b8'}
 };
 
@@ -3169,9 +3183,10 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function buildCard(e,source){
   var ms=e.spawnAt-Date.now(),done=ms<=0;
   var bi=BOSS_TYPES[e.type]||{label:e.type,icon:'&#9733;'};
+  var noTimer=!!(bi.noTimer);
   var delId=source==='private'?e.id:e.firebaseKey;
   var showDel=source==='private'||isAdmin;
-  var showEdit=source==='private'||(source==='public'&&isAdmin);
+  var showEdit=(source==='private'||(source==='public'&&isAdmin))&&!noTimer;
   var uname=e.username?('<span class="posted-by">&#128100; '+esc(e.username)+'</span>'):'';
   var eid='edit-'+source+'-'+e.id;
   var remMs=Math.max(0,e.spawnAt-Date.now());
@@ -3180,7 +3195,7 @@ function buildCard(e,source){
   var sid=String(source);
   var eid2=String(e.id);
   var sdid=String(delId);
-  var h='<div class="card '+e.type+(done?' done':'')+'" id="card-'+sid+'-'+eid2+'">';
+  var h='<div class="card '+e.type+(done&&!noTimer?' done':'')+'" id="card-'+sid+'-'+eid2+'">';
   h+='<div class="card-icon">'+bi.icon+'</div>';
   h+='<div class="card-info">';
   h+='<div class="card-top">';
@@ -3189,24 +3204,33 @@ function buildCard(e,source){
   h+=uname;
   h+='</div>';
   h+='<div class="server-code" id="sc-'+sid+'-'+eid2+'"><span>Server:</span> '+esc(e.server)+'</div>';
-  h+='<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>';
+  if(!noTimer){
+    h+='<div class="meta-line">&#9200; Spawns at '+fmtEST(e.spawnAt)+' EST</div>';
+  }
   h+='<div class="meta-line created-line" title="'+fmtCreatedFull(e.createdAt||e.id)+'">&#128337; Added '+fmtCreated(e.createdAt||e.id)+'</div>';
   h+='</div>';
   h+='<div class="card-timer">';
-  h+='<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+sid+'-'+eid2+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>';
-  h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
+  if(noTimer){
+    h+='<div class="time-display" style="font-size:1rem;color:'+bi.color+'">SPOTTED</div>';
+    h+='<div class="spawns-at-label">auto-detected</div>';
+  } else {
+    h+='<div class="time-display '+timerClass(ms)+'" id="tdisplay-'+sid+'-'+eid2+'">'+(done?'SPAWNED':(fmtCountdown(ms)||'SPAWNED'))+'</div>';
+    h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
+  }
   h+='</div>';
   h+='<button class="edit-btn'+(showEdit?'':' hidden')+'" data-eid="'+eid+'" onclick="toggleEditPanel(this.dataset.eid)" title="Edit">&#9998;</button>';
   h+='<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+sdid+'" data-source="'+sid+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>';
-  h+='<div class="card-edit-panel" id="'+eid+'">';
-  h+='<div class="edit-row">';
-  h+='<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+sid+'-'+eid2+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>';
-  h+='<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+sid+'-'+eid2+'" value="'+remMins+'" min="0" max="240"/></div>';
-  h+='<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+sid+'-'+eid2+'" value="'+remSecs+'" min="0" max="59"/></div>';
-  h+='<button class="edit-save-btn" data-src="'+sid+'" data-eid="'+eid2+'" data-did="'+sdid+'" onclick="saveCardEdit(this.dataset.src,this.dataset.eid,this.dataset.did)">&#10003; Save</button>';
-  h+='</div>';
-  h+='<div class="edit-feedback" id="ef-'+sid+'-'+eid2+'"></div>';
-  h+='</div>';
+  if(!noTimer){
+    h+='<div class="card-edit-panel" id="'+eid+'">';
+    h+='<div class="edit-row">';
+    h+='<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+sid+'-'+eid2+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>';
+    h+='<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+sid+'-'+eid2+'" value="'+remMins+'" min="0" max="240"/></div>';
+    h+='<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+sid+'-'+eid2+'" value="'+remSecs+'" min="0" max="59"/></div>';
+    h+='<button class="edit-save-btn" data-src="'+sid+'" data-eid="'+eid2+'" data-did="'+sdid+'" onclick="saveCardEdit(this.dataset.src,this.dataset.eid,this.dataset.did)">&#10003; Save</button>';
+    h+='</div>';
+    h+='<div class="edit-feedback" id="ef-'+sid+'-'+eid2+'"></div>';
+    h+='</div>';
+  }
   h+='</div>';
   return h;
 }
@@ -3259,7 +3283,7 @@ function sortEntries(arr, mode){
 
 function renderFlat(container, arr, source, emptyMsg, sortMode){
   if(!arr.length){container.innerHTML='<div class="no-results">'+esc(emptyMsg)+'</div>';return;}
-  var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr','setsail'];
+  var TYPE_ORDER=['sea','hydra','crab','abyssal','kraken','drakenfyr','crusher','serpent','ptero','setsail'];
   var groups={};
   TYPE_ORDER.forEach(function(t){groups[t]=[]});
   arr.forEach(function(e){if(groups[e.type])groups[e.type].push(e);else{if(!groups['__other'])groups['__other']=[];groups['__other'].push(e);}});
@@ -4314,6 +4338,8 @@ function tick(){
 
   function upd(arr,src){
     arr.forEach(function(e){
+      var bi=BOSS_TYPES[e.type]||{};
+      if(bi.noTimer) return; // no countdown or expiry for detection-only bosses
       var ms=e.spawnAt-now;
       if(ms<=-EXPIRE_AFTER){
         if(src==='private'){
