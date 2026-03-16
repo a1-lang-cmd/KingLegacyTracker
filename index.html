@@ -3496,7 +3496,7 @@ function buildCard(e,source){
     h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
   }
   h+='</div>';
-  var copyText=esc(e.server)+(e.type?' | '+esc((BOSS_TYPES[e.type]||{}).label||e.type):'');
+  var copyText=esc(e.server);
   h+='<button class="copy-srv-btn" data-copy="'+copyText+'" onclick="copySrvInfo(this)" title="Copy server info">&#128203;</button>';
   h+='<button class="edit-btn'+(showEdit?'':' hidden')+'" data-eid="'+eid+'" onclick="toggleEditPanel(this.dataset.eid)" title="Edit">&#9998;</button>';
   h+='<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+sdid+'" data-source="'+sid+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>';
