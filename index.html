@@ -1924,12 +1924,8 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 
         <!-- GENERATE SIGN-IN LINK -->
         <div class="linkgen-panel">
-          <div class="linkgen-panel-title">&#128279; Generate Sign-In Link</div>
-          <div class="linkgen-panel-sub">Generates a raw sign-in link you can copy and share anywhere — Discord, SMS, DM. Whoever clicks it gets signed in instantly. Choose how long it stays valid.</div>
-          <div>
-            <div class="email-field-label">Email address</div>
-            <input class="email-input" type="email" id="linkgen-email" placeholder="player@example.com" />
-          </div>
+          <div class="linkgen-panel-title">&#128279; Generate Invite Link</div>
+          <div class="linkgen-panel-sub">Creates a one-click link — no email needed. Anyone who clicks it lands straight on the tracker and gets prompted to pick a username. You control how long it stays valid.</div>
           <div class="email-field-label" style="margin-bottom:8px">Link valid for</div>
           <div class="expiry-picker">
             <button class="expiry-btn" onclick="selectExpiry(this, 15*60*1000)">15 min</button>
@@ -1940,23 +1936,17 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
             <button class="expiry-btn" onclick="selectExpiry(this, 24*60*60*1000)">24 hours</button>
           </div>
           <div class="email-send-row" style="margin-top:4px">
-            <span class="emailjs-credit">Powered by Firebase &middot; single use</span>
-            <button class="modal-btn save" onclick="generateSignInLink()">&#128279; Generate Link</button>
+            <span class="emailjs-credit">Stored in Firebase &middot; single use &middot; no email required</span>
+            <button class="modal-btn save" onclick="generateInviteToken()">&#128279; Generate Link</button>
           </div>
           <div class="modal-feedback" id="linkgen-feedback" style="margin-top:10px"></div>
-          <div id="linkgen-gcloud-note" style="display:none;margin-top:10px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.2);border-radius:9px;padding:12px 14px;font-size:.78rem;color:var(--gold);line-height:1.7">
-            &#9888;&#65039; <b>One-time setup needed:</b> The raw link API requires the <b>Identity Toolkit API</b> to be enabled in Google Cloud.<br>
-            1. Go to <a href="https://console.cloud.google.com/apis/library/identitytoolkit.googleapis.com" target="_blank" style="color:var(--sea)">Google Cloud Console → Identity Toolkit API</a><br>
-            2. Click <b>Enable</b> (it's free, takes 30 seconds)<br>
-            3. Come back and try generating again ✓
-          </div>
           <div class="linkgen-result" id="linkgen-result">
-            <div class="linkgen-result-label">&#10003; Your sign-in link — copy &amp; share anywhere</div>
+            <div class="linkgen-result-label">&#10003; Your invite link — copy &amp; share anywhere</div>
             <div class="linkgen-link-box">
               <div class="linkgen-link-text" id="linkgen-link-display"></div>
               <button class="linkgen-copy-btn" id="linkgen-copy-btn" onclick="copySignInLink()">&#128203; Copy</button>
             </div>
-            <div class="linkgen-expiry-notice">&#9201; Expires: <b id="linkgen-expiry-display">—</b> &middot; Single use &middot; &#129695; Embeds in Discord automatically</div>
+            <div class="linkgen-expiry-notice">&#9201; Expires: <b id="linkgen-expiry-display">—</b> &middot; Single use &middot; &#129695; Pastes as a link in Discord</div>
           </div>
         </div>
 
@@ -2489,6 +2479,7 @@ function initFirebase(){
           setFbStatus(true,'Public sync: connected');
           auth.onAuthStateChanged(onAuthStateChanged);
           handleEmailLinkSignIn();
+          handleInviteToken();
         }catch(e){
           setFbStatus(false,'Firebase error: '+e.message);
           showApp();
@@ -4886,9 +4877,12 @@ function handleEmailLinkSignIn() {
 }
 
 // ═══════════════════════════════════════════
-// GENERATE SIGN-IN LINK (admin)
+// INVITE TOKEN LINK GENERATOR (admin)
+// No email needed — generates a random token
+// stored in Firebase. Anyone with the link
+// gets auto signed-in anonymously on click.
 // ═══════════════════════════════════════════
-var _linkgenExpiryMs = 60 * 60 * 1000; // default 1 hour
+var _linkgenExpiryMs = 60 * 60 * 1000;
 var _linkgenUrl = '';
 
 function selectExpiry(btn, ms) {
@@ -4901,52 +4895,33 @@ function selectExpiry(btn, ms) {
   if (fb) { fb.className = 'modal-feedback'; fb.textContent = ''; }
 }
 
-function generateSignInLink() {
-  if (!fbReady || !auth) { showFeedback('linkgen-feedback', 'Firebase not ready.', false); return; }
-  var email = (document.getElementById('linkgen-email') || {}).value.trim();
-  if (!email) { showFeedback('linkgen-feedback', 'Please enter an email address.', false); return; }
+function generateInviteToken() {
+  if (!fbReady || !db) { showFeedback('linkgen-feedback', 'Firebase not ready.', false); return; }
 
   var result = document.getElementById('linkgen-result');
   if (result) result.classList.remove('show');
   showFeedback('linkgen-feedback', 'Generating link…', true);
 
-  var continueUrl = window.location.href.split('?')[0].split('#')[0];
+  // Generate a cryptographically random token
+  var array = new Uint8Array(24);
+  window.crypto.getRandomValues(array);
+  var token = Array.from(array).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
 
-  // Use Firebase REST API with returnOobLink:true to get the raw URL back
-  // without sending any email. Requires the API key only — no Admin SDK needed.
-  fetch('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=' + FIREBASE_CONFIG.apiKey, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      requestType:      'EMAIL_SIGNIN',
-      email:            email,
-      continueUrl:      continueUrl,
-      canHandleCodeInApp: true,
-      returnOobLink:    true   // ← returns the link directly, no email sent
-    })
+  var expiresAt = Date.now() + _linkgenExpiryMs;
+
+  // Store the token in Firebase under inviteTokens/
+  db.ref('inviteTokens/' + token).set({
+    createdAt: Date.now(),
+    expiresAt: expiresAt,
+    createdBy: currentUsername || 'admin',
+    used: false
   })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    if (data.error) {
-      // returnOobLink requires Identity Toolkit API — guide the admin to enable it
-      if (data.error.status === 'INVALID_ARGUMENT' || data.error.message === 'ADMIN_ONLY_OPERATION') {
-        showFeedback('linkgen-feedback', '⚠ Enable the Identity Toolkit API in Google Cloud Console first — see the note below.', false);
-        document.getElementById('linkgen-gcloud-note').style.display = 'block';
-      } else {
-        showFeedback('linkgen-feedback', 'Error: ' + data.error.message, false);
-      }
-      return;
-    }
+  .then(function() {
+    var baseUrl = window.location.href.split('?')[0].split('#')[0];
+    var inviteUrl = baseUrl + '?invite=' + token;
+    _linkgenUrl = inviteUrl;
 
-    var rawLink = data.oobLink;
-    if (!rawLink) { showFeedback('linkgen-feedback', 'No link returned — check Identity Toolkit API is enabled.', false); return; }
-
-    // Store email so the sign-in handler can complete it on return
-    try { window.localStorage.setItem('emailForSignIn', email); } catch(e) {}
-
-    _linkgenUrl = rawLink;
-
-    var expiryDate = new Date(Date.now() + _linkgenExpiryMs);
+    var expiryDate = new Date(expiresAt);
     var expiryStr = expiryDate.toLocaleString('en-US', {
       month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit', hour12: true
@@ -4956,15 +4931,52 @@ function generateSignInLink() {
     var expiryDisplay = document.getElementById('linkgen-expiry-display');
     var copyBtn       = document.getElementById('linkgen-copy-btn');
 
-    if (linkDisplay)   linkDisplay.textContent = rawLink;
+    if (linkDisplay)   linkDisplay.textContent = inviteUrl;
     if (expiryDisplay) expiryDisplay.textContent = expiryStr;
     if (copyBtn) { copyBtn.textContent = '📋 Copy'; copyBtn.classList.remove('copied'); }
     if (result)  result.classList.add('show');
 
-    showFeedback('linkgen-feedback', '✓ Link generated — no email sent. Copy and share it directly.', true);
+    showFeedback('linkgen-feedback', '✓ Link ready — share it anywhere. Single use, expires ' + expiryStr + '.', true);
   })
   .catch(function(e) {
-    showFeedback('linkgen-feedback', 'Request failed: ' + e.message, false);
+    showFeedback('linkgen-feedback', 'Failed to save token: ' + e.message, false);
+  });
+}
+
+// Called on page load — checks if URL has ?invite=TOKEN
+// If valid + unused + not expired → signs in anonymously → username wall
+function handleInviteToken() {
+  if (!fbReady || !db || !auth) return;
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('invite');
+  if (!token) return;
+
+  // Clean URL immediately so refresh doesn't retrigger
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+
+  // Already signed in — don't process invite
+  if (auth.currentUser) return;
+
+  var tokenRef = db.ref('inviteTokens/' + token);
+  tokenRef.once('value', function(snap) {
+    var data = snap.val();
+    if (!data) { showAuthError('This invite link is invalid.'); return; }
+    if (data.used) { showAuthError('This invite link has already been used.'); return; }
+    if (Date.now() > data.expiresAt) {
+      tokenRef.remove();
+      showAuthError('This invite link has expired. Ask an admin for a new one.');
+      return;
+    }
+
+    // Mark token as used immediately to prevent double-use
+    tokenRef.update({ used: true, usedAt: Date.now() });
+
+    // Sign in anonymously — onAuthStateChanged will fire and route to username wall
+    auth.signInAnonymously().catch(function(e) {
+      showAuthError('Sign-in failed: ' + e.message);
+    });
   });
 }
 
