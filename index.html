@@ -1676,6 +1676,16 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <div class="auth-field"><label>Password</label><input type="password" id="su-pass" placeholder="Min 6 characters" /></div>
       <button class="auth-submit" onclick="emailSignUp()">Create Account</button>
     </div>
+    <!-- INVITE-ONLY SIGNUP (no email required) -->
+    <div id="invite-signup-form" style="display:none">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="inv-username" placeholder="CoolPlayer99" maxlength="10" />
+        <div class="auth-hint">Max 10 characters, letters &amp; numbers only, no spaces</div>
+      </div>
+      <div class="auth-field"><label>Password</label><input type="password" id="inv-pass" placeholder="Min 6 characters" /></div>
+      <button class="auth-submit" onclick="inviteSignUp()">Join Now</button>
+    </div>
     <div class="auth-divider">or</div>
     <button class="google-btn" onclick="signInWithGoogle()">
       <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
@@ -2516,8 +2526,8 @@ function onAuthStateChanged(user){
   }
   var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
   var isDiscord=user.providerData&&user.providerData.some(function(p){return p.providerId==='oidc.discord'});
-  // Email/password users must verify. OAuth users (Google, Discord) skip verification.
-  if(!isGoogle&&!isDiscord&&!user.emailVerified){
+  // Anonymous = invited user, Google, Discord all skip email verification wall
+  if(!isGoogle&&!isDiscord&&!user.isAnonymous&&!user.emailVerified){
     showVerifyWall(user.email);
     return;
   }
@@ -2674,6 +2684,33 @@ function emailSignUp(){
       return cred.user.sendEmailVerification().then(function(){
         return saveUserRecord(cred.user,username);
       });
+    }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
+  });
+}
+
+// Invite-only signup — no email required, signs in anonymously
+function inviteSignUp(){
+  if(!fbReady){showAuthError('Firebase not configured.');return}
+  var username = document.getElementById('inv-username').value.trim();
+  var pass     = document.getElementById('inv-pass').value;
+  var unErr    = validateUsername(username);
+  if(unErr){showAuthError(unErr);return}
+  if(pass.length<6){showAuthError('Password must be at least 6 characters.');return}
+  var pendingToken;
+  try { pendingToken = sessionStorage.getItem('pendingInviteToken'); } catch(e){}
+  if(!pendingToken){showAuthError('Invite token missing — please use your original invite link.');return}
+  db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
+    if(snap.exists()){showAuthError('That username is already taken.');return}
+    // Sign in anonymously — no email needed
+    auth.signInAnonymously().then(function(cred){
+      var uid = cred.user.uid;
+      // Consume the invite token
+      db.ref('inviteTokens/'+pendingToken).update({used:true,usedAt:Date.now(),usedByUid:uid});
+      try{sessionStorage.removeItem('pendingInviteToken');}catch(e){}
+      var banner=document.getElementById('invite-banner');
+      if(banner)banner.classList.remove('show');
+      // Save user record — emailVerified treated as true since they used an invite
+      return saveUserRecord(cred.user, username);
     }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
   });
 }
@@ -4991,9 +5028,14 @@ function handleInviteToken() {
     // Store token in sessionStorage — consumed after successful signup
     try { sessionStorage.setItem('pendingInviteToken', token); } catch(e) {}
 
-    // Show the auth wall, switch to signup tab, show invite banner
+    // Show auth wall, hide normal forms, show invite-only form + banner
     document.getElementById('auth-wall').classList.remove('hidden');
-    switchAuthTab('signup');
+    // Switch tabs UI to signup visually
+    document.getElementById('atab-login').classList.remove('active');
+    document.getElementById('atab-signup').classList.add('active');
+    document.getElementById('login-form').style.display  = 'none';
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('invite-signup-form').style.display = 'block';
     var banner = document.getElementById('invite-banner');
     if (banner) banner.classList.add('show');
   });
