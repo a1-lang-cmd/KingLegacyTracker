@@ -3177,7 +3177,7 @@ function saveCardEdit(source,entryId,delId){
 // ═══════════════════════════════════════════
 function fmtCountdown(ms){
   if(ms<=0)return null;
-  var t=Math.ceil(ms/1000);
+  var t=Math.floor(ms/1000);
   var h=Math.floor(t/3600);
   var m=Math.floor((t%3600)/60);
   var s=t%60;
