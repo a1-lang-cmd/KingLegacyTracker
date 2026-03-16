@@ -566,7 +566,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   border-radius: var(--radius);
   padding: 13px 15px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  grid-template-columns: auto 1fr auto auto auto auto;
   align-items: center;
   gap: 12px;
   border: 1px solid var(--border);
@@ -575,7 +575,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   overflow: hidden;
   backdrop-filter: blur(12px);
 }
-@media(max-width:480px){.card{grid-template-columns:auto 1fr auto;gap:9px;padding:11px 12px}}
+@media(max-width:480px){.card{grid-template-columns:auto 1fr auto auto;gap:9px;padding:11px 12px}}
 
 /* Left accent bar per boss type */
 .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
@@ -644,6 +644,24 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .delete-btn:hover{background:rgba(248,113,113,.1);border-color:var(--danger);color:var(--danger)}
 .edit-btn:hover{background:rgba(34,211,238,.1);border-color:var(--sea);color:var(--sea-glow)}
 .delete-btn.hidden,.edit-btn.hidden{visibility:hidden;pointer-events:none}
+.join-btn{
+  background: rgba(34,211,238,.08);
+  border: 1px solid rgba(34,211,238,.22);
+  border-radius: var(--radius-xs);
+  color: var(--sea-glow);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: .8rem;
+  transition: all .15s;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.join-btn:hover{background:rgba(34,211,238,.22);border-color:var(--sea);box-shadow:0 0 10px rgba(34,211,238,.2)}
+.join-btn.hidden{visibility:hidden;pointer-events:none}
 .card-actions{display:flex;flex-direction:column;gap:4px;align-items:center}
 @media(max-width:480px){.card-actions{flex-direction:row}}
 
@@ -3479,6 +3497,12 @@ function buildCard(e,source){
     h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
   }
   h+='</div>';
+  var joinHref='';
+  if(e.jobId&&e.placeId){
+    joinHref='roblox://experiences/start?placeId='+encodeURIComponent(e.placeId)+'&gameInstanceId='+encodeURIComponent(e.jobId);
+  }
+  var showJoin=!!(e.jobId&&e.placeId);
+  h+='<a class="join-btn'+(showJoin?'':' hidden')+'" href="'+(showJoin?joinHref:'#')+'" title="Join this server in Roblox">&#9658;</a>';
   h+='<button class="edit-btn'+(showEdit?'':' hidden')+'" data-eid="'+eid+'" onclick="toggleEditPanel(this.dataset.eid)" title="Edit">&#9998;</button>';
   h+='<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+sdid+'" data-source="'+sid+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>';
   if(!noTimer){
