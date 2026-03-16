@@ -2039,7 +2039,7 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
     <div class="public-notice" id="public-notice">&#9888;&#65039; Public timers are visible to all players.</div>
     <div class="sheet-section-label">Timer Info</div>
     <div class="form-grid" style="margin-bottom:12px">
-      <div class="field"><label>Server Code</label><input type="number" id="inp-server" placeholder="e.g. 1234" min="1000" max="9999" /></div>
+      <div class="field"><label>Server Code</label><input type="text" id="inp-server" placeholder="e.g. 1234 or Fire Fruit #1234" /></div>
       <div class="field"><label>Minutes</label><input type="number" id="inp-minutes" placeholder="max 60" min="0" max="60" /></div>
       <div class="field"><label>Seconds</label><input type="number" id="inp-seconds" placeholder="0–59" min="0" max="59" /></div>
     </div>
@@ -2708,13 +2708,20 @@ function inviteSignUp(){
   var pendingToken;
   try { pendingToken = sessionStorage.getItem('pendingInviteToken'); } catch(e){}
   if(!pendingToken){showAuthError('Invite token missing — please use your original invite link.');return}
-  db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
-    if(snap.exists()){showAuthError('That username is already taken.');return}
-    // Sign in anonymously — no email needed
-    auth.signInAnonymously().then(function(cred){
-      var uid = cred.user.uid;
-      // Force refresh the token so Firebase rules recognize the auth immediately
-      return cred.user.getIdToken(true).then(function(){
+
+  // Sign in FIRST so we're authenticated before any DB reads/writes
+  auth.signInAnonymously().then(function(cred){
+    var uid = cred.user.uid;
+    // Force token refresh so rules recognize auth immediately
+    return cred.user.getIdToken(true).then(function(){
+      // Now check username while authenticated
+      return db.ref('usernames/'+username.toLowerCase()).once('value').then(function(snap){
+        if(snap.exists()){
+          // Username taken — sign back out and show error
+          auth.signOut();
+          showAuthError('That username is already taken.');
+          return;
+        }
         // Consume the invite token
         db.ref('inviteTokens/'+pendingToken).update({used:true,usedAt:Date.now(),usedByUid:uid});
         try{sessionStorage.removeItem('pendingInviteToken');}catch(e){}
@@ -2723,8 +2730,8 @@ function inviteSignUp(){
         // Save user record
         return saveUserRecord(cred.user, username);
       });
-    }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
-  });
+    });
+  }).catch(function(e){showAuthError(friendlyAuthError(e.code))});
 }
 
 function signInWithGoogle(){
@@ -3221,7 +3228,6 @@ function addEntryFromSheet(){
   var secs=parseInt(document.getElementById('inp-seconds').value)||0;
   var fb=document.getElementById('add-sheet-feedback');
   if(!server){if(fb)showSheetFeedback(fb,'Enter a server code!',true);return}
-  if(!/^[0-9]{4}$/.test(server)){if(fb)showSheetFeedback(fb,'Server code must be 4 digits!',true);return}
   if(mins===0&&secs===0){if(fb)showSheetFeedback(fb,'Enter a time until spawn!',true);return}
   var maxMins=BOSS_TYPES[selectedType].maxMins;
   if(mins>maxMins||(mins===maxMins&&secs>0)){if(fb)showSheetFeedback(fb,'Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' min!',true);return}
@@ -3299,7 +3305,6 @@ function addEntry(){
   var mins=parseInt(document.getElementById('inp-minutes').value)||0;
   var secs=parseInt(document.getElementById('inp-seconds').value)||0;
   if(!server){alert('Please enter a server code!');return}
-  if(!/^[0-9]{4}$/.test(server)){alert('Server code must be exactly 4 digits!');return}
   if(mins===0&&secs===0){alert('Please enter a time until spawn!');return}
   var maxMins=BOSS_TYPES[selectedType].maxMins;
   if(mins>maxMins||(mins===maxMins&&secs>0)){alert('Max time for '+BOSS_TYPES[selectedType].label+' is '+maxMins+' minutes!');return}
@@ -3381,7 +3386,6 @@ function saveCardEdit(source,entryId,delId){
     fb.textContent=msg;fb.className='edit-feedback show'+(ok?'':' err');
     setTimeout(function(){fb.className='edit-feedback'},2500);
   }
-  if(!/^[0-9]{4}$/.test(srv)){showEditFb('Server code must be 4 digits.',false);return}
   if(mins===0&&secs===0){showEditFb('Time must be greater than 0.',false);return}
   var newSpawnAt=Date.now()+(mins*60+secs)*1000;
   if(source==='private'){
@@ -3479,7 +3483,7 @@ function buildCard(e,source){
   if(!noTimer){
     h+='<div class="card-edit-panel" id="'+eid+'">';
     h+='<div class="edit-row">';
-    h+='<div class="edit-field"><label>Server Code</label><input type="number" id="ei-server-'+sid+'-'+eid2+'" value="'+esc(e.server)+'" min="1000" max="9999" placeholder="1234"/></div>';
+    h+='<div class="edit-field"><label>Server Code</label><input type="text" id="ei-server-'+sid+'-'+eid2+'" value="'+esc(e.server)+'" placeholder="e.g. 1234 or Fire Fruit #1234"/></div>';
     h+='<div class="edit-field"><label>Minutes Left</label><input type="number" id="ei-mins-'+sid+'-'+eid2+'" value="'+remMins+'" min="0" max="240"/></div>';
     h+='<div class="edit-field"><label>Seconds Left</label><input type="number" id="ei-secs-'+sid+'-'+eid2+'" value="'+remSecs+'" min="0" max="59"/></div>';
     h+='<button class="edit-save-btn" data-src="'+sid+'" data-eid="'+eid2+'" data-did="'+sdid+'" onclick="saveCardEdit(this.dataset.src,this.dataset.eid,this.dataset.did)">&#10003; Save</button>';
