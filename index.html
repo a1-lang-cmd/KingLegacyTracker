@@ -229,6 +229,16 @@ body::after {
 .google-btn:hover{border-color:var(--sea);color:var(--sea-glow);background:var(--sea-dim)}
 .discord-btn{background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.4);color:#c3c9ff;margin-top:8px}
 .discord-btn:hover{background:rgba(88,101,242,.28);border-color:rgba(88,101,242,.7);color:#fff}
+.magic-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;padding:10px;cursor:pointer;transition:all .2s;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#c4b5fd;margin-top:8px}
+.magic-btn:hover{background:rgba(167,139,250,.24);border-color:rgba(167,139,250,.6);color:#fff}
+.magic-sent-box{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.25);border-radius:var(--radius-sm);padding:18px 16px;text-align:center;display:none}
+.magic-sent-box.show{display:block}
+.magic-sent-box .msb-icon{font-size:1.6rem;margin-bottom:8px}
+.magic-sent-box .msb-title{font-size:.95rem;font-weight:700;color:var(--green);margin-bottom:4px}
+.magic-sent-box .msb-sub{font-size:.78rem;color:var(--text-2);line-height:1.55}
+.magic-sent-box .msb-email{font-weight:700;color:var(--text)}
+.magic-sent-box .msb-resend{background:none;border:1px solid rgba(52,211,153,.3);border-radius:100px;color:var(--green);font-family:'Outfit',sans-serif;font-size:.74rem;font-weight:600;padding:5px 14px;cursor:pointer;margin-top:12px;transition:all .2s}
+.magic-sent-box .msb-resend:hover{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.6)}
 
 .auth-error{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius-xs);color:var(--rose);font-size:.82rem;padding:9px 13px;margin-bottom:12px;display:none;text-align:left}
 .auth-error.show{display:block}
@@ -1614,6 +1624,28 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
       Continue with Discord
     </button>
+    <!-- Magic Link button (shown when not sent) -->
+    <div id="magic-link-area">
+      <button class="magic-btn" onclick="showMagicLinkInput()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Magic Link (No Password)
+      </button>
+      <!-- Inline email input — shown after clicking the button -->
+      <div id="magic-input-area" style="display:none;margin-top:10px">
+        <div class="auth-field" style="margin-bottom:8px">
+          <label>Your Email</label>
+          <input type="email" id="magic-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendMagicLink()" />
+        </div>
+        <button class="auth-submit" style="background:linear-gradient(135deg,#6d28d9,var(--hydra))" onclick="sendMagicLink()">Send Magic Link</button>
+      </div>
+    </div>
+    <!-- Sent confirmation state -->
+    <div id="magic-sent-box" class="magic-sent-box">
+      <div class="msb-icon">✉️</div>
+      <div class="msb-title">Check your inbox!</div>
+      <div class="msb-sub">A sign-in link was sent to<br><span id="magic-sent-email" class="msb-email"></span><br>Click the link in that email — no password needed.</div>
+      <button class="msb-resend" onclick="resendMagicLink()">Resend link</button>
+    </div>
   </div>
 </div>
 
@@ -2330,6 +2362,7 @@ function initFirebase(){
           db=firebase.database(); auth=firebase.auth(); fbReady=true;
           setFbStatus(true,'Public sync: connected');
           auth.onAuthStateChanged(onAuthStateChanged);
+          _handleEmailLinkSignIn();
         }catch(e){
           setFbStatus(false,'Firebase error: '+e.message);
           showApp();
@@ -2358,8 +2391,9 @@ function onAuthStateChanged(user){
   }
   var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
   var isDiscord=user.providerData&&user.providerData.some(function(p){return p.providerId==='oidc.discord'});
-  // Email/password users must verify. OAuth users (Google, Discord) skip verification.
-  if(!isGoogle&&!isDiscord&&!user.emailVerified){
+  var isMagicLink=user.providerData&&user.providerData.some(function(p){return p.providerId==='emailLink'});
+  // Email/password users must verify. OAuth, Discord, and magic-link users skip verification.
+  if(!isGoogle&&!isDiscord&&!isMagicLink&&!user.emailVerified){
     showVerifyWall(user.email);
     return;
   }
@@ -2515,6 +2549,71 @@ function signInWithGoogle(){
   var provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
 }
+
+// ─── Email Magic Link (passwordless) ────────────────────────────────────────
+var _magicEmail='';
+
+function showMagicLinkInput(){
+  document.getElementById('magic-input-area').style.display='block';
+  document.getElementById('magic-email').focus();
+}
+
+function _magicLinkSettings(){
+  return {
+    url: window.location.href.split('?')[0].split('#')[0],
+    handleCodeInApp: true
+  };
+}
+
+function sendMagicLink(){
+  if(!fbReady){showAuthError('Firebase not configured.');return}
+  var email=document.getElementById('magic-email').value.trim();
+  if(!email){showAuthError('Please enter your email address.');return}
+  auth.sendSignInLinkToEmail(email,_magicLinkSettings()).then(function(){
+    _magicEmail=email;
+    try{window.localStorage.setItem('emailForSignIn',email);}catch(e){}
+    // Show the sent confirmation
+    document.getElementById('magic-link-area').style.display='none';
+    document.getElementById('auth-error').classList.remove('show');
+    document.getElementById('magic-sent-email').textContent=email;
+    document.getElementById('magic-sent-box').classList.add('show');
+  }).catch(function(e){showAuthError('Could not send link: '+e.message)});
+}
+
+function resendMagicLink(){
+  if(!_magicEmail){
+    // Let the user re-enter their email
+    document.getElementById('magic-sent-box').classList.remove('show');
+    document.getElementById('magic-link-area').style.display='';
+    document.getElementById('magic-input-area').style.display='block';
+    return;
+  }
+  auth.sendSignInLinkToEmail(_magicEmail,_magicLinkSettings()).then(function(){
+    try{window.localStorage.setItem('emailForSignIn',_magicEmail);}catch(e){}
+    // Brief feedback on the resend button
+    var btn=document.querySelector('.msb-resend');
+    if(btn){btn.textContent='Sent!';setTimeout(function(){btn.textContent='Resend link';},3000);}
+  }).catch(function(e){showAuthError('Could not resend link: '+e.message)});
+}
+
+function _handleEmailLinkSignIn(){
+  if(!fbReady||!auth.isSignInWithEmailLink(window.location.href))return;
+  var email='';
+  try{email=window.localStorage.getItem('emailForSignIn')||'';}catch(e){}
+  if(!email){
+    // Landed from a different device — ask the user
+    email=window.prompt('Please confirm your email address to complete sign-in:');
+    if(!email)return;
+  }
+  auth.signInWithEmailLink(email,window.location.href).then(function(){
+    try{window.localStorage.removeItem('emailForSignIn');}catch(e){}
+    // Clean the URL so the link can't be reused
+    if(window.history&&window.history.replaceState){
+      window.history.replaceState({},'',window.location.pathname);
+    }
+  }).catch(function(e){showAuthError('Magic link sign-in failed: '+e.message)});
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Discord OAuth2 ──────────────────────────────────────────────────────────
 // Flow: implicit grant (no backend needed for static sites)
