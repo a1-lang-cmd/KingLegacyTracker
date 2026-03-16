@@ -248,6 +248,10 @@ body::after {
 
 .auth-error{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius-xs);color:var(--rose);font-size:.82rem;padding:9px 13px;margin-bottom:12px;display:none;text-align:left}
 .auth-error.show{display:block}
+.invite-banner{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius-xs);padding:10px 13px;margin-bottom:14px;display:none;text-align:left}
+.invite-banner.show{display:block}
+.invite-banner .ib-title{font-size:.82rem;font-weight:700;color:var(--green);margin-bottom:2px}
+.invite-banner .ib-sub{font-size:.74rem;color:var(--text-2);line-height:1.5}
 
 /* ════════════════════════════════════
    ADMIN EMAIL FEATURES
@@ -1641,6 +1645,10 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <button class="auth-tab active" onclick="switchAuthTab('login')" id="atab-login">Sign In</button>
       <button class="auth-tab" onclick="switchAuthTab('signup')" id="atab-signup">Create Account</button>
     </div>
+    <div id="invite-banner" class="invite-banner">
+      <div class="ib-title">🎉 You've been invited!</div>
+      <div class="ib-sub">Create a free account below to get started. Your email will be verified before you can sign in.</div>
+    </div>
     <div id="auth-error" class="auth-error"></div>
     <!-- LOGIN FORM -->
     <div id="login-form">
@@ -2652,6 +2660,16 @@ function emailSignUp(){
   db.ref('usernames/'+username.toLowerCase()).once('value',function(snap){
     if(snap.exists()){showAuthError('That username is already taken.');return}
     auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
+      // Consume pending invite token if this signup came from an invite link
+      try {
+        var pendingToken = sessionStorage.getItem('pendingInviteToken');
+        if (pendingToken) {
+          db.ref('inviteTokens/' + pendingToken).update({ used: true, usedAt: Date.now(), usedByEmail: email });
+          sessionStorage.removeItem('pendingInviteToken');
+          var banner = document.getElementById('invite-banner');
+          if (banner) banner.classList.remove('show');
+        }
+      } catch(e) {}
       showVerifyWall(cred.user.email);
       return cred.user.sendEmailVerification().then(function(){
         return saveUserRecord(cred.user,username);
@@ -4946,37 +4964,38 @@ function generateInviteToken() {
 // Called on page load — checks if URL has ?invite=TOKEN
 // If valid + unused + not expired → signs in anonymously → username wall
 function handleInviteToken() {
-  if (!fbReady || !db || !auth) return;
+  if (!fbReady || !db) return;
   var params = new URLSearchParams(window.location.search);
   var token = params.get('invite');
   if (!token) return;
 
-  // Clean URL immediately so refresh doesn't retrigger
+  // Clean URL so refresh doesn't retrigger
   if (window.history && window.history.replaceState) {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 
-  // Already signed in — don't process invite
-  if (auth.currentUser) return;
+  // Already signed in — nothing to do
+  if (auth && auth.currentUser) return;
 
   var tokenRef = db.ref('inviteTokens/' + token);
   tokenRef.once('value', function(snap) {
     var data = snap.val();
-    if (!data) { showAuthError('This invite link is invalid.'); return; }
-    if (data.used) { showAuthError('This invite link has already been used.'); return; }
+    if (!data)       { showAuthError('This invite link is invalid.');                              return; }
+    if (data.used)   { showAuthError('This invite link has already been used.');                   return; }
     if (Date.now() > data.expiresAt) {
       tokenRef.remove();
       showAuthError('This invite link has expired. Ask an admin for a new one.');
       return;
     }
 
-    // Mark token as used immediately to prevent double-use
-    tokenRef.update({ used: true, usedAt: Date.now() });
+    // Store token in sessionStorage — consumed after successful signup
+    try { sessionStorage.setItem('pendingInviteToken', token); } catch(e) {}
 
-    // Sign in anonymously — onAuthStateChanged will fire and route to username wall
-    auth.signInAnonymously().catch(function(e) {
-      showAuthError('Sign-in failed: ' + e.message);
-    });
+    // Show the auth wall, switch to signup tab, show invite banner
+    document.getElementById('auth-wall').classList.remove('hidden');
+    switchAuthTab('signup');
+    var banner = document.getElementById('invite-banner');
+    if (banner) banner.classList.add('show');
   });
 }
 
