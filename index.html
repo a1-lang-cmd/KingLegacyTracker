@@ -644,11 +644,11 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
 .delete-btn:hover{background:rgba(248,113,113,.1);border-color:var(--danger);color:var(--danger)}
 .edit-btn:hover{background:rgba(34,211,238,.1);border-color:var(--sea);color:var(--sea-glow)}
 .delete-btn.hidden,.edit-btn.hidden{visibility:hidden;pointer-events:none}
-.join-btn{
-  background: rgba(34,211,238,.08);
-  border: 1px solid rgba(34,211,238,.22);
+.copy-srv-btn{
+  background: none;
+  border: 1px solid rgba(255,255,255,.07);
   border-radius: var(--radius-xs);
-  color: var(--sea-glow);
+  color: var(--text-dim);
   width: 28px;
   height: 28px;
   display: flex;
@@ -658,10 +658,9 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
   font-size: .8rem;
   transition: all .15s;
   flex-shrink: 0;
-  text-decoration: none;
 }
-.join-btn:hover{background:rgba(34,211,238,.22);border-color:var(--sea);box-shadow:0 0 10px rgba(34,211,238,.2)}
-.join-btn.hidden{visibility:hidden;pointer-events:none}
+.copy-srv-btn:hover{background:rgba(34,211,238,.1);border-color:var(--sea);color:var(--sea-glow)}
+.copy-srv-btn.copied{background:rgba(52,211,153,.1);border-color:var(--green);color:var(--green)}
 .card-actions{display:flex;flex-direction:column;gap:4px;align-items:center}
 @media(max-width:480px){.card-actions{flex-direction:row}}
 
@@ -3497,12 +3496,8 @@ function buildCard(e,source){
     h+='<div class="spawns-at-label">'+(done?'already spawned':'remaining')+'</div>';
   }
   h+='</div>';
-  var joinHref='';
-  if(e.jobId&&e.placeId){
-    joinHref='roblox://experiences/start?placeId='+encodeURIComponent(e.placeId)+'&gameInstanceId='+encodeURIComponent(e.jobId);
-  }
-  var showJoin=!!(e.jobId&&e.placeId);
-  h+='<a class="join-btn'+(showJoin?'':' hidden')+'" href="'+(showJoin?joinHref:'#')+'" title="Join this server in Roblox">&#9658;</a>';
+  var copyText=esc(e.server)+(e.type?' | '+esc((BOSS_TYPES[e.type]||{}).label||e.type):'');
+  h+='<button class="copy-srv-btn" data-copy="'+copyText+'" onclick="copySrvInfo(this)" title="Copy server info">&#128203;</button>';
   h+='<button class="edit-btn'+(showEdit?'':' hidden')+'" data-eid="'+eid+'" onclick="toggleEditPanel(this.dataset.eid)" title="Edit">&#9998;</button>';
   h+='<button class="delete-btn'+(showDel?'':' hidden')+'" data-delid="'+sdid+'" data-source="'+sid+'" onclick="handleDelete(this)" title="Delete">&#10005;</button>';
   if(!noTimer){
@@ -5082,6 +5077,11 @@ function copySignInLink() {
   copyToClipboard(_linkgenUrl, btn);
 }
 
+function copySrvInfo(btn) {
+  var text = btn.getAttribute('data-copy') || '';
+  copyToClipboard(text, btn);
+}
+
 function copyToClipboard(text, btn) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(function(){ flashCopied(btn); }).catch(function(){ fallbackCopy(text, btn); });
@@ -5103,7 +5103,8 @@ function fallbackCopy(text, btn) {
 function flashCopied(btn) {
   if (!btn) return;
   var orig = btn.textContent;
-  btn.textContent = '✓ Copied!';
+  var isIconBtn = btn.classList.contains('copy-srv-btn');
+  btn.textContent = isIconBtn ? '✓' : '✓ Copied!';
   btn.classList.add('copied');
   setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
 }
