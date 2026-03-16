@@ -3246,6 +3246,7 @@ function addEntryFromSheet(){
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
+    entry.id=ref.key;
   }
   privateEntries.push(entry);save();
   document.getElementById('inp-server').value='';
@@ -3324,6 +3325,7 @@ function addEntry(){
     var fbEntry={type:entry.type,server:entry.server,spawnAt:entry.spawnAt,visibility:'public',username:currentUsername,uid:currentUser?currentUser.uid:'',createdAt:Date.now()};
     var ref=db.ref('timers').push(fbEntry);
     entry.firebaseKey=ref.key;
+    entry.id=ref.key;
   }
   privateEntries.push(entry);save();
   document.getElementById('inp-server').value='';
@@ -3340,10 +3342,9 @@ function handleDelete(btn){
 }
 function deleteEntry(id,source){
   if(source==='private'){
-    var numId=parseInt(id,10);
-    var entry=privateEntries.find(function(e){return e.id===numId});
+    var entry=privateEntries.find(function(e){return String(e.id)===String(id)});
     if(entry&&entry.firebaseKey&&db)db.ref('timers/'+entry.firebaseKey).remove().catch(function(e){alert('Delete failed: '+e.message)});
-    privateEntries=privateEntries.filter(function(e){return e.id!==numId});
+    privateEntries=privateEntries.filter(function(e){return String(e.id)!==String(id)});
     save();renderPrivateCards();
   }else{
     if(!isAdmin){alert('Admins only.');return}
