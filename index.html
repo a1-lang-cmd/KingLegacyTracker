@@ -2429,6 +2429,7 @@ function initFirebase(){
           db=firebase.database(); auth=firebase.auth(); fbReady=true;
           setFbStatus(true,'Public sync: connected');
           auth.onAuthStateChanged(onAuthStateChanged);
+          handleEmailLinkSignIn();
         }catch(e){
           setFbStatus(false,'Firebase error: '+e.message);
           showApp();
@@ -4734,6 +4735,8 @@ function sendInviteEmail() {
 
   auth.sendSignInLinkToEmail(toEmail, actionSettings)
     .then(function() {
+      // Save email so the handler can complete sign-in when they return
+      try { window.localStorage.setItem('emailForSignIn', toEmail); } catch(e) {}
       // EmailJS sends the email — note: Firebase also sends its own bare-bones
       // email, but this one is your branded message. The link the user clicks
       // comes from Firebase; you're just adding a nicer wrapper here.
@@ -4768,6 +4771,49 @@ function sendInviteEmail() {
     })
     .catch(function(e) {
       showFeedback('invite-feedback', 'Failed to generate invite link: ' + e.message, false);
+    });
+}
+
+// ═══════════════════════════════════════════
+// MAGIC LINK HANDLER
+// Runs on page load — detects if the URL is
+// a Firebase email sign-in link and completes
+// the sign-in automatically.
+// ═══════════════════════════════════════════
+function handleEmailLinkSignIn() {
+  if (!auth) return;
+
+  // Not a sign-in link — nothing to do
+  if (!auth.isSignInWithEmailLink(window.location.href)) return;
+
+  // Try to get the email we saved when the link was sent
+  var email = '';
+  try { email = window.localStorage.getItem('emailForSignIn') || ''; } catch(e) {}
+
+  // If opened on a different device the email won't be in localStorage — ask
+  if (!email) {
+    email = window.prompt('Please enter the email address you used to request this sign-in link:');
+    if (!email) return; // user cancelled
+  }
+
+  // Show a brief status on the auth wall so the user knows something is happening
+  showAuthError('Signing you in…');
+
+  auth.signInWithEmailLink(email, window.location.href)
+    .then(function() {
+      // Clean up
+      try { window.localStorage.removeItem('emailForSignIn'); } catch(e) {}
+      // Strip the oobCode etc from the URL so the link can't be reused on refresh
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      // onAuthStateChanged will fire automatically and take the user into the app
+    })
+    .catch(function(e) {
+      var msg = e.code === 'auth/invalid-action-code'
+        ? 'This sign-in link has already been used or has expired. Please request a new one.'
+        : 'Sign-in failed: ' + e.message;
+      showAuthError(msg);
     });
 }
 
