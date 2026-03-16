@@ -4383,7 +4383,7 @@ function tick(){
         if(el.textContent!=='SPAWNED'){
           el.textContent='SPAWNED';el.className='time-display done-text';
           var card=document.getElementById('card-'+src+'-'+e.id);if(card)card.classList.add('done');
-          if(!e.alerted){e.alerted=true;if(src==='private')save();alarmQueue.push(e)}
+          if(src==='private'&&!e.alerted){e.alerted=true;save();alarmQueue.push(e)}
         }
       }else{
         var txt=fmtCountdown(ms);
