@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>King Legacy — Spawn Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
   const FIREBASE_CONFIG = {
     apiKey:            "AIzaSyByMrE2i-NjgMsEcJUZnxVMwqt_k6x9z1s",
@@ -31,6 +32,21 @@
   const DISCORD_CLIENT_ID = '1482090178741928188'; // ← paste your Client ID here
   // This must exactly match one of the redirect URIs in your Discord app settings:
   const DISCORD_REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+
+  // ─── EmailJS Config ──────────────────────────────────────────────────────
+  // Setup (5 min, free — 200 emails/month):
+  //   1. Sign up at https://www.emailjs.com
+  //   2. Email Services → Add Service (Gmail / Outlook) → copy Service ID
+  //   3. Email Templates → Create Template. Use these variables in your template:
+  //        {{to_email}}  {{to_name}}  {{subject}}  {{message}}  {{from_name}}
+  //      Copy the Template ID.
+  //   4. Account → API Keys → copy your Public Key
+  //   Paste all three values below, then you're done — no backend needed.
+  const EMAILJS_SERVICE_ID  = 'service_n9rq8sj';   // e.g. 'service_abc123'
+  const EMAILJS_TEMPLATE_ID = 'template_irpqy19';  // e.g. 'template_xyz789'
+  const EMAILJS_PUBLIC_KEY  = 'I3etVnFiSLmdQGFtk';   // e.g. 'AbCdEfGhIjKlMnOp'
+  const EMAILJS_ENABLED = EMAILJS_PUBLIC_KEY !== 'I3etVnFiSLmdQGFtk';
+  // ─────────────────────────────────────────────────────────────────────────
 </script>
 <style>
 /* ════════════════════════════════════
@@ -229,19 +245,37 @@ body::after {
 .google-btn:hover{border-color:var(--sea);color:var(--sea-glow);background:var(--sea-dim)}
 .discord-btn{background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.4);color:#c3c9ff;margin-top:8px}
 .discord-btn:hover{background:rgba(88,101,242,.28);border-color:rgba(88,101,242,.7);color:#fff}
-.magic-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;padding:10px;cursor:pointer;transition:all .2s;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);color:#c4b5fd;margin-top:8px}
-.magic-btn:hover{background:rgba(167,139,250,.24);border-color:rgba(167,139,250,.6);color:#fff}
-.magic-sent-box{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.25);border-radius:var(--radius-sm);padding:18px 16px;text-align:center;display:none}
-.magic-sent-box.show{display:block}
-.magic-sent-box .msb-icon{font-size:1.6rem;margin-bottom:8px}
-.magic-sent-box .msb-title{font-size:.95rem;font-weight:700;color:var(--green);margin-bottom:4px}
-.magic-sent-box .msb-sub{font-size:.78rem;color:var(--text-2);line-height:1.55}
-.magic-sent-box .msb-email{font-weight:700;color:var(--text)}
-.magic-sent-box .msb-resend{background:none;border:1px solid rgba(52,211,153,.3);border-radius:100px;color:var(--green);font-family:'Outfit',sans-serif;font-size:.74rem;font-weight:600;padding:5px 14px;cursor:pointer;margin-top:12px;transition:all .2s}
-.magic-sent-box .msb-resend:hover{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.6)}
 
 .auth-error{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:var(--radius-xs);color:var(--rose);font-size:.82rem;padding:9px 13px;margin-bottom:12px;display:none;text-align:left}
 .auth-error.show{display:block}
+
+/* ════════════════════════════════════
+   ADMIN EMAIL FEATURES
+════════════════════════════════════ */
+/* Shared compose area */
+.email-field-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:700;margin-bottom:3px}
+.email-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;box-sizing:border-box;transition:border-color .2s;margin-bottom:8px}
+.email-input:focus{border-color:var(--sea);box-shadow:0 0 0 2px rgba(34,211,238,.1)}
+.email-textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;resize:vertical;min-height:80px;outline:none;box-sizing:border-box;transition:border-color .2s;margin-bottom:8px}
+.email-textarea:focus{border-color:var(--sea);box-shadow:0 0 0 2px rgba(34,211,238,.1)}
+.email-send-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:2px}
+.emailjs-credit{font-size:.68rem;color:var(--text-dim)}
+.emailjs-credit a{color:var(--sea);text-decoration:none}
+.emailjs-credit a:hover{text-decoration:underline}
+.email-not-configured{background:rgba(251,113,133,.07);border:1px solid rgba(251,113,133,.22);border-radius:9px;padding:11px 14px;font-size:.79rem;color:var(--rose);line-height:1.65}
+.email-not-configured code{background:rgba(255,255,255,.07);border-radius:4px;padding:1px 5px;font-size:.82em;font-family:monospace}
+
+/* Invite panel (in admin page) */
+.invite-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.invite-panel-title{font-family:'Cinzel Decorative',serif;font-size:.62rem;letter-spacing:.18em;color:var(--hydra-glow);text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.invite-panel-sub{font-size:.74rem;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+.invite-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+@media(max-width:480px){.invite-row{grid-template-columns:1fr}}
+.invite-info-box{background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:9px 12px;font-size:.74rem;color:var(--text-2);line-height:1.6;margin-bottom:12px}
+.invite-info-box b{color:var(--hydra-glow)}
+
+/* Email-user section inside modal */
+.email-user-to{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:.88rem;color:var(--text-2);margin-bottom:8px;word-break:break-all}
 
 /* ════════════════════════════════════
    USERNAME / VERIFY WALLS
@@ -1624,28 +1658,6 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
       Continue with Discord
     </button>
-    <!-- Magic Link button (shown when not sent) -->
-    <div id="magic-link-area">
-      <button class="magic-btn" onclick="showMagicLinkInput()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email Magic Link (No Password)
-      </button>
-      <!-- Inline email input — shown after clicking the button -->
-      <div id="magic-input-area" style="display:none;margin-top:10px">
-        <div class="auth-field" style="margin-bottom:8px">
-          <label>Your Email</label>
-          <input type="email" id="magic-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendMagicLink()" />
-        </div>
-        <button class="auth-submit" style="background:linear-gradient(135deg,#6d28d9,var(--hydra))" onclick="sendMagicLink()">Send Magic Link</button>
-      </div>
-    </div>
-    <!-- Sent confirmation state -->
-    <div id="magic-sent-box" class="magic-sent-box">
-      <div class="msb-icon">✉️</div>
-      <div class="msb-title">Check your inbox!</div>
-      <div class="msb-sub">A sign-in link was sent to<br><span id="magic-sent-email" class="msb-email"></span><br>Click the link in that email — no password needed.</div>
-      <button class="msb-resend" onclick="resendMagicLink()">Resend link</button>
-    </div>
   </div>
 </div>
 
@@ -1855,6 +1867,40 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
           </div>
         </div>
         <input class="admin-search" id="admin-search" placeholder="&#128269; Search by username or email..." oninput="filterUsers()" />
+
+        <!-- INVITE NON-USER BY EMAIL -->
+        <div class="invite-panel">
+          <div class="invite-panel-title">&#128140; Invite by Email</div>
+          <div class="invite-panel-sub">Send a one-time magic sign-in link to someone who doesn't have an account yet. They click it, land on the tracker, and can start using it immediately — no password needed.</div>
+          <div id="invite-not-configured" class="email-not-configured" style="display:none">
+            &#128274; EmailJS not set up. Add your <code>EMAILJS_SERVICE_ID</code>, <code>EMAILJS_TEMPLATE_ID</code>, and <code>EMAILJS_PUBLIC_KEY</code> in the config block at the top of this file to enable this.
+          </div>
+          <div id="invite-form">
+            <div class="invite-info-box">
+              &#128274; The link is valid for <b>1 hour</b> and can only be used <b>once</b>. After clicking it the person must set a username, just like a normal sign-up. Their email gets saved to the database on first login.
+            </div>
+            <div class="invite-row">
+              <div>
+                <div class="email-field-label">Recipient Email</div>
+                <input class="email-input" type="email" id="invite-email" placeholder="friend@example.com" style="margin-bottom:0" />
+              </div>
+              <div>
+                <div class="email-field-label">Their Name (optional)</div>
+                <input class="email-input" type="text" id="invite-name" placeholder="e.g. CoolPlayer" maxlength="40" style="margin-bottom:0" />
+              </div>
+            </div>
+            <div style="margin-top:8px">
+              <div class="email-field-label">Personal Message (optional)</div>
+              <textarea class="email-textarea" id="invite-message" placeholder="e.g. Hey! I've been using this King Legacy Tracker — thought you'd like it. Click the link to jump in." style="min-height:60px"></textarea>
+            </div>
+            <div class="email-send-row">
+              <span class="emailjs-credit">Invite via <a href="https://www.emailjs.com" target="_blank">EmailJS</a> &middot; uses Firebase magic link</span>
+              <button class="modal-btn save" style="background:linear-gradient(135deg,#6d28d9,var(--hydra))" onclick="sendInviteEmail()">&#128140; Send Invite</button>
+            </div>
+            <div class="modal-feedback" id="invite-feedback" style="margin-top:10px"></div>
+          </div>
+        </div>
+
         <div class="users-grid" id="users-grid"><div class="empty">Loading users...</div></div>
       </div>
     </div>
@@ -2121,6 +2167,27 @@ header p{margin-top:5px;color:var(--text-dim);font-size:.74rem;letter-spacing:.1
         <div class="modal-feedback" id="alert-feedback"></div>
       </div>
 
+      <!-- SEND EMAIL TO USER SECTION -->
+      <div class="modal-section" id="modal-send-email-section">
+        <div class="modal-section-title">&#128140; Send Email to User</div>
+        <div id="modal-email-not-configured" class="email-not-configured" style="display:none">
+          &#128274; EmailJS not set up yet. Add your <code>EMAILJS_SERVICE_ID</code>, <code>EMAILJS_TEMPLATE_ID</code>, and <code>EMAILJS_PUBLIC_KEY</code> in the config block at the top of this file.
+        </div>
+        <div id="modal-email-form">
+          <div class="email-field-label">To</div>
+          <div class="email-user-to" id="modal-email-to-display">—</div>
+          <div class="email-field-label">Subject</div>
+          <input class="email-input" type="text" id="modal-email-subject" placeholder="e.g. Your King Legacy Tracker account" maxlength="150" />
+          <div class="email-field-label">Message</div>
+          <textarea class="email-textarea" id="modal-email-body" placeholder="Write your message to this user..."></textarea>
+          <div class="email-send-row">
+            <span class="emailjs-credit">Sent via <a href="https://www.emailjs.com" target="_blank">EmailJS</a> &middot; 200/mo free</span>
+            <button class="modal-btn save" onclick="sendEmailToUser()">&#128140; Send Email</button>
+          </div>
+        </div>
+        <div class="modal-feedback" id="email-user-feedback"></div>
+      </div>
+
       <!-- ACTIONS SECTION -->
       <div class="modal-section">
         <div class="modal-section-title">&#128683; Actions</div>
@@ -2362,7 +2429,6 @@ function initFirebase(){
           db=firebase.database(); auth=firebase.auth(); fbReady=true;
           setFbStatus(true,'Public sync: connected');
           auth.onAuthStateChanged(onAuthStateChanged);
-          _handleEmailLinkSignIn();
         }catch(e){
           setFbStatus(false,'Firebase error: '+e.message);
           showApp();
@@ -2391,9 +2457,8 @@ function onAuthStateChanged(user){
   }
   var isGoogle=user.providerData&&user.providerData.some(function(p){return p.providerId==='google.com'});
   var isDiscord=user.providerData&&user.providerData.some(function(p){return p.providerId==='oidc.discord'});
-  var isMagicLink=user.providerData&&user.providerData.some(function(p){return p.providerId==='emailLink'});
-  // Email/password users must verify. OAuth, Discord, and magic-link users skip verification.
-  if(!isGoogle&&!isDiscord&&!isMagicLink&&!user.emailVerified){
+  // Email/password users must verify. OAuth users (Google, Discord) skip verification.
+  if(!isGoogle&&!isDiscord&&!user.emailVerified){
     showVerifyWall(user.email);
     return;
   }
@@ -2549,71 +2614,6 @@ function signInWithGoogle(){
   var provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(function(e){showAuthError('Sign in failed: '+e.message)});
 }
-
-// ─── Email Magic Link (passwordless) ────────────────────────────────────────
-var _magicEmail='';
-
-function showMagicLinkInput(){
-  document.getElementById('magic-input-area').style.display='block';
-  document.getElementById('magic-email').focus();
-}
-
-function _magicLinkSettings(){
-  return {
-    url: window.location.href.split('?')[0].split('#')[0],
-    handleCodeInApp: true
-  };
-}
-
-function sendMagicLink(){
-  if(!fbReady){showAuthError('Firebase not configured.');return}
-  var email=document.getElementById('magic-email').value.trim();
-  if(!email){showAuthError('Please enter your email address.');return}
-  auth.sendSignInLinkToEmail(email,_magicLinkSettings()).then(function(){
-    _magicEmail=email;
-    try{window.localStorage.setItem('emailForSignIn',email);}catch(e){}
-    // Show the sent confirmation
-    document.getElementById('magic-link-area').style.display='none';
-    document.getElementById('auth-error').classList.remove('show');
-    document.getElementById('magic-sent-email').textContent=email;
-    document.getElementById('magic-sent-box').classList.add('show');
-  }).catch(function(e){showAuthError('Could not send link: '+e.message)});
-}
-
-function resendMagicLink(){
-  if(!_magicEmail){
-    // Let the user re-enter their email
-    document.getElementById('magic-sent-box').classList.remove('show');
-    document.getElementById('magic-link-area').style.display='';
-    document.getElementById('magic-input-area').style.display='block';
-    return;
-  }
-  auth.sendSignInLinkToEmail(_magicEmail,_magicLinkSettings()).then(function(){
-    try{window.localStorage.setItem('emailForSignIn',_magicEmail);}catch(e){}
-    // Brief feedback on the resend button
-    var btn=document.querySelector('.msb-resend');
-    if(btn){btn.textContent='Sent!';setTimeout(function(){btn.textContent='Resend link';},3000);}
-  }).catch(function(e){showAuthError('Could not resend link: '+e.message)});
-}
-
-function _handleEmailLinkSignIn(){
-  if(!fbReady||!auth.isSignInWithEmailLink(window.location.href))return;
-  var email='';
-  try{email=window.localStorage.getItem('emailForSignIn')||'';}catch(e){}
-  if(!email){
-    // Landed from a different device — ask the user
-    email=window.prompt('Please confirm your email address to complete sign-in:');
-    if(!email)return;
-  }
-  auth.signInWithEmailLink(email,window.location.href).then(function(){
-    try{window.localStorage.removeItem('emailForSignIn');}catch(e){}
-    // Clean the URL so the link can't be reused
-    if(window.history&&window.history.replaceState){
-      window.history.replaceState({},'',window.location.pathname);
-    }
-  }).catch(function(e){showAuthError('Magic link sign-in failed: '+e.message)});
-}
-// ─────────────────────────────────────────────────────────────────────────────
 
 // ─── Discord OAuth2 ──────────────────────────────────────────────────────────
 // Flow: implicit grant (no backend needed for static sites)
@@ -3554,6 +3554,15 @@ function openUserModal(uid){
   if(pwConfirm)pwConfirm.value='';
   var alertTa=document.getElementById('modal-alert-text');
   if(alertTa)alertTa.value='';
+  // Populate email compose section
+  var emailToEl = document.getElementById('modal-email-to-display');
+  if (emailToEl) emailToEl.textContent = u.email || '⚠ No email on record (Google/Discord login)';
+  var emailSubj = document.getElementById('modal-email-subject');
+  var emailBody = document.getElementById('modal-email-body');
+  var emailFb   = document.getElementById('email-user-feedback');
+  if (emailSubj) emailSubj.value = '';
+  if (emailBody) emailBody.value = '';
+  if (emailFb)   { emailFb.className = 'modal-feedback'; emailFb.textContent = ''; }
   document.getElementById('user-modal').classList.add('show');
 }
 
@@ -4642,8 +4651,129 @@ document.addEventListener('keydown',function(e){
 // ═══════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// EMAILJS — ADMIN EMAIL FEATURES
+// ═══════════════════════════════════════════
+var _ejsReady = false;
+
+function initEmailJS() {
+  if (!EMAILJS_ENABLED) {
+    // Show "not configured" notices wherever they exist in the DOM
+    ['modal-email-not-configured','invite-not-configured'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    });
+    var mf = document.getElementById('modal-email-form');
+    if (mf) mf.style.display = 'none';
+    var invf = document.getElementById('invite-form');
+    if (invf) invf.style.display = 'none';
+    return;
+  }
+  if (typeof emailjs === 'undefined') {
+    setTimeout(initEmailJS, 400);
+    return;
+  }
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  _ejsReady = true;
+}
+
+// Low-level send helper
+function _ejsSend(params, feedbackId, onDone) {
+  if (!_ejsReady) {
+    showFeedback(feedbackId, 'EmailJS not configured — fill in the config at the top of this file.', false);
+    return;
+  }
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    .then(function() { if (onDone) onDone(true); })
+    .catch(function(e) { if (onDone) onDone(false, e.text || e.message || 'Unknown error'); });
+}
+
+// ── Feature 1: Send email to an existing user (from their modal) ─────────────
+function sendEmailToUser() {
+  if (!modalUid) { showFeedback('email-user-feedback', 'No user selected.', false); return; }
+  var u = allUsers[modalUid] || {};
+  var toEmail  = u.email || '';
+  var subject  = (document.getElementById('modal-email-subject') || {}).value.trim();
+  var body     = (document.getElementById('modal-email-body')    || {}).value.trim();
+  if (!toEmail) { showFeedback('email-user-feedback', 'This user has no email address on record (may have signed in via Google/Discord without sharing one).', false); return; }
+  if (!subject) { showFeedback('email-user-feedback', 'Please enter a subject.', false); return; }
+  if (!body)    { showFeedback('email-user-feedback', 'Please write a message.', false); return; }
+  showFeedback('email-user-feedback', 'Sending…', true);
+  _ejsSend({
+    to_email:  toEmail,
+    to_name:   u.username || toEmail,
+    subject:   subject,
+    message:   body,
+    from_name: 'King Legacy Tracker Admin'
+  }, 'email-user-feedback', function(ok, err) {
+    if (ok) {
+      showFeedback('email-user-feedback', '✓ Email sent to ' + toEmail, true);
+      document.getElementById('modal-email-subject').value = '';
+      document.getElementById('modal-email-body').value    = '';
+    } else {
+      showFeedback('email-user-feedback', 'Failed: ' + err, false);
+    }
+  });
+}
+
+// ── Feature 2: Invite a non-user by generating a magic link + emailing it ────
+function sendInviteEmail() {
+  if (!fbReady || !auth) { showFeedback('invite-feedback', 'Firebase not ready.', false); return; }
+  var toEmail = (document.getElementById('invite-email')   || {}).value.trim();
+  var toName  = (document.getElementById('invite-name')    || {}).value.trim();
+  var extraMsg= (document.getElementById('invite-message') || {}).value.trim();
+  if (!toEmail) { showFeedback('invite-feedback', 'Please enter a recipient email.', false); return; }
+
+  showFeedback('invite-feedback', 'Generating invite link…', true);
+
+  // Generate a Firebase email sign-in link for the address
+  var actionSettings = {
+    url: window.location.href.split('?')[0].split('#')[0],
+    handleCodeInApp: true
+  };
+
+  auth.sendSignInLinkToEmail(toEmail, actionSettings)
+    .then(function() {
+      // EmailJS sends the email — note: Firebase also sends its own bare-bones
+      // email, but this one is your branded message. The link the user clicks
+      // comes from Firebase; you're just adding a nicer wrapper here.
+      // To skip the Firebase default email entirely you'd need Cloud Functions,
+      // but for a static site this two-email approach works fine.
+      var bodyLines = [
+        'You\'ve been invited to King Legacy Spawn Tracker!',
+        '',
+        extraMsg ? extraMsg : 'Track boss spawns in real-time with other players.',
+        '',
+        '⚡ Click the link in the separate sign-in email you just received from Firebase to log in instantly — no password needed.',
+        '',
+        '— King Legacy Tracker Admin'
+      ];
+      _ejsSend({
+        to_email:  toEmail,
+        to_name:   toName || toEmail,
+        subject:   '🎮 You\'re invited to King Legacy Tracker',
+        message:   bodyLines.join('\n'),
+        from_name: 'King Legacy Tracker Admin'
+      }, 'invite-feedback', function(ok, err) {
+        if (ok) {
+          showFeedback('invite-feedback', '✓ Invite sent to ' + toEmail + '! They\'ll receive a sign-in link to get started.', true);
+          document.getElementById('invite-email').value   = '';
+          document.getElementById('invite-name').value    = '';
+          document.getElementById('invite-message').value = '';
+        } else {
+          // Firebase link sent fine; only the fancy email wrapper failed
+          showFeedback('invite-feedback', 'Sign-in link sent, but EmailJS notification failed: ' + err + '. The recipient can still log in via the Firebase email.', false);
+        }
+      });
+    })
+    .catch(function(e) {
+      showFeedback('invite-feedback', 'Failed to generate invite link: ' + e.message, false);
+    });
+}
+
 tick();
 initFirebase();
+initEmailJS();
 </script>
 
 <!-- Ghost elements for JS references -->
