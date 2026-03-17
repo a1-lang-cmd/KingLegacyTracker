@@ -3041,30 +3041,26 @@ function subscribePublic(){
     var raw=[];
     snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;raw.push(v)});
 
-    // Deduplicate: same server + same boss type with a future spawnAt = true duplicate.
-    // Different servers can both have the same boss type — that is NOT a duplicate.
+    // Deduplicate: true duplicate = SAME server AND same boss type, both still future.
+    // Different servers with the same boss type are NOT duplicates.
     var now = Date.now();
-    var seen = {};    // key: server|type  → keeps the entry with the soonest spawnAt
+    var seen = {};
     var toDelete = [];
     raw.forEach(function(e){
-      // Drop already-expired entries from Firebase
-      if (!e.spawnAt || e.spawnAt <= now) {
-        toDelete.push(e.firebaseKey);
-        return;
-      }
-      // True duplicate = same server AND same boss type both still in the future
-      var key = (e.server||'').toLowerCase() + '|' + (e.type||'');
-      if (!seen[key]) {
+      // Auto-remove expired entries from Firebase
+      if(!e.spawnAt || e.spawnAt <= now){ toDelete.push(e.firebaseKey); return; }
+      // Key must include server so different servers are never collapsed
+      var key = (e.server||'').toLowerCase().trim() + '|' + (e.type||'');
+      if(!seen[key]){
         seen[key] = e;
       } else {
-        // Two entries for the exact same server+type — keep the one with fresher createdAt
-        // (i.e. the most recently pushed reading), delete the older one
-        var keepNew = (e.createdAt || 0) > (seen[key].createdAt || 0);
+        // Genuine same-server duplicate — keep most recently created, delete older
+        var keepNew = (e.createdAt||0) > (seen[key].createdAt||0);
         toDelete.push(keepNew ? seen[key].firebaseKey : e.firebaseKey);
-        if (keepNew) seen[key] = e;
+        if(keepNew) seen[key] = e;
       }
     });
-    // Remove only genuine duplicates and expired entries from Firebase
+    // Remove only expired entries and genuine same-server duplicates
     toDelete.forEach(function(fk){
       if(fk) db.ref('timers/'+fk).remove().catch(function(){});
     });
