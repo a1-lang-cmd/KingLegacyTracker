@@ -3041,30 +3041,35 @@ function subscribePublic(){
     var raw=[];
     snap.forEach(function(c){var v=c.val();v.firebaseKey=c.key;v.id=c.key;raw.push(v)});
 
-    // Deduplicate: for each server+type combo keep only the entry with the soonest spawnAt.
-    // Stale duplicates are also removed from Firebase automatically.
-    var seen={};
-    var toDelete=[];
+    // Deduplicate: same server + same boss type with a future spawnAt = true duplicate.
+    // Different servers can both have the same boss type — that is NOT a duplicate.
+    var now = Date.now();
+    var seen = {};    // key: server|type  → keeps the entry with the soonest spawnAt
+    var toDelete = [];
     raw.forEach(function(e){
-      var key=(e.server||'')+'|'+(e.type||'');
-      if(!seen[key]){
-        seen[key]=e;
+      // Drop already-expired entries from Firebase
+      if (!e.spawnAt || e.spawnAt <= now) {
+        toDelete.push(e.firebaseKey);
+        return;
+      }
+      // True duplicate = same server AND same boss type both still in the future
+      var key = (e.server||'').toLowerCase() + '|' + (e.type||'');
+      if (!seen[key]) {
+        seen[key] = e;
       } else {
-        // Keep whichever spawns sooner; queue the other for deletion
-        if(e.spawnAt < seen[key].spawnAt){
-          toDelete.push(seen[key].firebaseKey);
-          seen[key]=e;
-        } else {
-          toDelete.push(e.firebaseKey);
-        }
+        // Two entries for the exact same server+type — keep the one with fresher createdAt
+        // (i.e. the most recently pushed reading), delete the older one
+        var keepNew = (e.createdAt || 0) > (seen[key].createdAt || 0);
+        toDelete.push(keepNew ? seen[key].firebaseKey : e.firebaseKey);
+        if (keepNew) seen[key] = e;
       }
     });
-    // Remove duplicates from Firebase
+    // Remove only genuine duplicates and expired entries from Firebase
     toDelete.forEach(function(fk){
-      if(fk)db.ref('timers/'+fk).remove().catch(function(){});
+      if(fk) db.ref('timers/'+fk).remove().catch(function(){});
     });
 
-    publicEntries=Object.values(seen);
+    publicEntries = Object.values(seen);
     renderPublicCards();updateBadges();
   });
 }
